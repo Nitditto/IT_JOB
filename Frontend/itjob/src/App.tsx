@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
     setHello(response.data.content)
   }
 
-  const handleInputEnter = async (event) => {
+  const handleInputEnter = async (event : React.KeyboardEvent) => {
     if (event.key === "Enter") {
       await getHelloFromName(name)
     }
