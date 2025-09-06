@@ -25,12 +25,12 @@ type RouteFiles = {
     id: "root";
     page: "/" | "/*";
   };
-  "App.tsx": {
-    id: "App";
+  "./pages/Home.tsx": {
+    id: "pages/Home";
     page: "/";
   };
-  "catchall.tsx": {
-    id: "catchall";
+  "./pages/catchall.tsx": {
+    id: "pages/catchall";
     page: "/*";
   };
 };

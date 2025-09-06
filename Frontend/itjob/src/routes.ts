@@ -5,6 +5,6 @@ import {
 
 export default [
   // * matches all URLs, the ? makes it optional so it will match / as well
-  route("/", "App.tsx"),
-  route("*", "catchall.tsx"),
+  route("/", "./pages/Home.tsx"),
+  route("*", "./pages/catchall.tsx"),
 ] satisfies RouteConfig;

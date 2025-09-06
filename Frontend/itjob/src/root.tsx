@@ -1,4 +1,5 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import Navbar from "./components/Navbar";
 
 export function Layout({ children } : { children: React.ReactNode }) {
     return (
@@ -13,6 +14,7 @@ export function Layout({ children } : { children: React.ReactNode }) {
         <Links />
     </head>
     <body>
+        <Navbar />
         {children}
         <ScrollRestoration />
         <Scripts />

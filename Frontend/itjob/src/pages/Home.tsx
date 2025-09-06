@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-function App() {
+export default function Home() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [name, setName] = useState("");
   const [hello, setHello] = useState("Hello world!");
@@ -17,7 +17,7 @@ function App() {
   }
   return (
     <>
-      <div className="flex flex-col justify-center items-center space-y-5  w-screen h-screen">
+      <div className="flex flex-col justify-center items-center space-y-5  w-full h-full">
         <p className='text-6xl text-blue-700'>{hello}</p>
         <div className="flex flex-row space-x-3">
           <input className="border text-blue-500 text-2xl" name="HelloWorldInput" onChange={e => setName(e.target.value)} onKeyDown={async e => await handleInputEnter(e)}></input>
@@ -27,5 +27,3 @@ function App() {
     </>
   )
 }
-
-export default App
