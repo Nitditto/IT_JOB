@@ -1,24 +1,53 @@
 import { NavLink } from "react-router";
 
-function DropdownMenu({
-    isClickable,
-    title,
-    items,
+function DropdownItem({
+    name,
     toHref
 }: {
-    isClickable: boolean,
+    name: string,
+    toHref: string
+}) {
+    return (
+        <div className="w-[200px] h-fit text-xl">
+                    <NavLink className="" viewTransition to={toHref}>{name}</NavLink>
+        </div>
+    );
+}
+
+function DropdownMenu({
+    clickable,
+    title,
+    children,
+    toHref
+}: {
+    clickable?: true,
     title: string,
-    items: Array<React.ReactNode>,
+    children: React.ReactNode,
     toHref?: string
 }
 ) {
-    if (isClickable) {
+    if (clickable && toHref !== undefined) {
         return (
-            <NavLink to={toHref} className="text-xl text-white w-fit h-full mx-2"/> 
+            <div className="group">
+                <NavLink viewTransition to={toHref} className="flex text-xl text-white w-fit h-full justify-center items-center">
+                    {title}
+                </NavLink>
+                <div className="hidden group-hover:block w-full h-fit bg-white">
+                    {children}
+                </div>
+            </div>
+
         );
     } else {
         return (
-            <p className="text-xl text-white w-fit h-full mx-2"/>
+            <p className="flex text-xl text-white w-fit h-full justify-center items-center">
+                {title}
+            </p>
         );
     }
+}
+
+export {
+    DropdownMenu,
+    DropdownItem
 }
