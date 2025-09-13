@@ -1,1 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1216px; /* 1184+32 */
+  --breakpoint-2xl: 1216px;
+}
+
+*{
+    font-family: "Lexend", sans-serif;
+
+}
+/* tailwind default căn trái  */
+.container{
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+select,input,button,textarea{
+  outline: none;
+}
