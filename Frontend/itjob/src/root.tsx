@@ -1,5 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Header } from "./components/header/Header";
+import Footer from "./components/Footer";
 
 
 export function Layout({ children } : { children: React.ReactNode }) {
@@ -17,6 +18,7 @@ export function Layout({ children } : { children: React.ReactNode }) {
     <body>
         <Header />
         {children}
+        <Footer />
         <ScrollRestoration />
         <Scripts />
     </body>
