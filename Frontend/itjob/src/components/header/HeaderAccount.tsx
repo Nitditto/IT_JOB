@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Link } from "react-router";
 export const HeaderAccount = () => {
   return (
     <>
@@ -13,13 +12,13 @@ export const HeaderAccount = () => {
           Đăng Ký
         </Link> */}
         {/* Da Dang nhap  */}
-        <Link href={"#"} className="">
+        <Link to={"#"} className="">
           LG Elect...
         </Link>
         <ul className="hidden bg-[#000065] lg:absolute relative lg:top-[100%] top-0 right-0 lg:w-[200px] w-full rounded-[4px] group-hover/sub-1:block">
           <li className="flex items-center flex-wrap justify-between py-[10px] px-[16px] rounded-[4px] hover:bg-[#000096] group/sub-2">
             <Link
-              href={"#"}
+              to={"#"}
               className="font-[600] text-[16px] text-white"
             >
               Thông tin công ty
@@ -27,7 +26,7 @@ export const HeaderAccount = () => {
           </li>
           <li className="flex items-center flex-wrap justify-between py-[10px] px-[16px] rounded-[4px] hover:bg-[#000096] group/sub-2">
             <Link
-              href={"#"}
+              to={"#"}
               className="font-[600] text-[16px] text-white"
             >
               Quản lý công việc
@@ -35,7 +34,7 @@ export const HeaderAccount = () => {
           </li>
           <li className="flex items-center flex-wrap justify-between py-[10px] px-[16px] rounded-[4px] hover:bg-[#000096] group/sub-2">
             <Link
-              href={"#"}
+              to={"#"}
               className="font-[600] text-[16px] text-white"
             >
               Quản lý CV
@@ -43,7 +42,7 @@ export const HeaderAccount = () => {
           </li>
           <li className="flex items-center flex-wrap justify-between py-[10px] px-[16px] rounded-[4px] hover:bg-[#000096] group/sub-2">
             <Link
-              href={"#"}
+              to={"#"}
               className="font-[600] text-[16px] text-white"
             >
               Đăng xuất
