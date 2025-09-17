@@ -1,10 +1,6 @@
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Header } from "./components/header/Header";
-<<<<<<< HEAD
 import Footer from "./components/footer/Footer";
-=======
-import Footer from "./components/Footer";
->>>>>>> 66728b8e8d7b2cec1a51dab74c42130b7953ba73
 
 
 export function Layout({ children } : { children: React.ReactNode }) {
@@ -22,11 +18,7 @@ export function Layout({ children } : { children: React.ReactNode }) {
     <body>
         <Header />
         {children}
-<<<<<<< HEAD
         <Footer/>
-=======
-        <Footer />
->>>>>>> 66728b8e8d7b2cec1a51dab74c42130b7953ba73
         <ScrollRestoration />
         <Scripts />
     </body>
