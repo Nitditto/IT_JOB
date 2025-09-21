@@ -13,6 +13,9 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/search": {
+    params: {};
+  };
   "/*": {
     params: {
       "*": string;
@@ -23,11 +26,15 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/*";
+    page: "/" | "/search" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
     page: "/";
+  };
+  "./pages/Search.tsx": {
+    id: "pages/Search";
+    page: "/search";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";

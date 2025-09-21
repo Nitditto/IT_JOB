@@ -1,12 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
-import Link from "next/link";
+
+import { Link } from "react-router";
 import { FaBriefcase, FaLocationDot, FaUserTie } from "react-icons/fa6";
 
 export const CardJobItem = () => {
   return (
     <>
       <Link
-        href=""
+        to=""
         className="rounded-[8px] border border-[#DEDEDE] relative"
         style={{
           background: "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)",
