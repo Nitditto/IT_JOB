@@ -6,7 +6,7 @@ import { Title } from "../components/title/title";
 import { FaUserTie } from "react-icons/fa";
 import { CardCompanyItem } from "../components/card/CardCompanyItem";
 
-export default function Search() {
+export default function SearchHome() {
   
    const companyList=[
     {

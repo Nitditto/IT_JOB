@@ -5,6 +5,8 @@ import { Section1 } from "../components/section/Section1";
 import { Title } from "../components/title/title";
 import { FaUserTie } from "react-icons/fa";
 import { CardCompanyItem } from "../components/card/CardCompanyItem";
+import Search from "../components/search/page";
+import SearchHome from "./SearchHome";
 
 export default function Home() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -22,13 +24,15 @@ export default function Home() {
   }
   return (
     <>
+      <Search/>
+      {/* <SearchHome/>
       <div className="flex flex-col justify-center items-center space-y-5  w-full h-full">
         <p className='text-6xl text-blue-700'>{hello}</p>
         <div className="flex flex-row space-x-3">
           <input className="border text-blue-500 text-2xl" name="HelloWorldInput" onChange={e => setName(e.target.value)} onKeyDown={async e => await handleInputEnter(e)}></input>
           <button className="border-blue-500 border w-24" onClick={async () => await getHelloFromName(name)}>Change your name</button>
         </div>
-      </div>
+      </div> */}
     </>
       
   )
