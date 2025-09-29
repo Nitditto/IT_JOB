@@ -16,6 +16,11 @@ type Pages = {
   "/search": {
     params: {};
   };
+  "/search/:keyword": {
+    params: {
+      "keyword": string;
+    };
+  };
   "/*": {
     params: {
       "*": string;
@@ -26,15 +31,19 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
     page: "/";
   };
-  "./pages/Search.tsx": {
-    id: "pages/Search";
+  "./pages/SearchHome.tsx": {
+    id: "pages/SearchHome";
     page: "/search";
+  };
+  "./pages/search/page.tsx": {
+    id: "pages/search/page";
+    page: "/search/:keyword";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";
