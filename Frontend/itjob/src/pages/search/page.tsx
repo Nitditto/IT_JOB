@@ -1,6 +1,6 @@
-import { CardJobItem } from "../card/CardJobItem";
-import { Pagination } from "../pagination/Pagination";
-import { Section1 } from "../section/Section1";
+import { CardJobItem } from "../../components/card/CardJobItem";
+import { Pagination } from "../../components/pagination/Pagination";
+import { Section1 } from "../../components/section/Section1";
 import { useEffect } from "react";
 
 
@@ -78,6 +78,11 @@ export default function SearchPage() {
           {/* Danh sách công việc */}
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
             {/* Item  */}
+            <CardJobItem/>
+            <CardJobItem/>
+            <CardJobItem/>
+            <CardJobItem/>
+            <CardJobItem/>
             <CardJobItem/>
           </div>
           

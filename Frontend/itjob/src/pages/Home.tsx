@@ -5,7 +5,7 @@ import { Section1 } from "../components/section/Section1";
 import { Title } from "../components/title/title";
 import { FaUserTie } from "react-icons/fa";
 import { CardCompanyItem } from "../components/card/CardCompanyItem";
-import Search from "../components/search/page";
+import SearchPage from "./search/page";
 import SearchHome from "./SearchHome";
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
   }
   return (
     <>
-      <Search/>
+      <SearchPage/>
       {/* <SearchHome/>
       <div className="flex flex-col justify-center items-center space-y-5  w-full h-full">
         <p className='text-6xl text-blue-700'>{hello}</p>

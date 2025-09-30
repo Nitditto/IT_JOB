@@ -8,5 +8,6 @@ export default [
   route("/", "./pages/Home.tsx"),
   route("/search", "./pages/SearchHome.tsx"), // trang chưa tìm kiếm
   route("/search/:keyword", "./pages/search/page.tsx"), // trang kết quả tìm kiếm
+  route("/job/detail/:id", "./pages/job/detail/page.tsx"),
   route("*", "./pages/catchall.tsx"),
 ] satisfies RouteConfig;

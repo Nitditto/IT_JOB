@@ -21,6 +21,11 @@ type Pages = {
       "keyword": string;
     };
   };
+  "/job/detail/:id": {
+    params: {
+      "id": string;
+    };
+  };
   "/*": {
     params: {
       "*": string;
@@ -31,7 +36,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -44,6 +49,10 @@ type RouteFiles = {
   "./pages/search/page.tsx": {
     id: "pages/search/page";
     page: "/search/:keyword";
+  };
+  "./pages/job/detail/page.tsx": {
+    id: "pages/job/detail/page";
+    page: "/job/detail/:id";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";
