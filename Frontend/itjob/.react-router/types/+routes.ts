@@ -26,6 +26,15 @@ type Pages = {
       "id": string;
     };
   };
+  "/company/profile": {
+    params: {};
+  };
+  "/company/job/list": {
+    params: {};
+  };
+  "/company/job/create": {
+    params: {};
+  };
   "/*": {
     params: {
       "*": string;
@@ -36,7 +45,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/company/profile" | "/company/job/list" | "/company/job/create" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -53,6 +62,18 @@ type RouteFiles = {
   "./pages/job/detail/page.tsx": {
     id: "pages/job/detail/page";
     page: "/job/detail/:id";
+  };
+  "./pages/company/profile/page.tsx": {
+    id: "pages/company/profile/page";
+    page: "/company/profile";
+  };
+  "./pages/company/job/list/page.tsx": {
+    id: "pages/company/job/list/page";
+    page: "/company/job/list";
+  };
+  "./pages/company/job/create/page.tsx": {
+    id: "pages/company/job/create/page";
+    page: "/company/job/create";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";
