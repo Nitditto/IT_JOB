@@ -32,11 +32,24 @@ type Pages = {
   "/company/cv/list": {
     params: {};
   };
+  "/company/cv/detail/:id": {
+    params: {
+      "id": string;
+    };
+  };
   "/company/job/list": {
     params: {};
   };
   "/company/job/create": {
     params: {};
+  };
+  "/company/list": {
+    params: {};
+  };
+  "/company/detail/:id": {
+    params: {
+      "id": string;
+    };
   };
   "/*": {
     params: {
@@ -48,7 +61,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/company/profile" | "/company/cv/list" | "/company/job/list" | "/company/job/create" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/company/profile" | "/company/cv/list" | "/company/cv/detail/:id" | "/company/job/list" | "/company/job/create" | "/company/list" | "/company/detail/:id" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -74,6 +87,10 @@ type RouteFiles = {
     id: "pages/company/cv/list/page";
     page: "/company/cv/list";
   };
+  "./pages/company/cv/detail/page.tsx": {
+    id: "pages/company/cv/detail/page";
+    page: "/company/cv/detail/:id";
+  };
   "./pages/company/job/list/page.tsx": {
     id: "pages/company/job/list/page";
     page: "/company/job/list";
@@ -81,6 +98,14 @@ type RouteFiles = {
   "./pages/company/job/create/page.tsx": {
     id: "pages/company/job/create/page";
     page: "/company/job/create";
+  };
+  "./pages/company/list/page.tsx": {
+    id: "pages/company/list/page";
+    page: "/company/list";
+  };
+  "./pages/company/detail/page.tsx": {
+    id: "pages/company/detail/page";
+    page: "/company/detail/:id";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";
