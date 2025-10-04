@@ -29,6 +29,9 @@ type Pages = {
   "/company/profile": {
     params: {};
   };
+  "/company/cv/list": {
+    params: {};
+  };
   "/company/job/list": {
     params: {};
   };
@@ -45,7 +48,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/company/profile" | "/company/job/list" | "/company/job/create" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/company/profile" | "/company/cv/list" | "/company/job/list" | "/company/job/create" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -66,6 +69,10 @@ type RouteFiles = {
   "./pages/company/profile/page.tsx": {
     id: "pages/company/profile/page";
     page: "/company/profile";
+  };
+  "./pages/company/cv/list/page.tsx": {
+    id: "pages/company/cv/list/page";
+    page: "/company/cv/list";
   };
   "./pages/company/job/list/page.tsx": {
     id: "pages/company/job/list/page";
