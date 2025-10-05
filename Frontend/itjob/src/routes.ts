@@ -9,14 +9,14 @@ export default [
   route("/search", "./pages/SearchHome.tsx"), // trang chưa tìm kiếm
   route("/search/:keyword", "./pages/search/page.tsx"), // trang kết quả tìm kiếm
   route("/job/detail/:id", "./pages/job/detail/page.tsx"),
-  route("/company/profile", "./pages/company/profile/page.tsx"),
-  route("/company/cv/list", "./pages/company/cv/list/page.tsx"),
-  route("/company/cv/detail/:id", "./pages/company/cv/detail/page.tsx"),
+  route("/dashboard/profile", "./pages/dashboard/profile/page.tsx"),
+  route("/dashboard/cv", "./pages/dashboard/cv/list/page.tsx"),
+  route("/dashboard/cv/detail/:id", "./pages/dashboard/cv/detail/page.tsx"),
 
-  route("/company/job/list", "./pages/company/job/list/page.tsx"),
-  route("/company/job/create", "./pages/company/job/create/page.tsx"),
-  route("/company/list", "./pages/company/list/page.tsx"),
-  route("/company/detail/:id", "./pages/company/detail/page.tsx"),
+  route("/dashboard/job", "./pages/dashboard/job/page.tsx"),
+  route("/dashboard/job/create", "./pages/dashboard/job/create/page.tsx"),
+  route("/dashboard/list", "./pages/dashboard/list/page.tsx"),
+  route("/dashboard/detail/:id", "./pages/dashboard/detail/page.tsx"),
 
   route("*", "./pages/catchall.tsx"),
 ] satisfies RouteConfig;

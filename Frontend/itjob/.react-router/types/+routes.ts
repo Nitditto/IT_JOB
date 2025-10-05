@@ -26,27 +26,27 @@ type Pages = {
       "id": string;
     };
   };
-  "/company/profile": {
+  "/dashboard/profile": {
     params: {};
   };
-  "/company/cv/list": {
+  "/dashboard/cv": {
     params: {};
   };
-  "/company/cv/detail/:id": {
+  "/dashboard/cv/detail/:id": {
     params: {
       "id": string;
     };
   };
-  "/company/job/list": {
+  "/dashboard/job": {
     params: {};
   };
-  "/company/job/create": {
+  "/dashboard/job/create": {
     params: {};
   };
-  "/company/list": {
+  "/dashboard/list": {
     params: {};
   };
-  "/company/detail/:id": {
+  "/dashboard/detail/:id": {
     params: {
       "id": string;
     };
@@ -61,7 +61,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/company/profile" | "/company/cv/list" | "/company/cv/detail/:id" | "/company/job/list" | "/company/job/create" | "/company/list" | "/company/detail/:id" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/dashboard/cv" | "/dashboard/cv/detail/:id" | "/dashboard/job" | "/dashboard/job/create" | "/dashboard/list" | "/dashboard/detail/:id" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -79,33 +79,33 @@ type RouteFiles = {
     id: "pages/job/detail/page";
     page: "/job/detail/:id";
   };
-  "./pages/company/profile/page.tsx": {
-    id: "pages/company/profile/page";
-    page: "/company/profile";
+  "./pages/dashboard/profile/page.tsx": {
+    id: "pages/dashboard/profile/page";
+    page: "/dashboard/profile";
   };
-  "./pages/company/cv/list/page.tsx": {
-    id: "pages/company/cv/list/page";
-    page: "/company/cv/list";
+  "./pages/dashboard/cv/list/page.tsx": {
+    id: "pages/dashboard/cv/list/page";
+    page: "/dashboard/cv";
   };
-  "./pages/company/cv/detail/page.tsx": {
-    id: "pages/company/cv/detail/page";
-    page: "/company/cv/detail/:id";
+  "./pages/dashboard/cv/detail/page.tsx": {
+    id: "pages/dashboard/cv/detail/page";
+    page: "/dashboard/cv/detail/:id";
   };
-  "./pages/company/job/list/page.tsx": {
-    id: "pages/company/job/list/page";
-    page: "/company/job/list";
+  "./pages/dashboard/job/page.tsx": {
+    id: "pages/dashboard/job/page";
+    page: "/dashboard/job";
   };
-  "./pages/company/job/create/page.tsx": {
-    id: "pages/company/job/create/page";
-    page: "/company/job/create";
+  "./pages/dashboard/job/create/page.tsx": {
+    id: "pages/dashboard/job/create/page";
+    page: "/dashboard/job/create";
   };
-  "./pages/company/list/page.tsx": {
-    id: "pages/company/list/page";
-    page: "/company/list";
+  "./pages/dashboard/list/page.tsx": {
+    id: "pages/dashboard/list/page";
+    page: "/dashboard/list";
   };
-  "./pages/company/detail/page.tsx": {
-    id: "pages/company/detail/page";
-    page: "/company/detail/:id";
+  "./pages/dashboard/detail/page.tsx": {
+    id: "pages/dashboard/detail/page";
+    page: "/dashboard/detail/:id";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";

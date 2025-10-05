@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {
   FaArrowRightLong,
   FaBriefcase,
@@ -32,7 +32,7 @@ export default function JobDetailPage() {
                   1.000$ - 1.500$
                 </div>
                 <Link
-                  href={"#"}
+                  to={"#"}
                   className="bg-[#0088FF] rounded-[4px] p-[14px] text-center font-bold text-[16px] text-white mb-[20px] block"
                 >
                   Ứng tuyển
@@ -146,7 +146,7 @@ export default function JobDetailPage() {
                   </div>
                   <div className="flex-1">
                     <div className="font-bold text-[18px] text-[#121212] mb-[10px]">LG CNS Việt Nam</div>
-                    <Link href={"#"} className="flex items-center gap-[8px] font-[400] text-[16px] text-[#0088FF]">
+                    <Link to={"#"} className="flex items-center gap-[8px] font-[400] text-[16px] text-[#0088FF]">
                       Xem công ty <FaArrowRightLong className="text-[16px]" />
                     </Link>
                   </div>
