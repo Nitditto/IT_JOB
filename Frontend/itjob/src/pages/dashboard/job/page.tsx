@@ -1,20 +1,21 @@
 import { Link } from "react-router";
 import { useEffect } from "react";
 import { FaBriefcase, FaUserTie } from "react-icons/fa6";
-import { Pagination } from "../../../../components/pagination/Pagination";
+import { Pagination } from "../../../components/pagination/Pagination";
 
 export default function CompanyManageJobListPage() {
   useEffect(() => {
-    document.title = "Quản lý công việc";
+    //document.title = "Quản lý công việc";
   }, []);
   return (
     <>
+    <title>Quản lý công việc</title>
       <div className="py-[60px]">
         <div className="container">
           <div className="flex gap-[20px] flex-wrap items-center justify-between
           mb-[20px]">
             <h1 className="font-bold text-[#121212] text-[28px]">Quản lý công việc</h1>
-            <Link to={"#"} className="bg-[#0088FF] rounded-[4px] py-[8px] px-[20px] font-[400] text-[14px] text-white">Thêm mới</Link>
+            <Link to={"./create"} className="bg-[#0088FF] rounded-[4px] py-[8px] px-[20px] font-[400] text-[14px] text-white">Thêm mới</Link>
           </div>
 
           {/* Danh sach cong viec  */}

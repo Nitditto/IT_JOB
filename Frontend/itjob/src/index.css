@@ -24,3 +24,8 @@
 select,input,button,textarea{
   outline: none;
 }
+
+.required:after {
+  content: " *";
+  color: red;
+}
