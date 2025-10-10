@@ -37,6 +37,9 @@ type Pages = {
       "id": string;
     };
   };
+  "/user/cv/list": {
+    params: {};
+  };
   "/dashboard/job": {
     params: {};
   };
@@ -61,7 +64,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/dashboard/cv" | "/dashboard/cv/detail/:id" | "/dashboard/job" | "/dashboard/job/create" | "/dashboard/list" | "/dashboard/detail/:id" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/dashboard/cv" | "/dashboard/cv/detail/:id" | "/user/cv/list" | "/dashboard/job" | "/dashboard/job/create" | "/dashboard/list" | "/dashboard/detail/:id" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -90,6 +93,10 @@ type RouteFiles = {
   "./pages/dashboard/cv/detail/page.tsx": {
     id: "pages/dashboard/cv/detail/page";
     page: "/dashboard/cv/detail/:id";
+  };
+  "./pages/user/cv/list/page.tsx": {
+    id: "pages/user/cv/list/page";
+    page: "/user/cv/list";
   };
   "./pages/dashboard/job/page.tsx": {
     id: "pages/dashboard/job/page";

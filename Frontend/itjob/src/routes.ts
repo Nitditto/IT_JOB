@@ -12,6 +12,7 @@ export default [
   route("/dashboard/profile", "./pages/dashboard/profile/page.tsx"),
   route("/dashboard/cv", "./pages/dashboard/cv/list/page.tsx"),
   route("/dashboard/cv/detail/:id", "./pages/dashboard/cv/detail/page.tsx"),
+  route("/user/cv/list", "./pages/user/cv/list/page.tsx"),
 
   route("/dashboard/job", "./pages/dashboard/job/page.tsx"),
   route("/dashboard/job/create", "./pages/dashboard/job/create/page.tsx"),
