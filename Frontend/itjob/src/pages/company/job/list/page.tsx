@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { useEffect } from "react";
 import { FaBriefcase, FaUserTie } from "react-icons/fa6";
-import { Pagination } from "../../../components/pagination/Pagination";
+import { Pagination } from "../../../../components/pagination/Pagination";
 
 export default function CompanyManageJobListPage() {
   useEffect(() => {
