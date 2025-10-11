@@ -52,10 +52,7 @@ type Pages = {
   "/company/register": {
     params: {};
   };
-  "/user/cv/list": {
-    params: {};
-  };
-  "/user/login": {
+  "/user/cv": {
     params: {};
   };
   "/user/register": {
@@ -64,7 +61,16 @@ type Pages = {
   "/user/profile": {
     params: {};
   };
+  "/login": {
+    params: {};
+  };
+  "/register": {
+    params: {};
+  };
   "/dashboard/list": {
+    params: {};
+  };
+  "/dashboard/register": {
     params: {};
   };
   "/*": {
@@ -77,7 +83,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/company/cv/list" | "/company/cv/detail/:id" | "/company/detail" | "/company/job/create" | "/company/job/list" | "/company/login" | "/company/register" | "/user/cv/list" | "/user/login" | "/user/register" | "/user/profile" | "/dashboard/list" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/company/cv/list" | "/company/cv/detail/:id" | "/company/detail" | "/company/job/create" | "/company/job/list" | "/company/login" | "/company/register" | "/user/cv" | "/user/register" | "/user/profile" | "/login" | "/register" | "/dashboard/list" | "/dashboard/register" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -129,11 +135,7 @@ type RouteFiles = {
   };
   "./pages/user/cv/list/page.tsx": {
     id: "pages/user/cv/list/page";
-    page: "/user/cv/list";
-  };
-  "./pages/user/login/page.tsx": {
-    id: "pages/user/login/page";
-    page: "/user/login";
+    page: "/user/cv";
   };
   "./pages/user/register/page.tsx": {
     id: "pages/user/register/page";
@@ -143,9 +145,21 @@ type RouteFiles = {
     id: "pages/user/profile/page";
     page: "/user/profile";
   };
+  "./pages/login/page.tsx": {
+    id: "pages/login/page";
+    page: "/login";
+  };
+  "./pages/register/page.tsx": {
+    id: "pages/register/page";
+    page: "/register";
+  };
   "./pages/dashboard/list/page.tsx": {
     id: "pages/dashboard/list/page";
     page: "/dashboard/list";
+  };
+  "./pages/dashboard/register/page.tsx": {
+    id: "pages/dashboard/register/page";
+    page: "/dashboard/register";
   };
   "./pages/catchall.tsx": {
     id: "pages/catchall";
