@@ -8,29 +8,6 @@ export default function SearchPage() {
   useEffect(() => {
   document.title = "Kết quả tìm kiếm";
   }, []);
-  const companyList = [
-    {
-      logoURL: "/assets/images/demo-company-1.png",
-      title: "LG Electronics Development Vietnam (LGEDV)",
-      location: "Ho Chi Minh",
-      jobCount: 5,
-      link: "/companies/lg-electronics",
-    },
-    {
-      logoURL: "/assets/images/demo-company-2.png",
-      title: "MB Bank",
-      location: "Ha Noi",
-      jobCount: 15,
-      link: "/companies/mb-bank",
-    },
-    {
-      logoURL: "/assets/images/demo-company-3.png",
-      title: "FPT Software",
-      location: "Da Nang",
-      jobCount: 20,
-      link: "/companies/fpt-software",
-    },
-  ];
   return (
     <>
       {/* Section 1 */}

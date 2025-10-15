@@ -6,8 +6,7 @@ import {
 export default [
   // * matches all URLs, the ? makes it optional so it will match / as well
   route("/", "./pages/Home.tsx"),
-  route("/search", "./pages/SearchHome.tsx"), // trang chưa tìm kiếm
-  route("/search/:keyword", "./pages/search/page.tsx"), // trang kết quả tìm kiếm
+  route("/search/", "./pages/search/page.tsx"), // trang kết quả tìm kiếm
   route("/job/detail/:id", "./pages/job/detail/page.tsx"),
   route("/dashboard/profile", "./pages/dashboard/profile/page.tsx"),
 
@@ -20,8 +19,6 @@ export default [
 
   
   route("/user/cv", "./pages/user/cv/list/page.tsx"),
-  // route("/user/login", "./pages/user/login/page.tsx"),
-  // route("/user/register", "./pages/user/register/page.tsx"),
   route("/user/profile", "./pages/user/profile/page.tsx"),
 
   route("/login", "./pages/login/page.tsx"),

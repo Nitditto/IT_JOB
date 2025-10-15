@@ -1,78 +1,53 @@
-// @ts-ignore
-import JustValidate from 'just-validate';
-
-export function setupLoginValidation(formId: string) {
-  const validator = new JustValidate(formId);
-
-  validator
-    .addField('#email', [
-      { rule: 'required', errorMessage: 'Vui lòng nhập email của bạn!' },
-      { rule: 'email', errorMessage: 'Email không đúng định dạng' },
-    ])
-    .addField('#password', [
-      { rule: 'required', errorMessage: 'Vui lòng nhập mật khẩu của bạn!' },
-      { rule: 'minLength', value: 8, errorMessage: 'Ít nhất 8 ký tự!' },
-      {
-        validator: (value) => /[A-Z]/.test(value),
-        errorMessage: 'Phải có chữ hoa!',
-      },
-      {
-        validator: (value) => /[a-z]/.test(value),
-        errorMessage: 'Phải có chữ thường!',
-      },
-      {
-        validator: (value) => /[0-9]/.test(value),
-        errorMessage: 'Phải có chữ số!',
-      },
-      {
-        validator: (value) => /[^A-Za-z0-9]/.test(value),
-        errorMessage: 'Phải có ký tự đặc biệt!',
-      },
-    ])
-    .onSuccess((event) => {
-      const email = event.target.email.value;
-      const password = event.target.password.value;
-      console.log('Login:', { email, password });
-    });
+export function validateEmailChecker(email: string) {
+  if (email.trim() == "") {
+    return {
+      status: false,
+      reason: "Vui lòng nhập email của bạn!",
+    }
+  } else if (!/.+@.+\..+/.test(email)) {
+    return {
+      status: false,
+      reason: "Email không đúng định dạng!"
+    }
+  } else {
+    return {
+      status: true,
+      reason: ""
+    }
+  }
 }
 
-export function setupRegisterValidation(formId: string) {
-  const validator = new JustValidate(formId);
+export function validatePasswordChecker(password: string) {
+  if (password.trim() == "") {
+    return {
+      status: false,
+      reason: "Vui lòng nhập mật khẩu của bạn!"
+    }
+  } else if (
+    password.length < 8 ||      // Password has less than 8 characters
+    !/[A-Z]/.test(password) ||  // Password has no uppercase letters
+    !/[a-z]/.test(password) ||  // Password has no lowercase letters
+    !/[0-9]/.test(password) ||  // Password has no numbers
+    !/[^\w\s]/.test(password)   // Password has no special character (not a word or a whitespace)
+  ) {
+    return {
+      status: false,
+      reason: "Mật khẩu phải có ít nhắt 8 kí tự, bao gồm 1 chữ cái hoa, 1 chữ cái thường, 1 chữ số và 1 kí tự đặc biệt!"
+    }
+  } else return {
+    status: true,
+    reason: ""
+  }
+}
 
-  validator
-    .addField('#fullName', [
-      { rule: 'required', errorMessage: 'Vui lòng nhập họ tên!' },
-      { rule: 'minLength', value: 5, errorMessage: 'Ít nhất 5 ký tự!' },
-      { rule: 'maxLength', value: 50, errorMessage: 'Không quá 50 ký tự!' },
-    ])
-    .addField('#email', [
-      { rule: 'required', errorMessage: 'Vui lòng nhập email!' },
-      { rule: 'email', errorMessage: 'Email không đúng định dạng' },
-    ])
-    .addField('#password', [
-      { rule: 'required', errorMessage: 'Vui lòng nhập mật khẩu!' },
-      { rule: 'minLength', value: 8, errorMessage: 'Ít nhất 8 ký tự!' },
-      {
-        validator: (value) => /[A-Z]/.test(value),
-        errorMessage: 'Phải có chữ hoa!',
-      },
-      {
-        validator: (value) => /[a-z]/.test(value),
-        errorMessage: 'Phải có chữ thường!',
-      },
-      {
-        validator: (value) => /[0-9]/.test(value),
-        errorMessage: 'Phải có chữ số!',
-      },
-      {
-        validator: (value) => /[^A-Za-z0-9]/.test(value),
-        errorMessage: 'Phải có ký tự đặc biệt!',
-      },
-    ])
-    .onSuccess((event) => {
-      const fullName = event.target.fullName.value;
-      const email = event.target.email.value;
-      const password = event.target.password.value;
-      console.log('Register:', { fullName, email, password });
-    });
+export function validateNameChecker(name: string) {
+  if (name.trim() == "") {
+    return {
+      status: false,
+      reason: "Vui lòng nhập họ tên của bạn!"
+    }
+  } else return {
+    status: true,
+    reason: ""
+  }
 }
