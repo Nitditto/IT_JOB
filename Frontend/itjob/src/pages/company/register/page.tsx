@@ -1,9 +1,12 @@
 import { useEffect } from "react"
-
+import { setupRegisterValidation } from '../../../utils/validateForms';
 export default function CompanyRegisterPage(){
   useEffect(()=>{
     document.title="Đăng ký (Nhà tuyển dụng)";
   },[])
+  useEffect(() => {
+    setupRegisterValidation('#register-form');
+  }, []);
   return (
     <>
       <div className="py-[60px]">
@@ -12,7 +15,7 @@ export default function CompanyRegisterPage(){
             <h1 className="font-bold text-[20px] mb-[20px] text-black text-center">
               Đăng ký (Nhà tuyển dụng)
             </h1>
-            <form action="" className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]">
+            <form id="register-form" action="" className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]">
               <div className="">
                 <label
                   htmlFor="companyName"
@@ -23,7 +26,7 @@ export default function CompanyRegisterPage(){
                 <input
                   type="text"
                   name=""
-                  id="companyName"
+                  id="fullName"
                   className="w-full h-[46px] rounded-[4px] border border-[#DEDEDE] font-[500] text-black text-[14px] px-[20px]"
                 />
               </div>

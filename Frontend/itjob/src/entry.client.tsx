@@ -5,7 +5,7 @@ import './index.css'
 
 hydrateRoot(
   document,
-  <StrictMode>
+  // <StrictMode>
     <HydratedRouter />
-  </StrictMode>
+  // </StrictMode>
 );

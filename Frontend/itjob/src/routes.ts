@@ -16,17 +16,16 @@ export default [
   route("/company/detail", "./pages/company/detail/page.tsx"),
   route("/company/job/create", "./pages/company/job/create/page.tsx"),
   route("/company/job/list", "./pages/company/job/list/page.tsx"),
-  route("/company/login", "./pages/company/login/page.tsx"),
-  route("/company/register", "./pages/company/register/page.tsx"),
+  route("/admin/company/register", "./pages/company/register/page.tsx"),
 
+  
   route("/user/cv", "./pages/user/cv/list/page.tsx"),
   // route("/user/login", "./pages/user/login/page.tsx"),
-  route("/user/register", "./pages/user/register/page.tsx"),
+  // route("/user/register", "./pages/user/register/page.tsx"),
   route("/user/profile", "./pages/user/profile/page.tsx"),
 
   route("/login", "./pages/login/page.tsx"),
   route("/register", "./pages/register/page.tsx"),
-
 
   // route("/dashboard/job", "./pages/dashboard/job/page.tsx"),
   // route("/dashboard/job/create", "./pages/dashboard/job/create/page.tsx"),

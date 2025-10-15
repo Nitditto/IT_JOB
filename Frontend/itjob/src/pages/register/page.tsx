@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { setupRegisterValidation } from '../../utils/validateForms';
 export default function RegisterPage() {
     useEffect(() => {
         document.title = 'Đăng ký'
     }, [])
+    useEffect(() => {
+        setupRegisterValidation('#register-form');
+    }, []);
     return (
         <>
             <div className="py-[60px]">
@@ -12,7 +16,7 @@ export default function RegisterPage() {
                         <h1 className="mb-[20px] text-center text-[20px] font-bold text-black">
                             Đăng ký 
                         </h1>
-                        <form
+                        <form id='register-form'
                             action=""
                             className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]"
                         >
