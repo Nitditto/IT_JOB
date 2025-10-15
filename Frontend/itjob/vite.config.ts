@@ -8,4 +8,11 @@ export default defineConfig({
     reactRouter(),
   tailwindcss(),
   ],
+  server: {
+    host: true,
+    port: 5173,
+    hmr: {
+      clientPort: 5173,
+    },
+  }
 })

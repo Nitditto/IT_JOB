@@ -5,13 +5,44 @@ services:
       dockerfile: Dockerfile.Frontend
     ports:
       - 5173:5173
-    # depends_on:
-    #   - backend
+    volumes:
+      - ./Frontend/itjob:/frontend
+      - /frontend/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
   backend:
     build:
       context: .
       dockerfile: Dockerfile.Backend
     ports:
       - 8080:8080
+    volumes:
+      - ./Backend/demo:/backend
     environment:
-      - BACKEND_URL=http://localhost:5173
+      FRONTEND_URL: http://localhost:5173
+      SPRING_DATASOURCE_URL: jdbc:mariadb://database:3306/itjob
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: changeme
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - database
+  database:
+    image: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: changeme
+      MARIADB_DATABASE: itjob
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: changeme
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+volumes:
+  db_data:
+    driver: local
+
+# networks:
+#   itjob:
+#     driver: bridge
