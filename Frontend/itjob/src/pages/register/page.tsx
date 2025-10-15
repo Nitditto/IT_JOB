@@ -1,13 +1,32 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
-import { setupRegisterValidation } from '../../utils/validateForms';
+import { Link, useNavigate, useSearchParams } from 'react-router'
+import { validateEmailChecker, validatePasswordChecker, validateNameChecker } from '../../utils/validateForms';
 export default function RegisterPage() {
+    const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [name, setName] = useState("");
+    const [nameError, setNameError] = useState("");
+    const navigate = useNavigate();
+
+    const formSubmission = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        let emailChecker = validateEmailChecker(email);
+        let passwordChecker = validatePasswordChecker(password);
+        let nameChecker = validateNameChecker(name);
+        setEmailError(emailChecker.reason);
+        setPasswordError(passwordChecker.reason);
+        setNameError(nameChecker.reason);
+        if (emailChecker.status && passwordChecker.status && nameChecker.status) {
+            // login
+            navigate("/login")
+        }
+    }
+
     useEffect(() => {
         document.title = 'Đăng ký'
     }, [])
-    useEffect(() => {
-        setupRegisterValidation('#register-form');
-    }, []);
     return (
         <>
             <div className="py-[60px]">
@@ -16,54 +35,57 @@ export default function RegisterPage() {
                         <h1 className="mb-[20px] text-center text-[20px] font-bold text-black">
                             Đăng ký 
                         </h1>
-                        <form id='register-form'
-                            action=""
+                        <form
+                            onSubmit={formSubmission}
                             className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]"
                         >
                             <div className="">
                                 <label
                                     htmlFor="fullName"
-                                    className="mb-[5px] text-[14px] font-[500] text-black"
+                                    aria-required
+                                    className="mb-[5px] text-[14px] font-[500] text-black required"
                                 >
-                                    Họ tên *
+                                    Họ tên
                                 </label>
                                 <input
                                     type="text"
-                                    name=""
-                                    id="fullName"
+                                    onChange={e=>setName(e.target.value)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
+                                <div className="text-red-400">{nameError}</div>
                             </div>
                             <div className="">
                                 <label
                                     htmlFor="email"
-                                    className="mb-[5px] text-[14px] font-[500] text-black"
+                                    aria-required
+                                    className="mb-[5px] text-[14px] font-[500] text-black required"
                                 >
-                                    Email *
+                                    Email
                                 </label>
                                 <input
                                     type="text"
-                                    name=""
-                                    id="email"
+                                    onChange={e=>setEmail(e.target.value)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
+                                <div className="text-red-400">{emailError}</div>
                             </div>
                             <div className="">
                                 <label
                                     htmlFor="password"
-                                    className="mb-[5px] text-[14px] font-[500] text-black"
+                                    aria-required
+                                    className="mb-[5px] text-[14px] font-[500] text-black required"
                                 >
-                                    Mật khẩu *
+                                    Mật khẩu
                                 </label>
                                 <input
                                     type="password"
-                                    name=""
-                                    id="password"
+                                    onChange={e=>setPassword(e.target.value)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
+                                <div className="text-red-400">{passwordError}</div>
                             </div>
                             <div className="">
-                                <button className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
+                                <button type="submit" className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
                                     Đăng ký
                                 </button>
                             </div>

@@ -1,6 +1,6 @@
 FROM node:24.6-alpine
 WORKDIR /frontend
-COPY Frontend/itjob/package*.json ./
+COPY Frontend/itjob/package*.json .
 RUN npm install
 COPY Frontend/itjob/ .
 EXPOSE 5173

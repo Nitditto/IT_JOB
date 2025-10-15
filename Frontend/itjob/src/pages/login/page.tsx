@@ -1,17 +1,33 @@
 import { useEffect, useState } from 'react'
-import {Link, useSearchParams} from "react-router"
-import { setupLoginValidation } from '../../utils/validateForms';
+import { Link, useSearchParams, useNavigate } from "react-router"
+import { validateEmailChecker, validatePasswordChecker } from '../../utils/validateForms';
+
 export default function LoginPage() {
     const [isUser,setIsUser]=useState(true)
     const [searchParams,setSearchParams]=useSearchParams();
+    const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const navigate = useNavigate();
+
     useEffect(() => {
         document.title = 'Đăng nhập';
-        let userType = searchParams.get("type")
-        setIsUser(userType == "company" ? false : true)
+        let userType = searchParams.get("type");
+        setIsUser(userType == "company" ? false : true);
     }, [])
-    useEffect(() => {
-    setupLoginValidation('#login-form');
-  }, []);
+
+    const formSubmission = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        let emailChecker = validateEmailChecker(email);
+        let passwordChecker = validatePasswordChecker(password);
+        setEmailError(emailChecker.reason);
+        setPasswordError(passwordChecker.reason);
+        if (emailChecker.status && passwordChecker.status) {
+            // login
+            navigate("/")
+        }
+    }
     return (
         <>
             <div className="py-[60px]">
@@ -21,39 +37,41 @@ export default function LoginPage() {
                             {isUser ? "Đăng nhập (Ứng viên)" : "Đăng nhập (Nhà tuyển dụng)"}
                         </h1>
                         <form id='login-form'
-                            action=""
+                            onSubmit={formSubmission}
                             className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]"
                         >
                             <div className="">
                                 <label
                                     htmlFor="email"
-                                    className="mb-[5px] text-[14px] font-[500] text-black"
+                                    aria-required
+                                    className="mb-[5px] text-[14px] font-[500] text-black required"
                                 >
-                                    Email *
+                                    Email
                                 </label>
                                 <input
                                     type="text"
-                                    name=""
-                                    id="email"
+                                    onChange={e=>setEmail(e.target.value)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
+                                <div className="text-red-400">{emailError}</div>
                             </div>
                             <div className="">
                                 <label
                                     htmlFor="password"
-                                    className="mb-[5px] text-[14px] font-[500] text-black"
+                                    aria-required
+                                    className="mb-[5px] text-[14px] font-[500] text-black required"
                                 >
-                                    Mật khẩu *
+                                    Mật khẩu
                                 </label>
                                 <input
                                     type="password"
-                                    name=""
-                                    id="password"
+                                    onChange={e=>setPassword(e.target.value)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
+                                <div className="text-red-400">{passwordError}</div>
                             </div>
                             <div className="">
-                                <button className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
+                                <button type="submit" className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
                                     Đăng nhập
                                 </button>
                             </div>
