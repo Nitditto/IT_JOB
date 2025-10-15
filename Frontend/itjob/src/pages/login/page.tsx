@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {Link, useSearchParams} from "react-router"
+import { setupLoginValidation } from '../../utils/validateForms';
 export default function LoginPage() {
     const [isUser,setIsUser]=useState(true)
     const [searchParams,setSearchParams]=useSearchParams();
@@ -8,6 +9,9 @@ export default function LoginPage() {
         let userType = searchParams.get("type")
         setIsUser(userType == "company" ? false : true)
     }, [])
+    useEffect(() => {
+    setupLoginValidation('#login-form');
+  }, []);
     return (
         <>
             <div className="py-[60px]">
@@ -16,7 +20,7 @@ export default function LoginPage() {
                         <h1 className="mb-[20px] text-center text-[20px] font-bold text-black">
                             {isUser ? "Đăng nhập (Ứng viên)" : "Đăng nhập (Nhà tuyển dụng)"}
                         </h1>
-                        <form
+                        <form id='login-form'
                             action=""
                             className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]"
                         >

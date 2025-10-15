@@ -46,16 +46,10 @@ type Pages = {
   "/company/job/list": {
     params: {};
   };
-  "/company/login": {
-    params: {};
-  };
-  "/company/register": {
+  "/admin/company/register": {
     params: {};
   };
   "/user/cv": {
-    params: {};
-  };
-  "/user/register": {
     params: {};
   };
   "/user/profile": {
@@ -83,7 +77,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/company/cv/list" | "/company/cv/detail/:id" | "/company/detail" | "/company/job/create" | "/company/job/list" | "/company/login" | "/company/register" | "/user/cv" | "/user/register" | "/user/profile" | "/login" | "/register" | "/dashboard/list" | "/dashboard/register" | "/*";
+    page: "/" | "/search" | "/search/:keyword" | "/job/detail/:id" | "/dashboard/profile" | "/company/cv/list" | "/company/cv/detail/:id" | "/company/detail" | "/company/job/create" | "/company/job/list" | "/admin/company/register" | "/user/cv" | "/user/profile" | "/login" | "/register" | "/dashboard/list" | "/dashboard/register" | "/*";
   };
   "./pages/Home.tsx": {
     id: "pages/Home";
@@ -125,21 +119,13 @@ type RouteFiles = {
     id: "pages/company/job/list/page";
     page: "/company/job/list";
   };
-  "./pages/company/login/page.tsx": {
-    id: "pages/company/login/page";
-    page: "/company/login";
-  };
   "./pages/company/register/page.tsx": {
     id: "pages/company/register/page";
-    page: "/company/register";
+    page: "/admin/company/register";
   };
   "./pages/user/cv/list/page.tsx": {
     id: "pages/user/cv/list/page";
     page: "/user/cv";
-  };
-  "./pages/user/register/page.tsx": {
-    id: "pages/user/register/page";
-    page: "/user/register";
   };
   "./pages/user/profile/page.tsx": {
     id: "pages/user/profile/page";
