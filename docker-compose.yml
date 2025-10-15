@@ -5,12 +5,19 @@ services:
       dockerfile: Dockerfile.Frontend
     ports:
       - 5173:5173
+    volumes:
+      - ./Frontend/itjob:/frontend
+      - /frontend/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
   backend:
     build:
       context: .
       dockerfile: Dockerfile.Backend
     ports:
       - 8080:8080
+    volumes:
+      - ./Backend/demo:/backend
     environment:
       FRONTEND_URL: http://localhost:5173
       SPRING_DATASOURCE_URL: jdbc:mariadb://database:3306/itjob
