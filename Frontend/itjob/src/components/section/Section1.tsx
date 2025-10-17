@@ -3,13 +3,13 @@ import { Link } from "react-router";
 import { IoMdSearch } from "react-icons/io";
 import SearchBar from "./SearchBar";
 
-export const Section1 = () => {
+export const Section1 = ({ jobCount }: {jobCount: number}) => {
   return (
     <>
       <div className="bg-[#000065] py-[60px]">
         <div className="container">
           <h1 className="font-bold text-[28px] text-white mb-[30px] text-center">
-            887 Việc làm IT cho Developer &quot;Chất&quot;
+            {jobCount} Việc làm IT cho Developer &quot;Chất&quot;
           </h1>
           <SearchBar/>
           <div className="flex items-center gap-x-[12px] flex-wrap gap-y-[15px]">
