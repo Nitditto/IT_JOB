@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import {apiClient} from "../utils/api"
+import apiClient from "../utils/api"
 import { Section1 } from "../components/section/Section1";
 import { Title } from "../components/title/title";
 import { FaUserTie } from "react-icons/fa";
@@ -31,14 +31,16 @@ export default function SearchHome() {
       link:"/companies/fpt-software"
     }
   ]
-
+  const [jobCount, setJobCount] = useState(0);
   useEffect(() => {
-    
+    apiClient.get("/").then(response => {
+      setJobCount(response.data.jobCount)
+    })
   }, [])
   return (
     <div>
       {/* Section 1 */}
-        <Section1/>
+        <Section1 jobCount={jobCount}/>
       {/*End Section 1 */}
 
       {/* Section 2 */}

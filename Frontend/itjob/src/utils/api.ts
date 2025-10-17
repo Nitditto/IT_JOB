@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 // Create a new Axios instance with a base URL
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8080/api', // Your backend's base URL
+    baseURL: import.meta.env.VITE_BACKEND_URL, // Your backend's base URL
     withCredentials: true, // Important for sending cookies
 });
 
