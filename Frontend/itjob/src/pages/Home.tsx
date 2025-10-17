@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import axios from "axios";
+import {apiClient} from "../utils/api"
 import { Section1 } from "../components/section/Section1";
 import { Title } from "../components/title/title";
 import { FaUserTie } from "react-icons/fa";
@@ -31,6 +31,10 @@ export default function SearchHome() {
       link:"/companies/fpt-software"
     }
   ]
+
+  useEffect(() => {
+    
+  }, [])
   return (
     <div>
       {/* Section 1 */}
