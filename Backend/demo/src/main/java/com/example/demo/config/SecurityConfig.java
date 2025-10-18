@@ -34,14 +34,14 @@ public class SecurityConfig {
         
         // 2. Specify allowed origins (your frontend URL)
         // It's recommended to be specific instead of using "*"
-        configuration.setAllowedOrigins(List.of("${allowed.cors.origins}")); 
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); 
         
         // 3. Specify allowed HTTP methods
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         
         // 4. Specify allowed headers
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
-        
+        //configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
+        configuration.setAllowedHeaders(List.of("*"));
         // 5. This must be true to allow cookies and authentication headers
         configuration.setAllowCredentials(true);
         
@@ -56,7 +56,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        .cors(Customizer.withDefaults())
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf((csrf) -> csrf
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 

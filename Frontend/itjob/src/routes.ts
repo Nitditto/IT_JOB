@@ -24,11 +24,16 @@ export default [
   route("/login", "./pages/login/page.tsx"),
   route("/register", "./pages/register/page.tsx"),
 
-  // route("/dashboard/job", "./pages/dashboard/job/page.tsx"),
-  // route("/dashboard/job/create", "./pages/dashboard/job/create/page.tsx"),
-  route("/dashboard/list", "./pages/dashboard/list/page.tsx"),
-  route("/dashboard/register", "./pages/dashboard/register/page.tsx"),
-  // route("/dashboard/detail/:id", "./pages/dashboard/detail/page.tsx"),
+  route("/dashboard", "./pages/dashboard/page.tsx", [
+      {
+      path: "list",
+      file: "./pages/dashboard/list/page.tsx"
+      },
+      {
+        path: "company/job",
+        file: "./pages/dashboard/company/job/page.tsx"
+      }
+    ]),
 
   route("*", "./pages/catchall.tsx"),
 ] satisfies RouteConfig;
