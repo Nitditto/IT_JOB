@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { validateEmailChecker, validatePasswordChecker, validateNameChecker } from '../../utils/validateForms';
+import axios from 'axios';
 export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
@@ -8,10 +9,12 @@ export default function RegisterPage() {
     const [passwordError, setPasswordError] = useState("");
     const [name, setName] = useState("");
     const [nameError, setNameError] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
-
-    const formSubmission = (event: React.FormEvent<HTMLFormElement>) => {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setError("");
         let emailChecker = validateEmailChecker(email);
         let passwordChecker = validatePasswordChecker(password);
         let nameChecker = validateNameChecker(name);
@@ -19,8 +22,21 @@ export default function RegisterPage() {
         setPasswordError(passwordChecker.reason);
         setNameError(nameChecker.reason);
         if (emailChecker.status && passwordChecker.status && nameChecker.status) {
-            // login
-            navigate("/login")
+            try {
+                await axios.post(`${BACKEND_URL}/auth/register`, {
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: "ROLE_USER"
+                })
+                navigate("/login");
+            } catch (error: any) {
+                if (error.response && error.response.data) {
+                    setError(error.response.data);
+                } else {
+                    setError("Có lỗi đã xảy ra. Vui lòng thử lại!")
+                }
+            }
         }
     }
 
@@ -88,6 +104,7 @@ export default function RegisterPage() {
                                 <button type="submit" className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
                                     Đăng ký
                                 </button>
+                                <div className="text-red-400">{error}</div>
                             </div>
                             <div className="flex items-center gap-1">
                                 <p className="">Bạn đã có tài khoản?</p>

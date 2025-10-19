@@ -1,10 +1,14 @@
-import React from 'react'
+import { useEffect } from 'react'
 import { Link } from 'react-router';
 import { HeaderMenu } from './HeaderMenu';
 import HeaderHoverItem from './HeaderHoverItem';
 import HeaderItem from './HeaderItem';
+import { useAuth } from '../../context/AuthContext';
 
 export const Header = () => {
+
+  const { isAuthenticated, user } = useAuth();
+
   return (
     <>
       <header className="bg-[#000071] py-[15px]">
@@ -13,9 +17,9 @@ export const Header = () => {
             
             <Link
               to="/"
-              className="font-[800] sm:text-[28px] text-[20px] text-white"
+              className=""
             >
-              Next.ITJob
+              <img src='/assets/images/logo_white.png' width={160}/>
             </Link>
 
             <nav>
@@ -47,9 +51,10 @@ export const Header = () => {
                 
               </ul>
             </nav>
-
             <div className="font-[600] text-[16px] text-white inline-flex gap-x-[5px] relative">
-              <HeaderHoverItem toHref='/profile' linkText='LG Eletronics'>
+              {
+                isAuthenticated && !!user ? 
+              <HeaderHoverItem toHref='/profile' linkText={user.name}>
                 <HeaderMenu>
                   <HeaderItem toHref='/company' linkText="Thông tin công ty"/>
                   <HeaderItem toHref='/dashboard/company/job' linkText="Quản lý công việc"/>
@@ -57,6 +62,9 @@ export const Header = () => {
                   <HeaderItem toHref='/logout' linkText="Đăng xuất"/>
                 </HeaderMenu>
               </HeaderHoverItem>
+              :
+              <Link to="/login">Đăng nhập</Link>
+              }
             </div>
           </div>
         </div>

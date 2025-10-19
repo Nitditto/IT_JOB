@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 import com.example.demo.model.Job;
-import com.example.demo.model.JobRepository;
+import com.example.demo.repository.JobRepository;
 
 @RestController
 @RequiredArgsConstructor

@@ -1,13 +1,8 @@
 
 import { IoMdSearch } from 'react-icons/io'
+import type { Location } from '../../types'
 
-const SearchBar = () => {
-  const regionMap = {
-    "hn": "Hà Nội",
-    "dn": "Đà Nẵng",
-    "hcm": "Hồ Chí Minh"
-  }
-
+const SearchBar = ({locations}: {locations: Array<Location>}) => {
 
   const formSubmit = (formData: FormData) => {
       // const request = axios.get()
@@ -23,8 +18,8 @@ const SearchBar = () => {
         className="md:w-[240px] w-full h-[56px] rounded-[4px] bg-white font-[500] text-[16px] text-[#121212] px-[20px]"
       >
         <option value="">Tất cả thành phố</option>
-        {Object.entries(regionMap).map(([id, name]) =>
-          <option value={id}>{name}</option>
+        {locations.map(obj =>
+          <option value={obj.abbreviation}>{obj.name}</option>
         )}
       </select>
       <input

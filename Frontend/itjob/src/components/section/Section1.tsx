@@ -2,16 +2,17 @@
 import { Link } from "react-router";
 import { IoMdSearch } from "react-icons/io";
 import SearchBar from "./SearchBar";
+import type { HomePageData } from "../../types";
 
-export const Section1 = ({ jobCount }: {jobCount: number}) => {
+export const Section1 = ({ data }: {data: HomePageData | null}) => {
   return (
     <>
       <div className="bg-[#000065] py-[60px]">
         <div className="container">
           <h1 className="font-bold text-[28px] text-white mb-[30px] text-center">
-            {jobCount} Việc làm IT cho Developer &quot;Chất&quot;
+            {data ? data.jobCount : 0} Việc làm IT cho Developer &quot;Chất&quot;
           </h1>
-          <SearchBar/>
+          <SearchBar locations={data ? data.locations: []}/>
           <div className="flex items-center gap-x-[12px] flex-wrap gap-y-[15px]">
             <div className="font-[500] text-[16px] text-[#DEDEDE]">
               Mọi người đang tìm kiếm:

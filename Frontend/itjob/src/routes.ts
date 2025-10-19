@@ -31,10 +31,10 @@ export default [
         path: "company/job",
         file: "./pages/dashboard/company/job/page.tsx"
       },
-      {
-        path: "company/job/create",
-        file: "./pages/dashboard/company/job/create/page.tsx"
-      }
+      // {
+      //   path: "company/job/create",
+      //   file: "./pages/dashboard/company/job/create/page.tsx"
+      // }
     ]),
 
   route("*", "./pages/catchall.tsx"),
