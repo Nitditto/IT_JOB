@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 import { useEffect } from "react";
 
 export default function DashboardLayout() {
@@ -16,6 +16,7 @@ export default function DashboardLayout() {
             <div className="px-8">
               <img className="" src={logo.logo_sidebar} alt="logo" />
             </div>
+            <Link to="./company/job">baasd</Link>
             <div className="">
               <div className="">
                 

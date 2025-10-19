@@ -34,8 +34,6 @@ export default function CompanyListPage() {
   ];
   return (
     <>
-      <div className="py-[60px] ">
-        <div className="container">
           <Title text="Danh sách công ty" />
           {/* Wrap  */}
           <div className="grid lg:grid-cols-3 grid-cols-2 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
@@ -86,8 +84,6 @@ export default function CompanyListPage() {
             <CardCompanyItem />
           </div>
           <Pagination/>
-        </div>
-      </div>
     </>
   );
 }
