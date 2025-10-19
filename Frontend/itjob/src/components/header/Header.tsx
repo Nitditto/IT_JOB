@@ -52,8 +52,8 @@ export const Header = () => {
               <HeaderHoverItem toHref='/profile' linkText='LG Eletronics'>
                 <HeaderMenu>
                   <HeaderItem toHref='/company' linkText="Thông tin công ty"/>
-                  <HeaderItem toHref='/dashboard/job' linkText="Quản lý công việc"/>
-                  <HeaderItem toHref='/dashboard/cv' linkText="Quản lý CV"/>
+                  <HeaderItem toHref='/dashboard/company/job' linkText="Quản lý công việc"/>
+                  <HeaderItem toHref='/dashboard/company/cv' linkText="Quản lý CV"/>
                   <HeaderItem toHref='/logout' linkText="Đăng xuất"/>
                 </HeaderMenu>
               </HeaderHoverItem>
