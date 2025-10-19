@@ -12,7 +12,7 @@ export default function DashboardLayout() {
     <>
       <div className="">
         <div className="ml-0 flex">
-          <div className="max-w-[500px] border-r-1 mx-auto flex flex-col">
+          <div className="w-1/4 max-w-[250px] border-r-1 flex flex-col">
             <div className="px-8">
               <img className="" src={logo.logo_sidebar} alt="logo" />
             </div>

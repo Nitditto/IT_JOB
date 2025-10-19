@@ -13,8 +13,6 @@ export default [
   route("/company/cv/list", "./pages/company/cv/list/page.tsx"),
   route("/company/cv/detail/:id", "./pages/company/cv/detail/page.tsx"),
   route("/company/detail", "./pages/company/detail/page.tsx"),
-  route("/company/job/create", "./pages/company/job/create/page.tsx"),
-  route("/company/job/list", "./pages/company/job/list/page.tsx"),
   route("/admin/company/register", "./pages/company/register/page.tsx"),
 
   
@@ -32,6 +30,10 @@ export default [
       {
         path: "company/job",
         file: "./pages/dashboard/company/job/page.tsx"
+      },
+      {
+        path: "company/job/create",
+        file: "./pages/dashboard/company/job/create/page.tsx"
       }
     ]),
 
