@@ -24,11 +24,7 @@ export function validatePasswordChecker(password: string) {
       reason: "Vui lòng nhập mật khẩu của bạn!"
     }
   } else if (
-    password.length < 8 ||      // Password has less than 8 characters
-    !/[A-Z]/.test(password) ||  // Password has no uppercase letters
-    !/[a-z]/.test(password) ||  // Password has no lowercase letters
-    !/[0-9]/.test(password) ||  // Password has no numbers
-    !/[^\w\s]/.test(password)   // Password has no special character (not a word or a whitespace)
+    /^(?=\\P{Ll}*\\p{Ll})(?=\\P{Lu}*\\p{Lu})(?=\\P{N}*\\p{N})(?=[\\p{L}\\p{N}]*[^\\p{L}\\p{N}])[\s\S]{8,}$/.test(password)
   ) {
     return {
       status: false,
