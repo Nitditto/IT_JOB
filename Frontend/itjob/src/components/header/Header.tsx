@@ -15,7 +15,7 @@ export const Header = () => {
               to="/"
               className="font-[800] sm:text-[28px] text-[20px] text-white"
             >
-              Next.ITJob
+              <img src="/assets/images/logo.svg" alt="" className="" />
             </Link>
 
             <nav>

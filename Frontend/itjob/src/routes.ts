@@ -1,6 +1,6 @@
 import {
   type RouteConfig,
-  route,
+  route, layout
 } from "@react-router/dev/routes";
 
 export default [
@@ -10,7 +10,7 @@ export default [
   route("/job/detail/:id", "./pages/job/detail/page.tsx"),
   route("/dashboard/profile", "./pages/dashboard/profile/page.tsx"),
 
-  route("/company/cv/list", "./pages/company/cv/list/page.tsx"),
+  // route("/company/cv/list", "./pages/company/cv/list/page.tsx"),
   route("/company/cv/detail/:id", "./pages/company/cv/detail/page.tsx"),
   route("/company/detail", "./pages/company/detail/page.tsx"),
   route("/admin/company/register", "./pages/company/register/page.tsx"),
@@ -32,10 +32,25 @@ export default [
         file: "./pages/dashboard/company/job/page.tsx"
       },
       {
-        path: "company/job/create",
-        file: "./pages/dashboard/company/job/create/page.tsx"
+        path: "company/cv/list",
+        file: "./pages/company/cv/list/page.tsx",
+      },
+      {
+        path: "company/detail",
+        file: "./pages/dashboard/infoCompany/page.tsx"
+      },
+      {
+        path: "company/setting",
+        file: "./pages/dashboard/settings/page.tsx"
       }
+
+      // {
+      //   path: "company/job/create",
+      //   file: "./pages/dashboard/company/job/create/page.tsx"
+      // }
     ]),
+
+  
 
   route("*", "./pages/catchall.tsx"),
 ] satisfies RouteConfig;
