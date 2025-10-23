@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import apiClient from "../utils/api"
 import { Section1 } from "../components/section/Section1";
 import { Title } from "../components/title/title";
 import { FaUserTie } from "react-icons/fa";
 import { CardCompanyItem } from "../components/card/CardCompanyItem";
+import axios from "axios";
+import type { HomePageData } from "../types";
 
 export default function SearchHome() {
   
@@ -31,16 +32,24 @@ export default function SearchHome() {
       link:"/companies/fpt-software"
     }
   ]
-  const [jobCount, setJobCount] = useState(0);
+  const [homePageData, setHomePageData] = useState<HomePageData | null>(null);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
-    apiClient.get("/").then(response => {
-      setJobCount(response.data.jobCount)
-    })
+    const init = async () => {
+      try {
+        const response = await axios.get<HomePageData>(`${BACKEND_URL}`);
+        setHomePageData(response.data); 
+      } catch (error) {
+        console.error("An error occured:\n", error);
+      }
+    }
+
+    init();
   }, [])
   return (
     <div>
       {/* Section 1 */}
-        <Section1 jobCount={jobCount}/>
+        <Section1 data={homePageData}/>
       {/*End Section 1 */}
 
       {/* Section 2 */}
