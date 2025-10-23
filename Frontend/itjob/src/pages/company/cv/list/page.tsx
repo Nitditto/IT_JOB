@@ -10,8 +10,9 @@ export default function CompanyManageCVListPage() {
   },[])
   return (
     <>
-      <div className="py-[60px]">
-        <div className="container mx-auto px-[16px]">
+      <div className="w-full mx-8 py-[60px]">
+        <div className="flex gap-[20px] flex-wrap items-center justify-between
+            mb-[20px]">
           <h2 className="font-[700] sm:text-[28px] text-[24px] sm:w-auto w-[100%] text-[#121212] mb-[20px]">
             Quản lý CV
           </h2>

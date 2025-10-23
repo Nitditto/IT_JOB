@@ -2,7 +2,6 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { Header } from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 
-
 export function Layout({ children } : { children: React.ReactNode }) {
     return (
     <html lang="en">
