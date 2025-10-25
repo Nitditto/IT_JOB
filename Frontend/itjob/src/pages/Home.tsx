@@ -32,24 +32,11 @@ export default function SearchHome() {
       link:"/companies/fpt-software"
     }
   ]
-  const [homePageData, setHomePageData] = useState<HomePageData | null>(null);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const response = await axios.get<HomePageData>(`${BACKEND_URL}`);
-        setHomePageData(response.data); 
-      } catch (error) {
-        console.error("An error occured:\n", error);
-      }
-    }
 
-    init();
-  }, [])
   return (
     <div>
       {/* Section 1 */}
-        <Section1 data={homePageData}/>
+        <Section1 />
       {/*End Section 1 */}
 
       {/* Section 2 */}

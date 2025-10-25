@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import java.security.Principal;
-import java.util.List;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +37,7 @@ public class UserServices {
         return userRepository.save(user);
     }
 
-    private UserDTO convertToDTO(User user) {
+    public UserDTO convertToDTO(User user) {
         return new UserDTO(
             user.getId(),
             user.getName(),
@@ -57,11 +56,8 @@ public class UserServices {
     public UserDTO getCurrentUser(Principal principal) {
         String email = principal.getName();
 
-        List<User> user = userRepository.findByEmail(email);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User not found with email: " + email);
-        } else {
-            return convertToDTO(user.get(0));
-        }                
+        User user = userRepository.findByEmail(email)
+        .orElseThrow(()->new UsernameNotFoundException("Username not found"));
+        return convertToDTO(user);
     }
 }

@@ -28,11 +28,25 @@ export default function LoginPage() {
         setPasswordError(passwordChecker.reason);
         if (emailChecker.status && passwordChecker.status) {
             try {
-                await axios.post(`${BACKEND_URL}/auth/login`, {
+                let response = await axios.post(`${BACKEND_URL}/auth/login`, {
                     email: email,
                     password: password
                 })
-                navigate("/");
+                const { token } = response.data;
+
+    if (token) {
+      // Lưu token vào localStorage
+      localStorage.setItem('token', token);
+      
+      // Bạn không cần set header thủ công ở đây nữa
+      // Interceptor sẽ tự động làm việc đó cho các request tiếp theo
+      
+      console.log('Đăng nhập thành công!');
+      // Điều hướng người dùng đến trang dashboard hoặc trang chủ
+      // window.location.href = '/dashboard
+                window.location.reload();
+                window.location.href = "/"
+    }
             } catch (error: any) {
                 if (error.response && error.response.data) {
                     setError(error.response.data);

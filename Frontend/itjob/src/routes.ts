@@ -42,12 +42,12 @@ export default [
       {
         path: "company/setting",
         file: "./pages/dashboard/settings/page.tsx"
-      }
+      },
 
-      // {
-      //   path: "company/job/create",
-      //   file: "./pages/dashboard/company/job/create/page.tsx"
-      // }
+      {
+        path: "company/job/create",
+        file: "./pages/dashboard/company/job/create/page.tsx"
+      }
     ]),
 
   
