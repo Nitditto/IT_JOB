@@ -1,5 +1,13 @@
 package com.example.demo.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,17 +22,6 @@ import com.example.demo.services.UserServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import java.security.Principal;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 
 @RestController
@@ -35,7 +32,8 @@ public class UserController {
     private final AuthServices authServices;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody RegistrationRequest request) {
+    public ResponseEntity<?> registerUser(
+        @Valid @RequestBody RegistrationRequest request) {
         try {
             userServices.register(request);
             return ResponseEntity.status(HttpStatus.CREATED).body("Đã đăng ký thành công!");
@@ -46,7 +44,8 @@ public class UserController {
     }
     
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> loginUser(
+        @Valid @RequestBody LoginRequest request) {
         try {
             LoginResponse response = authServices.login(request);
             return ResponseEntity.ok(response);
@@ -57,9 +56,9 @@ public class UserController {
     
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(Principal principal) {
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User currentUser){
         try {
-            UserDTO userDTO = userServices.getCurrentUser(principal);
+           UserDTO userDTO = userServices.convertToDTO(currentUser);
             return ResponseEntity.ok(userDTO);
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

@@ -5,7 +5,7 @@ import { Link } from "react-router"
 export default function CompanyJobList() {
   return (
     <>
-      <div className="w-full mx-8 py-[60px]">
+      <div className="w-auto mx-8 py-[60px]">
         <div className="flex gap-[20px] flex-wrap items-center justify-between
             mb-[20px]">
           <h1 className="font-bold text-[#121212] text-[28px]">Quản lý công việc</h1>

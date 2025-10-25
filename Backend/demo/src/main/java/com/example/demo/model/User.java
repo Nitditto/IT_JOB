@@ -1,5 +1,15 @@
 package com.example.demo.model;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import com.example.demo.enums.UserRole;
+import com.example.demo.enums.UserStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,18 +22,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.example.demo.enums.UserRole;
-import com.example.demo.enums.UserStatus;
-
+@Data
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
 @Getter @Setter
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
@@ -59,4 +68,48 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_abbreviation")
     private Location location;
+
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Trả về một danh sách các quyền của user
+        // Spring Security thường yêu cầu quyền có tiền tố "ROLE_"
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        // Spring Security sẽ dùng email làm "username" để đăng nhập
+        return this.email;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        // Tài khoản không bao giờ hết hạn
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // Tài khoản không bao giờ bị khóa
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        // Mật khẩu không bao giờ hết hạn
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // Tài khoản luôn được kích hoạt
+        return true;
+    }
 }
