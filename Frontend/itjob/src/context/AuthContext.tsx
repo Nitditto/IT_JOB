@@ -7,13 +7,14 @@ import api from '../utils/api';
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null; // Define a proper User interface here
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
 
     // This function runs once when the app loads
@@ -32,13 +33,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
         console.log('No active user session found.');
       }
+      finally {
+        // ✅ 3. Dừng loading dù thành công hay thất bại
+        setIsLoading(false);
+      }
     };
     verifyUserSession();
   }, []);
 
   const value = {
     isAuthenticated: !!user, // True if user object is not null
-    user,
+    user, isLoading
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -52,3 +57,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
