@@ -1,10 +1,22 @@
-export function validateEmailChecker(email: string) {
-  if (email.trim() == "") {
+import type { ValidationRule, ValidationResult } from "../types"
+
+export function validateEmpty(reason: string): ValidationRule {
+  return (value: string): ValidationResult => {
+      if (value.trim() === "") {
     return {
       status: false,
-      reason: "Vui lòng nhập email của bạn!",
+      reason: reason
     }
-  } else if (!/.+@.+\..+/.test(email)) {
+    } else return {
+      status: true,
+      reason: ""
+    }
+  }
+
+}
+
+export const validateEmail =  (email: string): ValidationResult => {
+  if (!/.+@.+\..+/.test(email)) {
     return {
       status: false,
       reason: "Email không đúng định dạng!"
@@ -17,15 +29,16 @@ export function validateEmailChecker(email: string) {
   }
 }
 
-export function validatePasswordChecker(password: string) {
-  if (password.trim() == "") {
-    return {
-      status: false,
-      reason: "Vui lòng nhập mật khẩu của bạn!"
-    }
-  } else if (
-    /^(?=\\P{Ll}*\\p{Ll})(?=\\P{Lu}*\\p{Lu})(?=\\P{N}*\\p{N})(?=[\\p{L}\\p{N}]*[^\\p{L}\\p{N}])[\s\S]{8,}$/.test(password)
-  ) {
+export const validatePassword = (password: string): ValidationResult => {
+  const regex = new RegExp("^"+ // Check for the start of the string
+    "(?=.*[a-z])"+              // Check for any lowercase letters
+    "(?=.*[A-Z])"+              // Check for any uppercase letters
+    "(?=.*\\d)"+                 // Check for any numbers
+    "(?=.*[\\W_])"+              // Check for special characters (not a number or a letter)
+    ".{8,}"+                    // Check if password length > 8
+    "$"                         // Check until the end of the string
+  )
+  if (!regex.test(password)) {
     return {
       status: false,
       reason: "Mật khẩu phải có ít nhắt 8 kí tự, bao gồm 1 chữ cái hoa, 1 chữ cái thường, 1 chữ số và 1 kí tự đặc biệt!"
@@ -36,13 +49,15 @@ export function validatePasswordChecker(password: string) {
   }
 }
 
-export function validateNameChecker(name: string) {
-  if (name.trim() == "") {
-    return {
-      status: false,
-      reason: "Vui lòng nhập họ tên của bạn!"
+export function validate(value: string, rules: ValidationRule[]): ValidationResult {
+  for (const rule of rules) {
+    let result = rule(value);
+
+    if (!result.status) {
+      return result
     }
-  } else return {
+  }
+  return {
     status: true,
     reason: ""
   }

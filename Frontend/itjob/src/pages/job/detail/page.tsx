@@ -15,19 +15,28 @@ export default function JobDetailPage() {
     const [infoJob, setInfoJob] = useState({
         nameJob: 'Front End Developer ( Javascript, ReactJS)',
         nameCompany: 'LG CNS Việt Nam',
-        salary: "1.000$ - 1.500$",
+        salary: '1.000$ - 1.500$',
         position: 'Fresher',
         workstyle: 'Tại văn phòng',
-        location: 'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
-        tags: [
-          "ReactJS", "NextJS", "Javascript"
-        ],
-        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.',
+        location:
+            'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
+        tags: ['ReactJS', 'NextJS', 'Javascript'],
+        description:
+            'Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.',
         nameEmployee: '',
         email: '',
         phone: '',
         images: '',
     })
+
+    const [cvFile, setCvFile] = useState(null)
+
+    const handleFileChange = (e) => {
+        // e.target.files là một danh sách, ta lấy file đầu tiên [0]
+        if (e.target.files && e.target.files.length > 0) {
+            setCvFile(e.target.files[0])
+        }
+    }
     const handleChange = (e) => {
         const { name, value } = e.target
 
@@ -36,18 +45,52 @@ export default function JobDetailPage() {
             [name]: value,
         }))
     }
-    const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
+    // Đây là hàm 'formSubmission' của bạn
+    const formSubmission = async (e) => {
+        e.preventDefault() // Ngăn form reload lại trang
+
+        // 1. Kiểm tra xem người dùng đã chọn file chưa
+        if (!cvFile) {
+            alert('Vui lòng chọn file CV của bạn.')
+            return // Dừng hàm nếu chưa có file
+        }
+
+        // 2. Tạo một đối tượng FormData
+        const formData = new FormData()
+
+        // 3. Thêm các trường thông tin text từ state 'infoJob'
+        // LƯU Ý: Tên key ('fullName', 'email') phải khớp với tên mà server của bạn mong đợi
+        formData.append('fullName', infoJob.nameEmployee)
+        formData.append('email', infoJob.email)
+        formData.append('phone', infoJob.phone)
+
+        // 4. Thêm file CV vào FormData
+        // Key 'cvFile' là tên mà server sẽ dùng để nhận file.
+        // Bạn có thể đổi tên này ('cvFile') miễn là server biết.
+        formData.append('cvFile', cvFile)
+
+        // 5. Gửi FormData lên server bằng fetch (hoặc axios)
         try {
-            console.log(infoJob.tags)
-            console.log(infoJob)
-            //await api.post(`/job/create`, jobData)
-        } catch (error: any) {
-            if (error.response && error.response.data) {
-                console.log(error.response.data)
+            const response = await fetch('URL_API_UPLOAD_CUA_BAN', {
+                method: 'POST',
+                body: formData,
+                // Khi dùng FormData, bạn KHÔNG CẦN set header 'Content-Type'.
+                // Trình duyệt sẽ tự động set nó thành 'multipart/form-data'.
+            })
+
+            if (response.ok) {
+                alert('Gửi CV thành công!')
+                // Xóa form hoặc chuyển hướng
             } else {
-                console.log('Có lỗi đã xảy ra. Vui lòng thử lại!')
+                const errorData = await response.json()
+                alert(
+                    'Gửi CV thất bại: ' +
+                        (errorData.message || response.statusText)
+                )
             }
+        } catch (error) {
+            console.error('Lỗi khi gửi form:', error)
+            alert('Lỗi kết nối, không thể gửi CV.')
         }
     }
     return (
@@ -95,39 +138,38 @@ export default function JobDetailPage() {
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaUserTie className="text-[16px]" />{' '}
-                                    Fresher
+                                    {infoJob.position}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaBriefcase className="text-[16px]" /> Tại
-                                    văn phòng
+                                    {infoJob.workstyle}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaLocationDot className="text-[16px]" />{' '}
-                                    Tầng 15, tòa Keangnam Landmark 72, Mễ Trì,
-                                    Nam Tu Liem, Ha Noi
+                                    {infoJob.location}
                                 </div>
                                 <div className="flex flex-wrap gap-[8px]">
-                                    <div className="rounded-[20px] border border-[#DEDEDE] px-[16px] py-[6px] text-[12px] font-[400] text-[#414042]">
-                                        ReactJS
-                                    </div>
-                                    <div className="rounded-[20px] border border-[#DEDEDE] px-[16px] py-[6px] text-[12px] font-[400] text-[#414042]">
-                                        NextJS
-                                    </div>
-                                    <div className="rounded-[20px] border border-[#DEDEDE] px-[16px] py-[6px] text-[12px] font-[400] text-[#414042]">
-                                        Javascript
-                                    </div>
+                                    {infoJob.tags.map((item, index) => (
+                                        <div
+                                            key={index}
+                                            className="rounded-[20px] border border-[#DEDEDE] px-[16px] py-[6px] text-[12px] font-[400] text-[#414042]"
+                                        >
+                                            {item}
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                             {/* Mo ta chi tiet  */}
                             <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px]">
-                                Mô tả chi tiết ....
+                                {infoJob.description}
                             </div>
                             {/* Form ung tuyen  */}
                             <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px]">
                                 <h2 className="mb-[20px] text-[20px] font-bold text-black">
                                     Ứng tuyển ngay
                                 </h2>
-                                <form onSubmit={formSubmission}
+                                <form
+                                    onSubmit={formSubmission}
                                     action=""
                                     className="flex flex-col gap-[15px]"
                                 >
@@ -140,7 +182,9 @@ export default function JobDetailPage() {
                                         </label>
                                         <input
                                             type="text"
-                                            name=""
+                                            name="fullName"
+                                            onChange={handleChange}
+                                            value={infoJob.nameEmployee}
                                             id="fullName"
                                             className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                         />
@@ -154,7 +198,9 @@ export default function JobDetailPage() {
                                         </label>
                                         <input
                                             type="email"
-                                            name=""
+                                            name="email"
+                                            onChange={handleChange}
+                                            value={infoJob.email}
                                             id="email"
                                             className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                         />
@@ -168,7 +214,9 @@ export default function JobDetailPage() {
                                         </label>
                                         <input
                                             type="number"
-                                            name=""
+                                            name="phone"
+                                            onChange={handleChange}
+                                            value={infoJob.phone}
                                             id="phone"
                                             className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                         />
@@ -182,12 +230,14 @@ export default function JobDetailPage() {
                                         </label>
                                         <input
                                             type="file"
-                                            name=""
+                                            name="images"
+                                            onChange={handleFileChange}
+                                            accept=".pdf"
                                             id="fildCV"
                                             className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black file:py-[12px]"
                                         />
                                     </div>
-                                    <button className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] text-[16px] font-bold text-white">
+                                    <button className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] text-[16px] font-bold text-white" type='submit'>
                                         Gửi CV ứng tuyển
                                     </button>
                                 </form>
@@ -210,7 +260,7 @@ export default function JobDetailPage() {
                                             LG CNS Việt Nam
                                         </div>
                                         <Link
-                                            to={'../../'}
+                                            to={'../../infoCompany/page.tsx'}
                                             className="flex items-center gap-[8px] text-[16px] font-[400] text-[#0088FF]"
                                         >
                                             Xem công ty{' '}
