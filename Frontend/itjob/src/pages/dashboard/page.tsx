@@ -57,27 +57,35 @@ export default function DashboardLayout() {
                     <SidebarItem
                         icon={<LayoutDashboard size={20} />}
                         text="Dashboard"
+                        to=""
                         alert
                     />
                     <SidebarItem
                         icon={<BarChart3 size={20} />}
                         text="Quản lý công việc"
+                        to="/dashboard/company/job"
                     />
                     <SidebarItem
                         icon={<UserCircle size={20} />}
                         text="Quản lý CV"
+                        to="/dashboard/company/cv/list"
                     />
                     <SidebarItem
                         icon={<Boxes size={20} />}
                         text="Chi tiết công ty"
+                        to=''
                         alert
                     />
                     <SidebarItem
                         icon={<Package size={20} />}
                         text="Đăng ký công ty"
+                        to=''
                         alert
                     />
-                    <SidebarItem icon={<Receipt size={20} />} text="Billings" />
+                    <SidebarItem icon={<Receipt size={20} 
+                    />} text="Billings" 
+                      to=''
+                    />
                     <hr className="my-3" />
 
                     <SidebarItem
