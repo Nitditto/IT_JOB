@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { FaLocationDot } from "react-icons/fa6";
-import { CardJobItem } from "../../../components/card/CardJobItem";
+import { CardJobItem } from "../../../../components/card/CardJobItem";
 
 export default function CompanyDetailPage() {
   useEffect(()=>{

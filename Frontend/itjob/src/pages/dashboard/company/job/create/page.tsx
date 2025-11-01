@@ -73,7 +73,7 @@ export default function CompanyManageJobCreatePage() {
       console.error("Error reading one or more files:", error);
   };
   }
-      const handleChange = (e) => {
+  const handleChange = (e) => {
     // Get the 'name' and 'value' from the input that triggered the change
     const { name, value } = e.target;
 
