@@ -1,43 +1,87 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
-import { validateEmailChecker, validatePasswordChecker, validateNameChecker } from '../../../../utils/validateForms';
+import { validate, validateEmail, validateEmpty, validatePassword } from '../../../../utils/validateForms';
+import { formReducer } from '../../../../utils/formUtils';
+import api from '../../../../utils/api';
 import axios from 'axios';
 export default function RegisterPage() {
-    const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordError, setPasswordError] = useState("");
-    const [name, setName] = useState("");
-    const [nameError, setNameError] = useState("");
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-    const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setError("");
-        let emailChecker = validateEmailChecker(email);
-        let passwordChecker = validatePasswordChecker(password);
-        let nameChecker = validateNameChecker(name);
-        setEmailError(emailChecker.reason);
-        setPasswordError(passwordChecker.reason);
-        setNameError(nameChecker.reason);
-        if (emailChecker.status && passwordChecker.status && nameChecker.status) {
-            try {
-                await axios.post(`${BACKEND_URL}/auth/register`, {
-                    name: name,
-                    email: email,
-                    password: password,
-                    role: "ROLE_COMPANY"
-                })
-            } catch (error: any) {
-                if (error.response && error.response.data) {
-                    setError(error.response.data);
-                } else {
-                    setError("Có lỗi đã xảy ra. Vui lòng thử lại!")
-                }
-            }
+
+    const initialState = {
+        data: {
+            name: "",
+            email: "",
+            password: ""
+        },
+        error: {
+            name: "",
+            email: "",
+            password: ""
+        },
+        isLoading: false,
+        status: {
+            isError: false,
+            reason: ""
         }
     }
+    const handleChange = (e: any) => {
+        dispatch({
+            type: "CHANGE_FIELD",
+            field: e.target.name,
+            value: e.target.value
+        })
+    }
+    const [state, dispatch] = useReducer(formReducer(initialState), initialState)
+    const {data, error, isLoading, status} = state;
+    const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        let emailChecker = validate(
+            data.email, 
+            [
+                validateEmpty("Vui lòng nhập email của bạn!"), 
+                validateEmail
+            ]
+        );
+        let passwordChecker = validate(
+            data.password,
+            [
+                validateEmpty("Vui lòng nhập mật khẩu của bạn!"),
+                validatePassword
+            ]
+        )
+        let nameChecker = validate(
+            data.name,
+            [
+                validateEmpty("Vui lòng nhập tên của bạn!")
+            ]
+        )
+        if (!emailChecker.status || !passwordChecker.status || !nameChecker.status) {
+            // Dispatch error
+            dispatch({
+                type: "VALIDATE_FAILURE",
+                payload: {
+                    email: emailChecker.reason,
+                    password: passwordChecker.reason,
+                    name: nameChecker.reason
+                }
+            });
+            return;
+        }
+        // If there's no error, buffering load and call API
+        dispatch({type: "SUBMIT_START"});
+        console.log(data)
+            try {
+                await axios.post(import.meta.env.VITE_BACKEND_URL + "/auth/register", {
+                    ...data,
+                    role: "ROLE_COMPANY"
+                })
+                dispatch({type: "SUBMIT_SUCCESS", payload: "Đăng kí thành công!"})
+            } catch (error: any) {
+                dispatch({
+                    type: "SUBMIT_FAILURE", 
+                    payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!"})
+                }
+            }
 
     useEffect(() => {
         document.title = 'Đăng ký'
@@ -56,18 +100,20 @@ export default function RegisterPage() {
                         >
                             <div className="">
                                 <label
-                                    htmlFor="fullName"
+                                    htmlFor="name"
                                     aria-required
                                     className="mb-[5px] text-[14px] font-[500] text-black required"
                                 >
-                                    Họ tên
+                                    Tên công ty
                                 </label>
                                 <input
                                     type="text"
-                                    onChange={e=>setName(e.target.value)}
+                                    name="name"
+                                    value={data.name}
+                                    onChange={handleChange}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
-                                <div className="text-red-400">{nameError}</div>
+                                {error.name && <div className="text-red-400">{error.name}</div>}
                             </div>
                             <div className="">
                                 <label
@@ -79,10 +125,12 @@ export default function RegisterPage() {
                                 </label>
                                 <input
                                     type="text"
-                                    onChange={e=>setEmail(e.target.value)}
+                                    name="email"
+                                    value={data.email}
+                                    onChange={handleChange}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
-                                <div className="text-red-400">{emailError}</div>
+                                {error.email && <div className="text-red-400">{error.email}</div>}
                             </div>
                             <div className="">
                                 <label
@@ -94,16 +142,18 @@ export default function RegisterPage() {
                                 </label>
                                 <input
                                     type="password"
-                                    onChange={e=>setPassword(e.target.value)}
+                                    name="password"
+                                    value={data.password}
+                                    onChange={handleChange}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
-                                <div className="text-red-400">{passwordError}</div>
+                                {error.password && <div className="text-red-400">{error.password}</div>}
                             </div>
                             <div className="">
-                                <button type="submit" className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
-                                    Đăng ký
+                                <button type="submit" disabled={isLoading} className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
+                                    {isLoading ? "Đang xử lý..." : "Đăng ký"}
                                 </button>
-                                <div className="text-red-400">{error}</div>
+                                <div className={status.isError ? "text-red-400" : "text-green-400"}>{status.reason}</div>
                             </div>
                             <div className="flex items-center gap-1">
                                 <p className="">Bạn đã có tài khoản?</p>

@@ -3,13 +3,13 @@ export interface Location {
     abbreviation: string;
     name: string;
 }
-
+// Data type for homepage
 export interface HomePageData {
   jobCount: number;
   locations: Location[];
 }
 
-
+// User interface
 export interface User {
     id: number;
     name: string;
@@ -23,3 +23,10 @@ export interface User {
     address: string | null;
     location: string | null;
 }
+
+// Validation type
+export type ValidationResult {
+  status: true | false,
+  reason: string
+}
+export type ValidationRule = (value: string) => ValidationResult

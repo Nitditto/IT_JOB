@@ -10,12 +10,10 @@ export default [
   
   route("/dashboard/profile", "./pages/dashboard/profile/page.tsx"),
 
-  // route("/company/cv/list", "./pages/company/cv/list/page.tsx"),
   route("/company/cv/detail/:id", "./pages/company/cv/detail/page.tsx"),
   route("/company/detail", "./pages/company/detail/page.tsx"),
-  route("/admin/company/register", "./pages/company/register/page.tsx"),
   
-  route("/job/:id", ".pages/dashboard/company/job/detail/page.tsx"),
+  route("/job/:id", "./pages/job/detail/page.tsx"),
 
   route("/user/cv", "./pages/user/cv/list/page.tsx"),
   route("/user/profile", "./pages/user/profile/page.tsx"),
@@ -35,10 +33,6 @@ export default [
       {
         path: "company/cv/list",
         file: "./pages/company/cv/list/page.tsx",
-      },
-      {
-        path: "company/detail",
-        file: "./pages/dashboard/infoCompany/page.tsx"
       },
       {
         path: "company/setting",

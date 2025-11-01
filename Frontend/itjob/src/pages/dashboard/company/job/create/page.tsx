@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router";
 import api from "../../../../../utils/api";
+import handleChange from "../../../../../utils/formUtils";
 
 export default function CompanyManageJobCreatePage() {
   useEffect(()=>{
@@ -73,16 +74,6 @@ export default function CompanyManageJobCreatePage() {
       console.error("Error reading one or more files:", error);
   };
   }
-  const handleChange = (e) => {
-    // Get the 'name' and 'value' from the input that triggered the change
-    const { name, value } = e.target;
-
-    // 3. Update the state
-    setJobData((prevData) => ({
-      ...prevData,   // <-- Copy all previous form data
-      [name]: value,   // <-- Dynamically set the one field that changed
-    }));
-  };
       const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
             try {
@@ -117,7 +108,7 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="text" 
                   name="name"
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.name} 
                   id="title" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
@@ -131,7 +122,7 @@ export default function CompanyManageJobCreatePage() {
                   type="number" 
                   name="minSalary" 
                   id="salaryMin"
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.minSalary}
                   min={10}
                   step={10} 
@@ -145,7 +136,7 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="number" 
                   name="maxSalary"
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.maxSalary}
                   min={10}
                   step={10} 
@@ -160,7 +151,7 @@ export default function CompanyManageJobCreatePage() {
                 <select 
                   name="position" 
                   id="position" 
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.position}
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 >
@@ -179,7 +170,7 @@ export default function CompanyManageJobCreatePage() {
                 </label>
                 <select 
                   name="workstyle" 
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.workstyle}
                   id="workingForm" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
@@ -197,7 +188,7 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="text" 
                   name="tags"
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.tags}
                   id="technologies" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
@@ -224,7 +215,7 @@ export default function CompanyManageJobCreatePage() {
                 <textarea 
                   name="description" 
                   id="description" 
-                  onChange={handleChange}
+                  onChange={event=>handleChange(event, setJobData)}
                   value={jobData.description}
                   className="w-[100%] h-[350px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 ></textarea>

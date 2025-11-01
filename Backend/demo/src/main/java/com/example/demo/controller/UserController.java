@@ -40,6 +40,8 @@ public class UserController {
         } catch (IllegalStateException e) {
             // Email is already used
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
     
