@@ -1,24 +1,23 @@
 package com.example.demo.model;
 
+import java.util.List;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.JoinColumn;
-
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-
-import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "jobs")
@@ -27,10 +26,10 @@ import java.util.List;
 public class Job {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Long id;
 
-    private String company;
+    private Long companyID;
     private String name;
     private Long minSalary;
     private Long maxSalary;

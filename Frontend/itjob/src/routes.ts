@@ -47,6 +47,10 @@ export default [
       {
         path: "company/job/create",
         file: "./pages/dashboard/company/job/create/page.tsx"
+      },
+      {
+        path: "admin/register",
+        file : "./pages/dashboard/admin/register/page.tsx"
       }
     ]),
 

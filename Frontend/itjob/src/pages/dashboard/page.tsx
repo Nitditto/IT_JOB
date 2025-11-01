@@ -59,7 +59,7 @@ export default function DashboardLayout() {
             alert/>
             <SidebarItem
             icon={<Package size={20}/>}
-            text="Orders"
+            text="Đăng ký công ty"
             alert/>
             <SidebarItem
             icon={<Receipt size={20}/>}
