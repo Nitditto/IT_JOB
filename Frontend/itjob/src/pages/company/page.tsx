@@ -16,6 +16,18 @@ export default function CompanyDetailPage() {
     description: "",
     jobs: []
   })
+  const jobInfo = {
+    id: 0,
+    name: "Frontend Engineer (ReactJS)",
+    company: "LG CNS Việt Nam",
+    logo: "/assets/images/demo-company-1.png",
+    minSalary: 1000,
+    maxSalary: 1500,
+    position: "Fresher",
+    workstyle: "Tại văn phòng",
+    location: "Hà Nội",
+    tags: ["ReactJS", "NextJS", "Javascript"]
+  }
   useEffect(()=>{
     document.title="Chi tiết công ty";
     setInfo({
@@ -27,7 +39,7 @@ export default function CompanyDetailPage() {
       workHours: "Thứ 2 - Thứ 6",
       overtime: false,
       description: `Company ID: ${id}`,
-      jobs: Array(6).fill(<CardJobItem/>)
+      jobs: Array(6).fill(0).map((_, index) => (<CardJobItem key={index} jobInfo={{...jobInfo, id:index+1}}/>))
     })
   },[])
   return (
