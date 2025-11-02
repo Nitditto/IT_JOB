@@ -101,7 +101,7 @@ export default function DashboardLayout() {
                         }}
                     />
                 </Sidebar>
-                <div className="flex-1 px-6 pt-[30px] pb-[60px]">
+                <div className="flex-1">
                     <Outlet />
                 </div>
             </div>

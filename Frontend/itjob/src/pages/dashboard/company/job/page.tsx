@@ -1,8 +1,12 @@
 import { FaBriefcase, FaUserTie } from "react-icons/fa6";
 import { Pagination } from "../../../../components/pagination/Pagination";
 import { Link } from "react-router"
+import { useEffect } from "react";
 
 export default function CompanyJobList() {
+  useEffect(()=>{
+    document.title="Quản lý công việc";
+  },[])
   return (
     <>
       <div className="w-auto mx-8 py-[60px]">
