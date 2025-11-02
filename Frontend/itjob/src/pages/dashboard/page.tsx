@@ -52,7 +52,7 @@ export default function DashboardLayout() {
     }
     return isAuthenticated ? (
         <>
-            <div className="ml-0 flex h-auto justify-center">
+            <div className="ml-0 flex h-[100vh] justify-center">
                 <Sidebar>
                     <SidebarItem
                         icon={<LayoutDashboard size={20} />}
@@ -101,7 +101,7 @@ export default function DashboardLayout() {
                         }}
                     />
                 </Sidebar>
-                <div className="flex-1">
+                <div className="flex-2">
                     <Outlet />
                 </div>
             </div>
