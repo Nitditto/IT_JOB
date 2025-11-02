@@ -101,6 +101,7 @@ export default function CompanyManageJobCreatePage() {
           dispatch({
             type: "SUBMIT_SUCCESS",
             payload: "Tạo công việc mới thành công!"
+
           })
         } catch (error: any) {
           dispatch({
@@ -209,7 +210,7 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="text" 
                   name="tags"
-                  onChange={handleFieldChange}
+                  onChange={handleFieldChange(dispatch)}
                   value={data.tags}
                   id="technologies" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
@@ -237,7 +238,7 @@ export default function CompanyManageJobCreatePage() {
                 <textarea 
                   name="description" 
                   id="description" 
-                  onChange={handleFieldChange}
+                  onChange={handleFieldChange(dispatch)}
                   value={data.description}
                   className="w-[100%] h-[350px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 ></textarea>

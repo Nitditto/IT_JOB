@@ -10,12 +10,13 @@ export default function CompanyManageCVListPage() {
   },[])
   return (
     <>
-      <div className="w-full mx-8 py-[60px]">
+      <div className="w-[90%] mx-8 py-[60px] ">
         <div className="flex gap-[20px] flex-wrap items-center justify-between
             mb-[20px]">
-          <h2 className="font-[700] sm:text-[28px] text-[24px] sm:w-auto w-[100%] text-[#121212] mb-[20px]">
+          <h1 className="font-bold text-[#121212] text-[28px]">
             Quản lý CV
-          </h2>
+          </h1>
+      </div>
 
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-[20px]">
             <div 
@@ -179,7 +180,6 @@ export default function CompanyManageCVListPage() {
           <Pagination />
 
         </div>
-      </div>
     </>
   )
 }
