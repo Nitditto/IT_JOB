@@ -6,6 +6,9 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: 'http://localhost:8080', // URL backend của bạn
   withCredentials: true, // Nếu bạn dùng cookie
+  withXSRFToken: true,
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN"
 });
 
 // ⭐ Đây là phần quan trọng nhất: Request Interceptor

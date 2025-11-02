@@ -2,7 +2,7 @@ import { useEffect, useReducer, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { validateEmpty, validatePassword, validate, validateEmail } from '../../utils/validateForms';
 import axios from 'axios';
-import { formReducer } from '../../utils/formUtils';
+import { formReducer, handleFieldChange } from '../../utils/formUtils';
 export default function RegisterPage() {
  const initialState = {
         data: {
@@ -20,13 +20,6 @@ export default function RegisterPage() {
             isError: false,
             reason: ""
         }
-    }
-    const handleFieldChange = (e: any) => {
-        dispatch({
-            type: "CHANGE_FIELD",
-            field: e.target.name,
-            value: e.target.value
-        })
     }
     const [state, dispatch] = useReducer(formReducer(initialState), initialState)
     const {data, error, isLoading, status} = state;
@@ -108,7 +101,7 @@ export default function RegisterPage() {
                                     type="text"
                                     name="name"
                                     value={data.name}
-                                    onChange={handleFieldChange}
+                                    onChange={handleFieldChange(dispatch)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
                                 {error.name && <div className="text-red-400">{error.name}</div>}
@@ -125,7 +118,7 @@ export default function RegisterPage() {
                                     type="text"
                                     name="email"
                                     value={data.email}
-                                    onChange={handleFieldChange}
+                                    onChange={handleFieldChange(dispatch)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
                                 {error.email && <div className="text-red-400">{error.email}</div>}
@@ -142,7 +135,7 @@ export default function RegisterPage() {
                                     type="password"
                                     name="password"
                                     value={data.password}
-                                    onChange={handleFieldChange}
+                                    onChange={handleFieldChange(dispatch)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
                                 {error.password && <div className="text-red-400">{error.password}</div>}

@@ -1,7 +1,5 @@
 package com.example.demo.dto;
 
-import com.example.demo.enums.UserRole;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -24,7 +22,4 @@ public class RegistrationRequest {
         message = "Mật khẩu phải có ít nhắt 8 kí tự, bao gồm 1 chữ cái hoa, 1 chữ cái thường, 1 chữ số và 1 kí tự đặc biệt!"
     )
     private String password;
-
-
-    private UserRole role;
 }

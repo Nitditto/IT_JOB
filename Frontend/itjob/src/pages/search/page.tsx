@@ -1,11 +1,29 @@
 import { CardJobItem } from "../../components/card/CardJobItem";
 import { Pagination } from "../../components/pagination/Pagination";
 import { Section1 } from "../../components/section/Section1";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
 export default function SearchPage() {
+  
+  const jobInfo = {
+    id: 0,
+    name: "Frontend Engineer (ReactJS)",
+    company: "LG CNS Việt Nam",
+    logo: "/assets/images/demo-company-1.png",
+    minSalary: 1000,
+    maxSalary: 1500,
+    position: "Fresher",
+    workstyle: "Tại văn phòng",
+    location: "Hà Nội",
+    tags: ["ReactJS", "NextJS", "Javascript"]
+  }
+
+  const [jobList, setJobList] = useState(Array<any>());
+
   useEffect(() => {
+
+    setJobList(Array(6).fill(0).map((_, index) => ({...jobInfo, id: index+1})))
   document.title = "Kết quả tìm kiếm";
   }, []);
   return (
@@ -18,7 +36,7 @@ export default function SearchPage() {
       <div className="py-[60px]">
         <div className="container">
           <h2 className="font-bold text-[28px] text-[#121212] mb-[30px]">
-            76 việc làm <span className="text-[#0088FF]">reactjs</span>
+            {jobList.length} việc làm <span className="text-[#0088FF]">reactjs</span>
           </h2>
 
           {/* Bộ Lọc  */}
@@ -54,13 +72,11 @@ export default function SearchPage() {
 
           {/* Danh sách công việc */}
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
-            {/* Item  */}
-            <CardJobItem/>
-            <CardJobItem/>
-            <CardJobItem/>
-            <CardJobItem/>
-            <CardJobItem/>
-            <CardJobItem/>
+            {
+              jobList.map((value, index) => (
+                <CardJobItem key={index} jobInfo={value} />
+              ))
+            }
           </div>
           
           {/* Phân trang  */}
