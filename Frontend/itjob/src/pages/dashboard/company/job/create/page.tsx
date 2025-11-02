@@ -1,93 +1,114 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useReducer, useState } from "react"
 import { Link } from "react-router";
 import api from "../../../../../utils/api";
-import handleChange from "../../../../../utils/formUtils";
+import { formReducer, handleFieldChange, handleFileChange } from "../../../../../utils/formUtils";
+import { validate, validateEmpty, validateEmptyList, validateLowerBound, validateUpperBound } from "../../../../../utils/validateForms";
 
 export default function CompanyManageJobCreatePage() {
   useEffect(()=>{
     document.title="Thêm mới công việc";
   }, [])
-    const [jobData, setJobData] = useState({
-      name: "",
-      minSalary: 0,
-      maxSalary: 0,
-      position: "",
-      workstyle: "",
-      location: "",
-      tags: "",
-      images: "",
-      description: ""
-    })
-    const [jobImages, setJobImages] = useState([]);
-    const readFileAsDataURL = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+    const defaultJob = {
+      data: {
+        name: "",
+        minSalary: 0,
+        maxSalary: 0,
+        position: "",
+        workstyle: "",
+        location: "",
+        tags: "",
+        images: [],
+        description: ""
+      },
+      error: {
+        name: "",
+        minSalary: "",
+        maxSalary: "",
+        position: "",
+        workstyle: "",
+        images: ""
+      },
+      isLoading: false,
+      status: {isError: false, reason: ""}
 
-      // This event fires when the file is successfully read
-      reader.onload = (event) => {
-        resolve({
-          name: file.name,
-          type: file.type,
-          dataURL: event.target?.result // This is the ArrayBuffer (the "binary array")
-        });
-      };
-
-      // This event fires if there's an error
-      reader.onerror = (error) => {
-        reject(error);
-      };
-
-      // This starts the read operation.
-      reader.readAsDataURL(file);
-    });
-  };
-
+    }
+    const [state, dispatch] = useReducer(formReducer(defaultJob), defaultJob)
+    const { data, error, isLoading, status } = state;
   /**
    * The main handler for the file input's onChange event.
    */
-  const handleFileChange = async (e) => {
-    const fileList = e.target.files;
 
-    // 1. Check if any files are selected
-    if (!fileList || fileList.length === 0) {
-      setJobImages([]); // Clear state if no files
-      return;
-    }
-
-    // 2. Convert the FileList object to a standard array
-    const files = Array.from(fileList);
-
-    // 3. Create an array of promises (one for each file read)
-    const fileReadPromises = files.map(readFileAsDataURL);
-
-    // 
-
-    try {
-      // 4. Wait for ALL files to be read
-      const allFilesData = await Promise.all(fileReadPromises);
-      
-      // 5. Save the resulting array of file data objects to state
-      setJobImages(allFilesData);
-      console.log("Successfully loaded files into state:", allFilesData);
-
-    } catch (error) {
-      console.error("Error reading one or more files:", error);
-  };
-  }
       const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-            try {
-                console.log(jobData.tags)
-                console.log(jobImages)
-                //await api.post(`/job/create`, jobData)
-            } catch (error: any) {
-                if (error.response && error.response.data) {
-                    console.log(error.response.data);
-                } else {
-                    console.log("Có lỗi đã xảy ra. Vui lòng thử lại!")
-                }
-            }
+        const nameChecker = validate(
+          data.name,
+          [validateEmpty("Vui lòng nhập tên công việc!")]
+        )
+        const minSalaryChecker = validate(
+          data.minSalary,
+          [
+            validateLowerBound(10, "Mức lương tối thiểu lớn hơn 10$!"),
+            validateUpperBound(1000000, "Mức lương tối thiểu bé hơn 1,000,000$!")
+          ]
+        )
+        const maxSalaryChecker = validate(
+          data.maxSalary,
+          [
+            validateLowerBound(10, "Mức lương tối đa lớn hơn 10$!"),
+            validateUpperBound(1000000, "Mức lương tối đa bé hơn 1,000,000$!"),
+            validateLowerBound(data.minSalary, "Mức lương tối đa lớn hơn mức lương tối thiểu!")
+          ]
+        )
+
+        const positionChecker = validate(
+          data.position,
+          [validateEmpty("Vui lòng chọn vị trí công việc!")]
+        )
+
+        const workstyleChecker = validate(
+          data.workstyle,
+          [validateEmpty("Vui lòng chọn hình thức làm việc!")]
+        )
+
+        const imagesChecker = validate(
+          data.images,
+          [validateEmptyList("Vui lòng chọn ảnh minh họa!")]
+        )
+        if (!nameChecker.status || 
+          !minSalaryChecker.status || 
+          !maxSalaryChecker.status ||
+          !positionChecker.status ||
+          !workstyleChecker.status ||
+          !imagesChecker.status) {
+            dispatch({
+              type: "VALIDATE_FAILURE",
+              payload: {
+                name: nameChecker.reason,
+                minSalary: minSalaryChecker.reason,
+                maxSalary: maxSalaryChecker.reason,
+                position: positionChecker.reason,
+                workstyle: workstyleChecker.reason,
+                images: imagesChecker.reason
+              }
+            })
+            return;
+          }
+        dispatch({
+          type: "SUBMIT_START"
+        })
+        try {
+          console.log(data)
+          dispatch({
+            type: "SUBMIT_SUCCESS",
+            payload: "Tạo công việc mới thành công!"
+          })
+        } catch (error: any) {
+          dispatch({
+            type: "SUBMIT_FAILURE",
+            payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!"
+          })
         }
+}
   return (
     <>
           <div className="border border-[#DEDEDE] rounded-[8px] p-[20px]">
@@ -108,11 +129,12 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="text" 
                   name="name"
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.name} 
+                  onChange={handleFieldChange(dispatch)}
+                  value={data.name} 
                   id="title" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 />
+                {error.name && <div className="text-red-400">{error.name}</div>}
               </div>
               <div className="">
                 <label htmlFor="salaryMin" className="block font-[500] text-[14px] text-black mb-[5px]">
@@ -122,12 +144,11 @@ export default function CompanyManageJobCreatePage() {
                   type="number" 
                   name="minSalary" 
                   id="salaryMin"
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.minSalary}
-                  min={10}
-                  step={10} 
+                  onChange={handleFieldChange(dispatch)}
+                  value={data.minSalary}
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 />
+                {error.minSalary && <div className="text-red-400">{error.minSalary}</div>}
               </div>
               <div className="">
                 <label htmlFor="salaryMax" className="block font-[500] text-[14px] text-black mb-[5px]">
@@ -136,13 +157,11 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="number" 
                   name="maxSalary"
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.maxSalary}
-                  min={10}
-                  step={10} 
-                  id="salaryMax" 
+                  onChange={handleFieldChange(dispatch)}
+                  value={data.maxSalary}
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 />
+                {error.maxSalary && <div className="text-red-400">{error.maxSalary}</div>}
               </div>
               <div className="">
                 <label htmlFor="position" aria-required className="block font-[500] text-[14px] text-black mb-[5px] required">
@@ -151,8 +170,8 @@ export default function CompanyManageJobCreatePage() {
                 <select 
                   name="position" 
                   id="position" 
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.position}
+                  onChange={handleFieldChange(dispatch)}
+                  value={data.position}
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 >
                   <option value=""></option>
@@ -163,6 +182,7 @@ export default function CompanyManageJobCreatePage() {
                   <option value="senior">Senior</option>
                   <option value="manager">Manager</option>
                 </select>
+                {error.position && <div className="text-red-400">{error.position}</div>}
               </div>
               <div className="">
                 <label htmlFor="workingForm" aria-required className="block font-[500] text-[14px] text-black mb-[5px] required">
@@ -170,8 +190,8 @@ export default function CompanyManageJobCreatePage() {
                 </label>
                 <select 
                   name="workstyle" 
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.workstyle}
+                  onChange={handleFieldChange(dispatch)}
+                  value={data.workstyle}
                   id="workingForm" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 >
@@ -180,6 +200,7 @@ export default function CompanyManageJobCreatePage() {
                   <option value="remote">Làm từ xa</option>
                   <option value="flex">Linh hoạt</option>
                 </select>
+                {error.workstyle && <div className="text-red-400">{error.workstyle}</div>}
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="technologies" className="block font-[500] text-[14px] text-black mb-[5px]">
@@ -188,8 +209,8 @@ export default function CompanyManageJobCreatePage() {
                 <input 
                   type="text" 
                   name="tags"
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.tags}
+                  onChange={handleFieldChange}
+                  value={data.tags}
                   id="technologies" 
                   className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 />
@@ -202,11 +223,12 @@ export default function CompanyManageJobCreatePage() {
                   type="file" 
                   name="images" 
                   id="images" 
-                  onChange={handleFileChange}
+                  onChange={handleFileChange(dispatch)}
                   accept="image/*" 
                   multiple 
                   className=""
                 />
+                {error.images && <div className="text-red-400">{error.images}</div>}
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="description" className="block font-[500] text-[14px] text-black mb-[5px]">
@@ -215,15 +237,16 @@ export default function CompanyManageJobCreatePage() {
                 <textarea 
                   name="description" 
                   id="description" 
-                  onChange={event=>handleChange(event, setJobData)}
-                  value={jobData.description}
+                  onChange={handleFieldChange}
+                  value={data.description}
                   className="w-[100%] h-[350px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
                 ></textarea>
               </div>
               <div className="sm:col-span-2">
-                <button type="submit" className="bg-[#0088FF] rounded-[4px] h-[48px] px-[20px] font-[700] text-[16px] text-white">
-                  Tạo mới
+                <button disabled={isLoading} type="submit" className="bg-[#0088FF] disabled:bg-[#0088FF]/50 rounded-[4px] h-[48px] px-[20px] font-[700] text-[16px] text-white">
+                  {isLoading ? "Đang xử lý..." : "Tạo mới"}
                 </button>
+                <div className={status.isError ? "text-red-400" : "text-green-400"}>{status.reason}</div>
               </div>
             </form>
           </div>

@@ -12,7 +12,48 @@ export function validateEmpty(reason: string): ValidationRule {
       reason: ""
     }
   }
+}
 
+export function validateEmptyList(reason: string): ValidationRule {
+  return (value: Array<any>): ValidationResult => {
+      if (value.length == 0) {
+    return {
+      status: false,
+      reason: reason
+    }
+    } else return {
+      status: true,
+      reason: ""
+    }
+  }
+}
+
+export function validateLowerBound(bound: number, reason: string): ValidationRule {
+  return (value: number): ValidationResult => {
+    if (value <= bound) {
+    return {
+      status: false,
+      reason: reason
+    }
+    } else return {
+      status: true,
+      reason: ""
+    }
+  }
+}
+
+export function validateUpperBound(bound: number, reason: string): ValidationRule {
+  return (value: number): ValidationResult => {
+    if (value >= bound) {
+    return {
+      status: false,
+      reason: reason
+    }
+    } else return {
+      status: true,
+      reason: ""
+    }
+  }
 }
 
 export const validateEmail =  (email: string): ValidationResult => {

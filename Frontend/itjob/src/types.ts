@@ -25,8 +25,9 @@ export interface User {
 }
 
 // Validation type
-export type ValidationResult {
+export type ValidationResult = {
   status: true | false,
   reason: string
 }
-export type ValidationRule = (value: string) => ValidationResult
+
+export type ValidationRule = (value: any) => ValidationResult

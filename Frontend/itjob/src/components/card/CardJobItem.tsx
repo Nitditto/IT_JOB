@@ -3,11 +3,11 @@
 import { Link } from "react-router";
 import { FaBriefcase, FaLocationDot, FaUserTie } from "react-icons/fa6";
 
-export const CardJobItem = () => {
+export const CardJobItem = ({jobInfo}: {jobInfo: any}) => {
   return (
     <>
       <Link
-        to=""
+        to={`/job/${jobInfo.id}`}
         className="rounded-[8px] border border-[#DEDEDE] relative"
         style={{
           background: "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)",
@@ -26,39 +26,34 @@ export const CardJobItem = () => {
             }}
           >
             <img
-              src="/assets/images/demo-company-1.png"
+              src={jobInfo.logo}
               className="w-full h-full object-contain p-[10px]"
               alt=""
             />
           </div>
           <h3 className="font-[700] text-[18px] text-[#121212] mb-[6px] mx-[16px] line-clamp-2">
-            Frontend Engineer (ReactJS)
+            {jobInfo.name}
           </h3>
           <div className="font-[400] text-[14px] text-[#121212] mb-[12px]">
-            LG CNS Việt Nam
+            {jobInfo.company}
           </div>
           <div className="font-[600] text-[16px] text-[#0088FF] mb-[6px]">
-            1.000$ - 1.500$
+            {jobInfo.minSalary.toLocaleString() + "$ - " + jobInfo.maxSalary.toLocaleString() + "$"}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
-            <FaUserTie className="text-[16px]" /> Fresher
+            <FaUserTie className="text-[16px]" /> {jobInfo.position}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
-            <FaBriefcase className="text-[16px]" /> Tại văn phòng
+            <FaBriefcase className="text-[16px]" /> {jobInfo.workstyle}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
-            <FaLocationDot className="text-[16px]" /> Ha Noi
+            <FaLocationDot className="text-[16px]" /> {jobInfo.location}
           </div>
           <div className="mt-[12px] mb-[20px] flex justify-center flex-wrap gap-[8px]">
-            <div className="border border-[#DEDEDE] rounded-[20px] py-[6px] px-[16px] font-[400] text-[12px] text-[#414042]">
-              ReactJS
-            </div>
-            <div className="border border-[#DEDEDE] rounded-[20px] py-[6px] px-[16px] font-[400] text-[12px] text-[#414042]">
-              NextJS
-            </div>
-            <div className="border border-[#DEDEDE] rounded-[20px] py-[6px] px-[16px] font-[400] text-[12px] text-[#414042]">
-              Javascript
-            </div>
+          {jobInfo.tags.map((value, index) => (
+            <div key={index} className="border border-[#DEDEDE] rounded-[20px] py-[6px] px-[16px] font-[400] text-[12px] text-[#414042]">
+              {value}
+            </div>))}
           </div>
         </div>
       </Link>

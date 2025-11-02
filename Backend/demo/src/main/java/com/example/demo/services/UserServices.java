@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.RegistrationRequest;
 import com.example.demo.dto.UserDTO;
+import com.example.demo.enums.UserRole;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 
@@ -19,7 +20,7 @@ public class UserServices {
     private final PasswordEncoder passwordEncoder;
 
 
-    public User register(RegistrationRequest request) {
+    public User register(RegistrationRequest request, UserRole role) {
         // Check if email already exists
         if (!userRepository.findByEmail(request.getEmail()).isEmpty()) {
             throw new IllegalStateException("Email đã được sử dụng!");
@@ -29,7 +30,7 @@ public class UserServices {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
+        user.setRole(role);
         // Encrypt password before setting it
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
         user.setPassword(encryptedPassword);

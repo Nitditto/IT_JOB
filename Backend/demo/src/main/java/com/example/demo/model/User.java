@@ -75,7 +75,7 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Trả về một danh sách các quyền của user
         // Spring Security thường yêu cầu quyền có tiền tố "ROLE_"
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
     }
 
     @Override

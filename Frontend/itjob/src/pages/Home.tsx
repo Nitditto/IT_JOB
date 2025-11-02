@@ -11,6 +11,7 @@ export default function SearchHome() {
   
    const companyList=[
     {
+      id: 1,
       logoURL:"/assets/images/demo-company-1.png",
       title:"LG Electronics Development Vietnam (LGEDV)",
       location:"Ho Chi Minh",
@@ -18,6 +19,7 @@ export default function SearchHome() {
       link:"/companies/lg-electronics",
     },
     {
+      id: 2,
       logoURL:"/assets/images/demo-company-2.png",
       title:"MB Bank",
       location: "Ha Noi",
@@ -25,10 +27,35 @@ export default function SearchHome() {
       link:"/companies/mb-bank"
     },
     {
+      id: 3,
       logoURL:"/assets/images/demo-company-3.png",
       title: "FPT Software",
       location:"Da Nang",
       jobCount:20,
+      link:"/companies/fpt-software"
+    },
+    {
+      id: 4,
+      logoURL:"/assets/images/demo-company-1.png",
+      title:"LG Electronics Development Campuchia (LGEDC)",
+      location:"Campuchia",
+      jobCount:25,
+      link:"/companies/lg-electronics",
+    },
+    {
+      id: 5,
+      logoURL:"/assets/images/demo-company-2.png",
+      title:"MM Bank",
+      location: "Ha Noi",
+      jobCount:30,
+      link:"/companies/mb-bank"
+    },
+    {
+      id: 6,
+      logoURL:"/assets/images/demo-company-3.png",
+      title: "FPT Softcore",
+      location:"Da Nang",
+      jobCount:35,
       link:"/companies/fpt-software"
     }
   ]
@@ -46,49 +73,9 @@ export default function SearchHome() {
           {/* Wrap  */}
           <div className="grid lg:grid-cols-3 grid-cols-2 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
             {/* Item  */}
-            {companyList.map((item, index) => (
-              <Link 
-              key={index}
-              to={"#"}
-              className="rounded-[8px] border-[1px] border-[#DEDEDE] relative"
-              style={{
-              background: "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)"
-              }}
-              >
-                <img 
-                src="/assets/images/card-bg.svg" 
-                alt="" 
-                className="absolute top-0 left-0 w-full h-auto" 
-                />
-                <div className="relative flex flex-col h-full">
-                  <div 
-                  className="sm:w-[160px] aspect-square w-[125px] sm:mt-[32px] mt-[20px] sm:mb-[24px] mb-[16px] mx-auto rounded-[8px] bg-white"
-                  style={{
-                    boxShadow:"0px 4px 24px 0px #0000001F"
-                  }}
-                  >
-                    <img 
-                    src={item.logoURL}
-                    alt={item.title} 
-                    className="w-full h-full object-contain p-[10px]" 
-                    />
-                  </div>
-                  <div 
-                  className="font-bold sm:text-[18px] text-[14px] text-[#121212] sm:mb-[24px] mb-[16px] mx-[16px] flex justify-center text-center grow line-clamp-2 "
-                  >{item.title} </div>
-                  <div className="bg-[#F7F7F7] py-[12px] px-[16px] flex items-center sm:justify-between justify-center flex-wrap gap-[12px]">
-                    <div className="font-[400] text-[14px] text-[#414042]">
-                      {item.location}
-                    </div>
-                    <div className="inline-flex items-center gap-[6px] font-[400] text-[14px] text-[#121212]">
-                      <FaUserTie className="text-[16px] text-[#000096]"/> {item.jobCount} Việc làm
-                    </div>
-                  </div>
-                </div>
-              </Link>
-              
+            {companyList.map(companyInfo => (
+              <CardCompanyItem companyInfo={companyInfo} key={companyInfo.id} />
             ))}
-            <CardCompanyItem/>
           </div>
         </div>
       </div>

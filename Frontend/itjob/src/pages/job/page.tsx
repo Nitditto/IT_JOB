@@ -1,97 +1,112 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useParams } from 'react-router'
 import {
     FaArrowRightLong,
     FaBriefcase,
     FaLocationDot,
     FaUserTie,
 } from 'react-icons/fa6'
+import { handleFieldChange } from '../../utils/formUtils';
 
 export default function JobDetailPage() {
+
+    const { id } = useParams();
+
+    const [infoJob, setInfoJob] = useState({
+        name: '',
+        minSalary: 0,
+        maxSalary: 0,
+        position: '',
+        workstyle: '',
+        address: "",
+        tags: Array<string>(),
+        images: Array<string>(),
+        description: ""
+    })
+
+    const [infoCompany, setInfoCompany] = useState({
+        id: 0,
+        name: "",
+        avatar: "",
+        model: "",
+        size: "",
+        workHours: "",
+        overtime: false
+    })
     useEffect(() => {
+
+        setInfoJob({
+            name: "Front End Developer ( Javascript, ReactJS)",
+            minSalary: 1000,
+            maxSalary: 1500,
+            position: "Fresher",
+            workstyle: "Tại văn phòng",
+            address: 'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
+            tags: ['ReactJS', 'NextJS', 'Javascript'],
+            images: ["/assets/images/demo-banner-1.jpg", "/assets/images/demo-banner-2.jpg", "/assets/images/demo-banner-3.jpg"],
+            description: `Job ID: ${id}\nLorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.`
+        })
+
+        setInfoCompany({
+            id: 1,
+            name: "LG CNS Việt Nam",
+            avatar: "/assets/images/demo-logo-company-1.jpg",
+            model: "Sản phẩm",
+            size: "151 - 300 nhân viên",
+            workHours: "Thứ 2 - Thứ 6",
+            overtime: false
+        })
+
         document.title = 'Chi tiết công việc'
     }, [])
 
-    const [infoJob, setInfoJob] = useState({
-        nameJob: 'Front End Developer ( Javascript, ReactJS)',
-        nameCompany: 'LG CNS Việt Nam',
-        salary: '1.000$ - 1.500$',
-        position: 'Fresher',
-        workstyle: 'Tại văn phòng',
-        location:
-            'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
-        tags: ['ReactJS', 'NextJS', 'Javascript'],
-        description:
-            'Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.',
-        nameEmployee: '',
-        email: '',
-        phone: '',
-        images: '',
-    })
-
-    const [cvFile, setCvFile] = useState(null)
-
-    const handleFileChange = (e) => {
-        // e.target.files là một danh sách, ta lấy file đầu tiên [0]
-        if (e.target.files && e.target.files.length > 0) {
-            setCvFile(e.target.files[0])
-        }
-    }
-    const handleChange = (e) => {
-        const { name, value } = e.target
-
-        setInfoJob((prev) => ({
-            ...prev,
-            [name]: value,
-        }))
-    }
     // Đây là hàm 'formSubmission' của bạn
     const formSubmission = async (e) => {
         e.preventDefault() // Ngăn form reload lại trang
 
-        // 1. Kiểm tra xem người dùng đã chọn file chưa
-        if (!cvFile) {
-            alert('Vui lòng chọn file CV của bạn.')
-            return // Dừng hàm nếu chưa có file
-        }
+        // // 1. Kiểm tra xem người dùng đã chọn file chưa
+        // if (!cvFile) {
+        //     alert('Vui lòng chọn file CV của bạn.')
+        //     return // Dừng hàm nếu chưa có file
+        // }
 
-        // 2. Tạo một đối tượng FormData
-        const formData = new FormData()
+        // // 2. Tạo một đối tượng FormData
+        // const formData = new FormData()
 
-        // 3. Thêm các trường thông tin text từ state 'infoJob'
-        // LƯU Ý: Tên key ('fullName', 'email') phải khớp với tên mà server của bạn mong đợi
-        formData.append('fullName', infoJob.nameEmployee)
-        formData.append('email', infoJob.email)
-        formData.append('phone', infoJob.phone)
+        // // 3. Thêm các trường thông tin text từ state 'infoJob'
+        // // LƯU Ý: Tên key ('fullName', 'email') phải khớp với tên mà server của bạn mong đợi
+        // formData.append('fullName', infoJob.nameEmployee)
+        // formData.append('email', infoJob.email)
+        // formData.append('phone', infoJob.phone)
 
-        // 4. Thêm file CV vào FormData
-        // Key 'cvFile' là tên mà server sẽ dùng để nhận file.
-        // Bạn có thể đổi tên này ('cvFile') miễn là server biết.
-        formData.append('cvFile', cvFile)
+        // // 4. Thêm file CV vào FormData
+        // // Key 'cvFile' là tên mà server sẽ dùng để nhận file.
+        // // Bạn có thể đổi tên này ('cvFile') miễn là server biết.
+        // formData.append('cvFile', cvFile)
 
-        // 5. Gửi FormData lên server bằng fetch (hoặc axios)
-        try {
-            const response = await fetch('URL_API_UPLOAD_CUA_BAN', {
-                method: 'POST',
-                body: formData,
-                // Khi dùng FormData, bạn KHÔNG CẦN set header 'Content-Type'.
-                // Trình duyệt sẽ tự động set nó thành 'multipart/form-data'.
-            })
+        // // 5. Gửi FormData lên server bằng fetch (hoặc axios)
+        // try {
+        //     const response = await fetch('URL_API_UPLOAD_CUA_BAN', {
+        //         method: 'POST',
+        //         body: formData,
+        //         // Khi dùng FormData, bạn KHÔNG CẦN set header 'Content-Type'.
+        //         // Trình duyệt sẽ tự động set nó thành 'multipart/form-data'.
+        //     })
 
-            if (response.ok) {
-                alert('Gửi CV thành công!')
-                // Xóa form hoặc chuyển hướng
-            } else {
-                const errorData = await response.json()
-                alert(
-                    'Gửi CV thất bại: ' +
-                        (errorData.message || response.statusText)
-                )
-            }
-        } catch (error) {
-            console.error('Lỗi khi gửi form:', error)
-            alert('Lỗi kết nối, không thể gửi CV.')
-        }
+        //     if (response.ok) {
+        //         alert('Gửi CV thành công!')
+        //         // Xóa form hoặc chuyển hướng
+        //     } else {
+        //         const errorData = await response.json()
+        //         alert(
+        //             'Gửi CV thất bại: ' +
+        //                 (errorData.message || response.statusText)
+        //         )
+        //     }
+        // } catch (error) {
+        //     console.error('Lỗi khi gửi form:', error)
+        //     alert('Lỗi kết nối, không thể gửi CV.')
+        // }
     }
     return (
         <>
@@ -105,13 +120,13 @@ export default function JobDetailPage() {
                             {/* Thông tin công việc  */}
                             <div className="rounded-[8px] border border-[#DEDEDE] p-[20px]">
                                 <h1 className="mb-[10px] text-[24px] font-bold text-[#121212] sm:text-[28px]">
-                                    {infoJob.nameJob}
+                                    {infoJob.name}
                                 </h1>
                                 <div className="mb-[10px] text-[16px] font-[400] text-[#414042]">
-                                    {infoJob.nameCompany}
+                                    {infoCompany.name}
                                 </div>
                                 <div className="mb-[10px] text-[20px] font-[700] text-[#0088FF] sm:mb-[20px]">
-                                    {infoJob.salary}
+                                    {infoJob.minSalary.toLocaleString() + "$ - " + infoJob.maxSalary.toLocaleString() + "$"}
                                 </div>
                                 <Link
                                     to={'#'}
@@ -120,33 +135,29 @@ export default function JobDetailPage() {
                                     Ứng tuyển
                                 </Link>
                                 <div className="mb-[20px] grid grid-cols-3 gap-[8px] sm:gap-[16px]">
-                                    <img
-                                        src="/assets/images/demo-banner-1.jpg"
+                                    {
+                                        infoJob.images.map((value, index) => (
+                                        <img
+                                        key={index}
+                                        src={value}
                                         alt=""
                                         className="aspect-[232/145] w-full rounded-[4px] object-cover"
-                                    />
-                                    <img
-                                        src="/assets/images/demo-banner-2.jpg"
-                                        alt=""
-                                        className="aspect-[232/145] w-full rounded-[4px] object-cover"
-                                    />
-                                    <img
-                                        src="/assets/images/demo-banner-3.jpg"
-                                        alt=""
-                                        className="aspect-[232/145] w-full rounded-[4px] object-cover"
-                                    />
+                                        />
+                                        ))
+                                    }
+
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaUserTie className="text-[16px]" />{' '}
                                     {infoJob.position}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
-                                    <FaBriefcase className="text-[16px]" /> Tại
+                                    <FaBriefcase className="text-[16px]" />
                                     {infoJob.workstyle}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaLocationDot className="text-[16px]" />{' '}
-                                    {infoJob.location}
+                                    {infoJob.address}
                                 </div>
                                 <div className="flex flex-wrap gap-[8px]">
                                     {infoJob.tags.map((item, index) => (
@@ -160,11 +171,11 @@ export default function JobDetailPage() {
                                 </div>
                             </div>
                             {/* Mo ta chi tiet  */}
-                            <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px]">
+                            <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px] whitespace-pre-line">
                                 {infoJob.description}
                             </div>
                             {/* Form ung tuyen  */}
-                            <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px]">
+                            {/* <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px]">
                                 <h2 className="mb-[20px] text-[20px] font-bold text-black">
                                     Ứng tuyển ngay
                                 </h2>
@@ -183,7 +194,7 @@ export default function JobDetailPage() {
                                         <input
                                             type="text"
                                             name="fullName"
-                                            onChange={handleChange}
+                                            onChange={handleFieldChange()}
                                             value={infoJob.nameEmployee}
                                             id="fullName"
                                             className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
@@ -241,7 +252,7 @@ export default function JobDetailPage() {
                                         Gửi CV ứng tuyển
                                     </button>
                                 </form>
-                            </div>
+                            </div> */}
                         </div>
                         {/* Right  */}
                         <div className="flex-1">
@@ -250,17 +261,17 @@ export default function JobDetailPage() {
                                 <div className="flex gap-[12px]">
                                     <div className="aspect-square w-[100px] truncate rounded-[4px]">
                                         <img
-                                            src="/assets/images/demo-logo-company-1.jpg"
+                                            src={infoCompany.avatar}
                                             alt=""
                                             className="h-full w-full object-cover"
                                         />
                                     </div>
                                     <div className="flex-1">
                                         <div className="mb-[10px] text-[18px] font-bold text-[#121212]">
-                                            LG CNS Việt Nam
+                                            {infoCompany.name}
                                         </div>
                                         <Link
-                                            to={'../../infoCompany/page.tsx'}
+                                            to={`/company/${infoCompany.id}`}
                                             className="flex items-center gap-[8px] text-[16px] font-[400] text-[#0088FF]"
                                         >
                                             Xem công ty{' '}
@@ -274,7 +285,7 @@ export default function JobDetailPage() {
                                             Mô hình công ty
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            Sản phẩm
+                                            {infoCompany.model}
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between gap-[10px]">
@@ -282,7 +293,7 @@ export default function JobDetailPage() {
                                             Quy mô công ty
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            151 - 300 nhân viên
+                                            {infoCompany.size}
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between gap-[10px]">
@@ -290,7 +301,7 @@ export default function JobDetailPage() {
                                             Thời gian làm việc
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            Thứ 2 - Thứ 6
+                                            {infoCompany.workHours}
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between gap-[10px]">
@@ -298,7 +309,7 @@ export default function JobDetailPage() {
                                             Làm việc ngoài giờ
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            Không có OT
+                                            {infoCompany.overtime ? "Có" : "Không"}
                                         </div>
                                     </div>
                                 </div>

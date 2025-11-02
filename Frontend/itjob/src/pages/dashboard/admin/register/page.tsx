@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { validate, validateEmail, validateEmpty, validatePassword } from '../../../../utils/validateForms';
-import { formReducer } from '../../../../utils/formUtils';
+import { formReducer, handleFieldChange } from '../../../../utils/formUtils';
 import api from '../../../../utils/api';
 import axios from 'axios';
 export default function RegisterPage() {
@@ -22,13 +22,6 @@ export default function RegisterPage() {
             isError: false,
             reason: ""
         }
-    }
-    const handleChange = (e: any) => {
-        dispatch({
-            type: "CHANGE_FIELD",
-            field: e.target.name,
-            value: e.target.value
-        })
     }
     const [state, dispatch] = useReducer(formReducer(initialState), initialState)
     const {data, error, isLoading, status} = state;
@@ -71,9 +64,8 @@ export default function RegisterPage() {
         dispatch({type: "SUBMIT_START"});
         console.log(data)
             try {
-                await axios.post(import.meta.env.VITE_BACKEND_URL + "/auth/register", {
-                    ...data,
-                    role: "ROLE_COMPANY"
+                await api.post("/auth/register/company", {
+                    ...data
                 })
                 dispatch({type: "SUBMIT_SUCCESS", payload: "Đăng kí thành công!"})
             } catch (error: any) {
@@ -110,7 +102,7 @@ export default function RegisterPage() {
                                     type="text"
                                     name="name"
                                     value={data.name}
-                                    onChange={handleChange}
+                                    onChange={handleFieldChange(dispatch)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
                                 {error.name && <div className="text-red-400">{error.name}</div>}
@@ -127,7 +119,7 @@ export default function RegisterPage() {
                                     type="text"
                                     name="email"
                                     value={data.email}
-                                    onChange={handleChange}
+                                    onChange={handleFieldChange(dispatch)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
                                 {error.email && <div className="text-red-400">{error.email}</div>}
@@ -144,7 +136,7 @@ export default function RegisterPage() {
                                     type="password"
                                     name="password"
                                     value={data.password}
-                                    onChange={handleChange}
+                                    onChange={handleFieldChange(dispatch)}
                                     className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
                                 />
                                 {error.password && <div className="text-red-400">{error.password}</div>}
@@ -154,15 +146,6 @@ export default function RegisterPage() {
                                     {isLoading ? "Đang xử lý..." : "Đăng ký"}
                                 </button>
                                 <div className={status.isError ? "text-red-400" : "text-green-400"}>{status.reason}</div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <p className="">Bạn đã có tài khoản?</p>
-                                <Link
-                                    to={`/login`}
-                                    className="cursor-pointer text-[16px] text-[#0088FF]"
-                                >
-                                    Đăng nhập
-                                </Link>
                             </div>
                         </form>
                     </div>

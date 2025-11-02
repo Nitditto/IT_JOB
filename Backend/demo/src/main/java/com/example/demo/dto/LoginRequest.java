@@ -1,7 +1,5 @@
 package com.example.demo.dto;
 
-import com.example.demo.enums.UserRole;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
