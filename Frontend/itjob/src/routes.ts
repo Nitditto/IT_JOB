@@ -15,6 +15,9 @@ export default [
   
   route("/job/:id", "./pages/job/page.tsx"),
 
+  route("/job/:id/apply","./pages/job/jobApply/page.tsx"),
+  route("job/apply/success","./pages/job/jobApplySuccess/page.tsx"),
+
   route("/user/cv", "./pages/user/cv/list/page.tsx"),
   route("/user/profile", "./pages/user/profile/page.tsx"),
 
