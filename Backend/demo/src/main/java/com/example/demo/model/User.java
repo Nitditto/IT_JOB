@@ -3,6 +3,8 @@ package com.example.demo.model;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,7 +54,7 @@ public class User implements UserDetails {
     private UserRole role;
 
     @Lob
-    private byte[] avatar;
+    private String avatar;
 
     private String phone;
 
@@ -65,7 +67,8 @@ public class User implements UserDetails {
 
     private String address;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER) // 1. Tell JPA to always load it
+    @Fetch(FetchMode.JOIN) // 2. Tell Hibernate to use a JOIN (avoids N+1)
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 

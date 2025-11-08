@@ -3,11 +3,6 @@ export interface Location {
     abbreviation: string;
     name: string;
 }
-// Data type for homepage
-export interface HomePageData {
-  jobCount: number;
-  locations: Location[];
-}
 
 // User interface
 export interface User {
