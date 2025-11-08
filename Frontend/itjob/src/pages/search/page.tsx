@@ -2,10 +2,12 @@ import { CardJobItem } from "../../components/card/CardJobItem";
 import { Pagination } from "../../components/pagination/Pagination";
 import { Section1 } from "../../components/section/Section1";
 import { useEffect, useState } from "react";
-
+import { useSearchParams } from 'react-router';
 
 export default function SearchPage() {
   
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const jobInfo = {
     id: 0,
     name: "Frontend Engineer (ReactJS)",

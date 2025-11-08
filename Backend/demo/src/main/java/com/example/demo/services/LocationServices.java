@@ -17,4 +17,8 @@ public class LocationServices {
     public List<Location> getAllLocations() {
         return locationRepository.findAll();
     }
+
+    public Location getLocation(String abbreviation) {
+        return locationRepository.findByAbbreviation(abbreviation).orElseThrow();
+    }
 }

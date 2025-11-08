@@ -61,4 +61,10 @@ public class UserServices {
         .orElseThrow(()->new UsernameNotFoundException("Username not found"));
         return convertToDTO(user);
     }
+
+    public UserDTO getUserById(Long userID) {
+        User user = userRepository.findById(userID)
+        .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
+        return convertToDTO(user);
+    }
 }

@@ -7,13 +7,16 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 export const Section1 = () => {
-    const [homePageData, setHomePageData] = useState<HomePageData | null>(null);
+    const [jobCount, setJobCount] = useState(0);
+    const [location, setLocation] = useState([]);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     useEffect(() => {
       const init = async () => {
         try {
-          const response = await axios.get<HomePageData>(`${BACKEND_URL}`);
-          setHomePageData(response.data); 
+          const jobCountRes = await axios.get(`${BACKEND_URL}/job/count`);
+          const locationRes = await axios.get(`${BACKEND_URL}/location`);
+          setJobCount(jobCountRes.data);
+          setLocation(locationRes.data);
         } catch (error) {
           console.error("An error occured:\n", error);
         }
@@ -26,9 +29,9 @@ export const Section1 = () => {
       <div className="bg-[#000065] py-[60px]">
         <div className="container">
           <h1 className="font-bold text-[28px] text-white mb-[30px] text-center">
-            {homePageData ? homePageData.jobCount : 0} Việc làm IT cho Developer &quot;Chất&quot;
+            {jobCount} Việc làm IT cho Developer &quot;Chất&quot;
           </h1>
-          <SearchBar locations={homePageData ? homePageData.locations: []}/>
+          <SearchBar locations={location}/>
           <div className="flex items-center gap-x-[12px] flex-wrap gap-y-[15px]">
             <div className="font-[500] text-[16px] text-[#DEDEDE]">
               Mọi người đang tìm kiếm:
