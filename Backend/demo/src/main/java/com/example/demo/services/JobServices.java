@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.JobCardDTO;
 import com.example.demo.dto.JobCreationRequest;
+import com.example.demo.dto.JobFilterDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.model.Job;
 import com.example.demo.repository.JobRepository;
@@ -65,5 +66,9 @@ public class JobServices {
 
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
+    }
+    public List<Job> searchJobsByFilters(JobFilterDTO filters) {
+        // Gọi thẳng xuống Repository, nơi sẽ xử lý logic Criteria (Bước 4)
+        return jobRepository.findJobsByFilters(filters);
     }
 }
