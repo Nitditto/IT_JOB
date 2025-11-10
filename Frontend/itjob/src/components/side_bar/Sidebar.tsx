@@ -9,7 +9,7 @@ export default function Sidebar({ children }:SidebarProps) {
   const [expanded, setExpanded] = useState(true)
   const [activeItem, setActiveItem] = useState("Dashboard")
   return (
-    <aside className={`h-full ${expanded ? "w-[256px]" : "w-17"}`}>
+    <aside className={` ${expanded ? "w-[256px]" : "w-17"}`}>
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
           <img
