@@ -8,10 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JobFilterDTO {
     private String query;
-    private String region;
-    private List<String> levels;
-    private List<String> workStyles;
+    private String location;
+    private List<String> position;
+    private List<String> workstyle;
     private Integer minSalary;
     private Integer maxSalary;
-    private List<String> skills;
+    private List<String> tags;
+    private Long companyID;
 }
