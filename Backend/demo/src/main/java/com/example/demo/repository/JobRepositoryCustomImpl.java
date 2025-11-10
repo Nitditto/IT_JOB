@@ -32,20 +32,20 @@ public class JobRepositoryCustomImpl implements JobRepositoryCustom {
             predicates.add(cb.like(cb.lower(job.get("name")), "%" + filters.getQuery().toLowerCase() + "%"));
         }
         
-        if (filters.getRegion() != null && !filters.getRegion().isEmpty()) {
+        if (filters.getLocation() != null && !filters.getLocation().isEmpty()) {
             // Phải join vào bảng Location và so sánh trường "abbreviation"
             Join<Job, Location> locationJoin = job.join("location");
-            predicates.add(cb.equal(locationJoin.get("abbreviation"), filters.getRegion()));
+            predicates.add(cb.equal(locationJoin.get("abbreviation"), filters.getLocation()));
         }
 
-        if (filters.getLevels() != null && !filters.getLevels().isEmpty()) {
+        if (filters.getPosition() != null && !filters.getPosition().isEmpty()) {
             // Thêm .as(String.class) để so sánh String với String
-            predicates.add(job.get("position").as(String.class).in(filters.getLevels()));
+            predicates.add(job.get("position").as(String.class).in(filters.getPosition()));
         }
 
-        if (filters.getWorkStyles() != null && !filters.getWorkStyles().isEmpty()) {
+        if (filters.getWorkstyle() != null && !filters.getWorkstyle().isEmpty()) {
             // Thêm .as(String.class) để so sánh String với String
-            predicates.add(job.get("workstyle").as(String.class).in(filters.getWorkStyles()));
+            predicates.add(job.get("workstyle").as(String.class).in(filters.getWorkstyle()));
         } 
 
         // 5. Lọc theo Lương (Salary Range) - ĐÃ ĐÚNG
@@ -57,16 +57,20 @@ public class JobRepositoryCustomImpl implements JobRepositoryCustom {
         }
 
         // 6. Lọc theo Kỹ năng (skills) - THÊM LOGIC MỚI
-        if (filters.getSkills() != null && !filters.getSkills().isEmpty()) {
+        if (filters.getTags() != null && !filters.getTags().isEmpty()) {
             // Tên trường trong Model là "tags"
             // Join vào bảng @ElementCollection
             Join<Job, String> tagJoin = job.join("tags");
             // Tìm các job có tag NÀY hoặc tag KIA (logic OR)
-            predicates.add(tagJoin.in(filters.getSkills()));
+            predicates.add(tagJoin.in(filters.getTags()));
             
             // Thêm distinct để tránh 1 job bị lặp lại nhiều lần
             // (ví dụ: job có cả React và NodeJS)
             query.distinct(true); 
+        }
+
+        if (filters.getCompanyID() != null) {
+            predicates.add(cb.equal(job.get("companyID"), filters.getCompanyID()));
         }
 
         // Gộp tất cả điều kiện
@@ -74,4 +78,6 @@ public class JobRepositoryCustomImpl implements JobRepositoryCustom {
         
         return entityManager.createQuery(query).getResultList();
     }
+
+
 }
