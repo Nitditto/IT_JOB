@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react' 
 import { IoMdSearch } from 'react-icons/io'
-import type { Location } from '../../types'
+import type { Location, Tag } from '../../types'
 import { Calendar as CalendarIcon, X, Funnel, Plus, Check } from 'lucide-react' 
 import { format } from 'date-fns'
 import type { DateRange } from 'react-day-picker' 
@@ -26,39 +26,33 @@ import { ScrollArea } from '../ui/scroll-area'
 import { Fa0 } from 'react-icons/fa6'
 import type { JobFilterParams } from '../../types'
 import { useNavigate, useSearchParams } from 'react-router';
-// const defaultFilters: JobFilterParams = {
-//   query: "",
-//   region: "",
-//   levels: [],
-//   workStyles: [],
-//   minSalary: 100,
-//   maxSalary: 10000,
-//   skills: []
-// };
+
 const FilterDialogContent = ({
   setDialogOpen,
   onApplyFilters,
-  currentFilters
+  currentFilters,
+  tags
 }: {
   setDialogOpen: (open: boolean) =>void,
   onApplyFilters: (newFilters: Partial<JobFilterParams>) => void,
-  currentFilters: Partial<JobFilterParams>
+  currentFilters: Partial<JobFilterParams>,
+  tags: Array<Tag>
 }) =>{
   // State này chỉ dùng bên trong Modal
   const [tempSalaryRange, setTempSalaryRange] = useState([currentFilters.minSalary || 100, currentFilters.maxSalary || 10000]);
-  const [tempLevels, setTempLevels] = useState<string[]>(currentFilters.levels || []);
-  const [tempWorkStyles, setTempWorkStyles] = useState<string[]>(currentFilters.workStyles || []);
-  const [tempSkills, setTempSkills] = useState<string[]>(currentFilters.skills || []);
+  const [tempPosition, setTempPosition] = useState<string[]>(currentFilters.position || []);
+  const [tempWorkstyle, setTempWorkstyle] = useState<string[]>(currentFilters.workstyle || []);
+  const [tempTags, setTempTags] = useState<string[]>(currentFilters.tags || []);
 
   // const [salaryRange,setSalaryRange]=useState([10,10000])
 
   const handleApplyFilter=()=>{
     onApplyFilters({
-      levels: tempLevels,
-      workStyles: tempWorkStyles,
+      position: tempPosition,
+      workstyle: tempWorkstyle,
       minSalary: tempSalaryRange[0],
       maxSalary: tempSalaryRange[1],
-      skills: tempSkills
+      tags: tempTags
     });
     // console.log(salaryRange);
     setDialogOpen(false)
@@ -77,87 +71,87 @@ const FilterDialogContent = ({
             <label className="font-semibold text-lg mb-3 block">Cấp bậc</label>
             <div className="flex flex-wrap gap-2">
               <Badge 
-                variant={tempLevels.includes("intern") ? "default" : "outline"}
+                variant={tempPosition.includes("intern") ? "default" : "outline"}
                 onClick={() => {
-                  const newLevels = tempLevels.includes("intern")
-                    ? tempLevels.filter(l => l !== "intern")
-                    : [...tempLevels, "intern"];
-                  setTempLevels(newLevels);
+                  const newPosition = tempPosition.includes("intern")
+                    ? tempPosition.filter(l => l !== "intern")
+                    : [...tempPosition, "intern"];
+                  setTempPosition(newPosition);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempLevels.includes("intern") 
+                  ${tempPosition.includes("intern") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
-                Intern {tempLevels.includes("intern") 
+                Intern {tempPosition.includes("intern") 
                   ? <Check className="ml-2 h-4 w-4" /> 
                   : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
               <Badge 
-                variant={tempLevels.includes("fresher") ? "default" : "outline"}
+                variant={tempPosition.includes("fresher") ? "default" : "outline"}
                 onClick={() => {
-                  const newLevels = tempLevels.includes("fresher")
-                    ? tempLevels.filter(l => l !== "fresher")
-                    : [...tempLevels, "fresher"];
-                  setTempLevels(newLevels);
+                  const newPosition = tempPosition.includes("fresher")
+                    ? tempPosition.filter(l => l !== "fresher")
+                    : [...tempPosition, "fresher"];
+                  setTempPosition(newPosition);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempLevels.includes("fresher") 
+                  ${tempPosition.includes("fresher") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
-                Fresher {tempLevels.includes("fresher") 
+                Fresher {tempPosition.includes("fresher") 
                   ? <Check className="ml-2 h-4 w-4" /> 
                   : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
               <Badge 
-                variant={tempLevels.includes("middle") ? "default" : "outline"}
+                variant={tempPosition.includes("middle") ? "default" : "outline"}
                 onClick={() => {
-                  const newLevels = tempLevels.includes("middle")
-                    ? tempLevels.filter(l => l !== "middle")
-                    : [...tempLevels, "middle"];
-                  setTempLevels(newLevels);
+                  const newPosition = tempPosition.includes("middle")
+                    ? tempPosition.filter(l => l !== "middle")
+                    : [...tempPosition, "middle"];
+                  setTempPosition(newPosition);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempLevels.includes("middle") 
+                  ${tempPosition.includes("middle") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
-                Middle {tempLevels.includes("middle") 
+                Middle {tempPosition.includes("middle") 
                   ? <Check className="ml-2 h-4 w-4" /> 
                   : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
               <Badge 
-                variant={tempLevels.includes("junior") ? "default" : "outline"}
+                variant={tempPosition.includes("junior") ? "default" : "outline"}
                 onClick={() => {
-                  const newLevels = tempLevels.includes("junior")
-                    ? tempLevels.filter(l => l !== "junior")
-                    : [...tempLevels, "junior"];
-                  setTempLevels(newLevels);
+                  const newPosition = tempPosition.includes("junior")
+                    ? tempPosition.filter(l => l !== "junior")
+                    : [...tempPosition, "junior"];
+                  setTempPosition(newPosition);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempLevels.includes("junior") 
+                  ${tempPosition.includes("junior") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
-                Junior {tempLevels.includes("junior") 
+                Junior {tempPosition.includes("junior") 
                   ? <Check className="ml-2 h-4 w-4" /> 
                   : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
               <Badge 
-                variant={tempLevels.includes("senior") ? "default" : "outline"}
+                variant={tempPosition.includes("senior") ? "default" : "outline"}
                 onClick={() => {
-                  const newLevels = tempLevels.includes("senior")
-                    ? tempLevels.filter(l => l !== "senior")
-                    : [...tempLevels, "senior"];
-                  setTempLevels(newLevels);
+                  const newPosition = tempPosition.includes("senior")
+                    ? tempPosition.filter(l => l !== "senior")
+                    : [...tempPosition, "senior"];
+                  setTempPosition(newPosition);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempLevels.includes("senior") 
+                  ${tempPosition.includes("senior") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
-                Senior {tempLevels.includes("senior") 
+                Senior {tempPosition.includes("senior") 
                   ? <Check className="ml-2 h-4 w-4" /> 
                   : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
@@ -169,58 +163,58 @@ const FilterDialogContent = ({
             <label className="font-semibold text-lg mb-3 block">Hình thức làm việc</label>
             <div className="flex flex-wrap gap-2">
               <Badge 
-                variant={tempWorkStyles.includes("onsite") ? "default" : "outline"}
+                variant={tempWorkstyle.includes("onsite") ? "default" : "outline"}
                 onClick={() => {
-                  const newStyles = tempWorkStyles.includes("onsite")
-                    ? tempWorkStyles.filter(s => s !== "onsite")
-                    : [...tempWorkStyles, "onsite"];
-                  setTempWorkStyles(newStyles);
+                  const newStyles = tempWorkstyle.includes("onsite")
+                    ? tempWorkstyle.filter(s => s !== "onsite")
+                    : [...tempWorkstyle, "onsite"];
+                  setTempWorkstyle(newStyles);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempWorkStyles.includes("onsite") 
+                  ${tempWorkstyle.includes("onsite") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
                 Tại văn phòng 
-                {tempWorkStyles.includes("onsite")
+                {tempWorkstyle.includes("onsite")
                   ? <Check className='ml-2 h-4 w-4' />
                   : <Plus className='ml-2 h-4 w-4' />
                 }
               </Badge>
               <Badge 
-                variant={tempWorkStyles.includes("remote") ? "default" : "outline"}
+                variant={tempWorkstyle.includes("remote") ? "default" : "outline"}
                 onClick={() => {
-                  const newStyles = tempWorkStyles.includes("remote")
-                    ? tempWorkStyles.filter(s => s !== "remote")
-                    : [...tempWorkStyles, "remote"];
-                  setTempWorkStyles(newStyles);
+                  const newStyles = tempWorkstyle.includes("remote")
+                    ? tempWorkstyle.filter(s => s !== "remote")
+                    : [...tempWorkstyle, "remote"];
+                  setTempWorkstyle(newStyles);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempWorkStyles.includes("remote") 
+                  ${tempWorkstyle.includes("remote") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
                 Làm từ xa
-                {tempWorkStyles.includes("remote")
+                {tempWorkstyle.includes("remote")
                   ? <Check className='ml-2 h-4 w-4' />
                   : <Plus className='ml-2 h-4 w-4' />
                 }
               </Badge>
               <Badge 
-                variant={tempWorkStyles.includes("hybrid") ? "default" : "outline"}
+                variant={tempWorkstyle.includes("hybrid") ? "default" : "outline"}
                 onClick={() => {
-                  const newStyles = tempWorkStyles.includes("hybrid")
-                    ? tempWorkStyles.filter(s => s !== "hybrid")
-                    : [...tempWorkStyles, "hybrid"];
-                  setTempWorkStyles(newStyles);
+                  const newStyles = tempWorkstyle.includes("hybrid")
+                    ? tempWorkstyle.filter(s => s !== "hybrid")
+                    : [...tempWorkstyle, "hybrid"];
+                  setTempWorkstyle(newStyles);
                 }}
                 className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
-                  ${tempWorkStyles.includes("hybrid") 
+                  ${tempWorkstyle.includes("hybrid") 
                     ? "bg-indigo-500 text-white hover:bg-indigo-600" 
                     : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
               >
                 Linh hoạt
-                {tempWorkStyles.includes("hybrid")
+                {tempWorkstyle.includes("hybrid")
                   ? <Check className='ml-2 h-4 w-4' />
                   : <Plus className='ml-2 h-4 w-4' />
                 }
@@ -253,63 +247,21 @@ const FilterDialogContent = ({
             {/* ScrollArea cho danh sách checkbox */}
             <ScrollArea className="h-[200px] mt-3 border rounded-md p-4">
               <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="skill-nextjs" 
-                    checked={tempSkills.includes("NextJS")}
+                {
+                  tags.map((tag, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox id={tag.tag} 
+                    checked={tempTags.includes(tag.tag)}
                     onCheckedChange={(checked) => {
-                      const newSkills = checked
-                        ? [...tempSkills, "NextJS"]
-                        : tempSkills.filter(s => s !== "NextJS"); 
-                      setTempSkills(newSkills);
+                      const newTags = checked
+                        ? [...tempTags, tag.tag]
+                        : tempTags.filter(s => s !== tag.tag); 
+                      setTempTags(newTags);
                     }} />
-                  <label htmlFor="skill-nextjs" className="text-sm">NextJS</label>
+                  <label htmlFor={tag.tag} className="text-sm">{tag.tag}</label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="skill-nodejs" 
-                    checked={tempSkills.includes("NodeJS")}
-                    onCheckedChange={(checked) => {
-                      const newSkills = checked
-                        ? [...tempSkills, "NodeJS"] // Thêm "NodeJS"
-                        : tempSkills.filter(s => s !== "NodeJS"); // Bỏ "NodeJS"
-                      setTempSkills(newSkills);
-                    }} />
-                  <label htmlFor="skill-nodejs" className="text-sm">NodeJS</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="skill-fullstackJava" 
-                    checked={tempSkills.includes("Fullstack Java")}
-                    onCheckedChange={(checked) => {
-                      const newSkills = checked
-                        ? [...tempSkills, "Fullstack Java"]
-                        : tempSkills.filter(s => s !== "Fullstack Java"); 
-                      setTempSkills(newSkills);
-                    }} />
-                  <label htmlFor="skill-fullstackJava" className="text-sm">Fullstack Java</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="skill-backendJava" 
-                    checked={tempSkills.includes("Backend Java")}
-                    onCheckedChange={(checked) => {
-                      const newSkills = checked
-                        ? [...tempSkills, "Backend Java"]
-                        : tempSkills.filter(s => s !== "Backend Java"); 
-                      setTempSkills(newSkills);
-                    }} />
-                  <label htmlFor="skill-backendJava" className="text-sm">Backend Java</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="skill-react" 
-                    checked={tempSkills.includes("React")}
-                    onCheckedChange={(checked) => {
-                      const newSkills = checked
-                        ? [...tempSkills, "React"]
-                        : tempSkills.filter(s => s !== "React"); 
-                      setTempSkills(newSkills);
-                    }}
-                  />
-                  <label htmlFor="skill-react" className="text-sm">React</label>
-                </div>
+                  ))
+                }
               </div>
             </ScrollArea>
           </div>
@@ -328,55 +280,58 @@ const FilterDialogContent = ({
 }
 
 const SearchBar = ({ 
-  locations
+  locations,
+  tags
 }: { 
-  locations: Array<Location>}) => {
+  locations: Array<Location>,
+  tags: Array<Tag>
+}) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();  
   
   const [isFilterDialogOpen,setIsFilterDialogOpen] = useState(false)
 
   const [query, setQuery] = useState(searchParams.get('query') || "");
-  const [region, setRegion] = useState(searchParams.get('region') || "");
+  const [location, setLocation] = useState(searchParams.get('location') || "");
   const [filters, setFilters] = useState<Partial<JobFilterParams>>({
-    levels: searchParams.getAll('levels') || [],
-    workStyles: searchParams.getAll('workStyles') || [],
+    position: searchParams.getAll('position') || [],
+    workstyle: searchParams.getAll('workstyle') || [],
     minSalary: Number(searchParams.get('minSalary')) || 10,
     maxSalary: Number(searchParams.get('maxSalary')) || 10000,
-    skills: searchParams.getAll('skills') || [],
+    tags: searchParams.getAll('tags') || [],
   });
   useEffect(() => {
     setQuery(searchParams.get('query') || "");
-    setRegion(searchParams.get('region') || "");
+    setLocation(searchParams.get('location') || "");
     setFilters({
-      levels: searchParams.getAll('levels') || [],
-      workStyles: searchParams.getAll('workStyles') || [],
+      position: searchParams.getAll('position') || [],
+      workstyle: searchParams.getAll('workstyle') || [],
       minSalary: Number(searchParams.get('minSalary')) || 10,
       maxSalary: Number(searchParams.get('maxSalary')) || 10000,
-      skills: searchParams.getAll('skills') || [],
+      tags: searchParams.getAll('tags') || [],
     });
   }, [searchParams]);
 
   const navigateToSearch = (newFilters: Partial<JobFilterParams> = {}) => {
     
-    // Gộp filter từ Dialog (newFilters) với filter từ thanh search (query, region)
+    // Gộp filter từ Dialog (newFilters) với filter từ thanh search (query, location)
     const allFilters = {
       ...filters,
       ...newFilters,
       query: query,
-      region: region,
+      location: location,
     };
 
     // Tạo URL Query String
     const params = new URLSearchParams();
     if (allFilters.query) params.set('query', allFilters.query);
-    if (allFilters.region) params.set('region', allFilters.region);
+    if (allFilters.location) params.set('location', allFilters.location);
     if (allFilters.minSalary && allFilters.minSalary !== 10) params.set('minSalary', allFilters.minSalary.toString());
     if (allFilters.maxSalary && allFilters.maxSalary !== 10000) params.set('maxSalary', allFilters.maxSalary.toString());
     
-    allFilters.levels?.forEach(level => params.append('levels', level));
-    allFilters.workStyles?.forEach(style => params.append('workStyles', style));
-    allFilters.skills?.forEach(skill => params.append('skills', skill));
+    allFilters.position?.forEach(level => params.append('position', level));
+    allFilters.workstyle?.forEach(style => params.append('workstyle', style));
+    allFilters.tags?.forEach(skill => params.append('tags', skill));
     
     // ĐIỀU HƯỚNG!
     // Thao tác này sẽ tự động tải lại trang /search
@@ -393,9 +348,9 @@ const SearchBar = ({
     >
       <div className="flex gap-x-[15px] gap-y-[12px] md:flex-nowrap flex-wrap">
         <select
-          name="region"
-          value={region}
-          onChange={(e)=>setRegion(e.target.value)}
+          name="location"
+          value={location}
+          onChange={(e)=>setLocation(e.target.value)}
           className="md:w-[240px] w-full h-[56px] rounded-[4px] bg-white font-[500] text-[16px] text-[#121212] px-[20px]"
         >
           <option value="">Tất cả thành phố</option>
@@ -437,7 +392,8 @@ const SearchBar = ({
           onApplyFilters={(newFilters)=>{
             setFilters(prev=>({...prev,...newFilters}))
             navigateToSearch(newFilters)
-          }}/>
+          }}
+          tags={tags}/>
         </DialogContent>
       </Dialog>
     </form>
