@@ -6,6 +6,7 @@ import { Section1 } from "../../components/section/Section1";
 import { useEffect, useState } from "react";
 import type {JobFilterParams} from '../../types'
 import { useSearchParams } from "react-router";
+import axios from "axios";
 // const MOCK_JOBS = [
 //   {
 //     id: 1,
@@ -72,28 +73,48 @@ export default function SearchPage() {
   //   location: "Hà Nội",
   //   tags: ["ReactJS", "NextJS", "Javascript"]
   // }
-  const getFiltersFromURL = (): JobFilterParams => {
-    return {
-      query: searchParams.get('query') || "",
-      region: searchParams.get('region') || "",
-      levels: searchParams.getAll('levels') || [],
-      workStyles: searchParams.getAll('workStyles') || [],
-      minSalary: Number(searchParams.get('minSalary')) || 10,
-      maxSalary: Number(searchParams.get('maxSalary')) || 10000,
-      skills: searchParams.getAll('skills') || [],
-    };
+const getFiltersFromURL = (): JobFilterParams => {
+  
+  // Helper to handle simple strings (converts null to undefined)
+  const getString = (key: string): string | undefined => {
+    return searchParams.get(key) ?? undefined;
   };
-  const [jobList, setJobList] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchJobs = async () => {
+  // Helper to handle numbers (converts null/NaN to undefined)
+  const getNumber = (key: string): number | undefined => {
+    const value = Number(searchParams.get(key));
+    // Will be undefined if value is 0, NaN, or not present
+    return value ? value : undefined; 
+  };
+
+  // Helper to handle arrays (converts null to undefined, or splits)
+  const getArray = (key: string): string[] | undefined => {
+    const value = searchParams.getAll(key);
+    return value ? value : undefined;
+  };
+
+  // Now your return object is clean and type-safe
+  return {
+    ...(getString('query') && { query: getString('query') }),
+    ...(getString('location') && { location: getString('location') }),
+    ...(getArray('position') && { position: getArray('position') }),
+    ...(getArray('workstyle') && { workstyle: getArray('workstyle') }),
+    ...(getNumber('minSalary') && { minSalary: getNumber('minSalary') }),
+    ...(getNumber('maxSalary') && { maxSalary: getNumber('maxSalary') }),
+    ...(getArray('tags') && { tags: getArray('tags') }),
+  };
+};
+  const [jobList, setJobList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const fetchJobs = async (filters: JobFilterParams) => {
     setIsLoading(true);
     console.log("Đang gọi API với filters:", filters);
     
     try {
       // Gửi request GET với `filters` làm query params
       // Ví dụ: /api/search?query=react&level=fresher&level=junior
-      const response = await api.get('/search', { 
+      const response = await axios.get(`${BACKEND_URL}/job/search`, { 
         params: filters,
         // Cấu hình để axios gửi mảng đúng cách (quan trọng!)
         paramsSerializer: {
@@ -116,7 +137,8 @@ export default function SearchPage() {
   useEffect(() => {
     document.title = "Kết quả tìm kiếm";
     const currentFilters = getFiltersFromURL();
-    fetchJobs(currentFilters); 
+    fetchJobs(currentFilters);
+    console.log(jobList);
   }, [searchParams]); // <-- Dependency: Tự động gọi lại API mỗi khi `filters` thay đổi
 
   

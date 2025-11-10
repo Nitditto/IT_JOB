@@ -14,7 +14,7 @@ export default function CompanyJobList() {
       try {
         const response = await axios.get(`${BACKEND_URL}/job/search`, {
           params: {
-            companyId: user?.id,
+            companyID: user?.id,
           }
         })
         setJobList(response.data);
