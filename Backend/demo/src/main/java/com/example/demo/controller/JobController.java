@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.JobCardDTO;
 import com.example.demo.dto.JobCreationRequest;
+import com.example.demo.dto.JobEditRequest;
 import com.example.demo.dto.JobFilterDTO;
 import com.example.demo.dto.TagDTO;
 import com.example.demo.dto.UserDTO;
@@ -25,6 +27,9 @@ import com.example.demo.services.JobServices;
 import com.example.demo.services.UserServices;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -67,16 +72,22 @@ public class JobController {
             .map(jobServices::toCard)
             .collect(Collectors.toList());
     }
-    // public List<JobCardDTO> search(@RequestParam(required = false) Long companyId) {
-    //     if (companyId != null) {
-    //         return jobServices.getJobByCompanyID(companyId)
-    //         .stream()
-    //         .map(jobServices::toCard)
-    //         .collect(Collectors.toList());
-    //     } else return jobServices.getAllJobs()
-    //     .stream()
-    //     .map(jobServices::toCard)
-    //     .collect(Collectors.toList());
-    // }
+
+    @GetMapping("/{id}")
+    public Job getJobInfo(@PathVariable Long id) {
+        Optional<Job> job = jobServices.getJobByID(id);
+        if (job.isPresent()) {
+            return job.get();
+        } else {
+            return new Job();
+        }
+    }
+    
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('COMPANY')")
+    public Job editJob(@PathVariable String id, @RequestBody JobEditRequest jobEditRequest) {
+        return jobServices.editJob(jobEditRequest);
+    }
     
 }
