@@ -9,16 +9,35 @@ import type { Location } from "@/types";
 import { useFilePicker } from 'use-file-picker';
 import { Button } from "@/components/ui/button";
 import { TagSelect } from "@/components/togSelect/TagSelect";
-
+interface TagDTO {
+  tag: string;
+  count: number;
+}
+interface TagOption {
+  value: string;
+  label: string;
+}
 export default function CompanyManageJobCreatePage() {
   const navigate = useNavigate();
   const [location, setLocation] = useState(Array<Location>);
+  const [allTags, setAllTags] = useState<TagOption[]>([]);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const init = async () => {
       try {
         const locationRes = await axios.get<Array<Location>>(`${BACKEND_URL}/location`);
         setLocation(locationRes.data);
+
+        const tagsRes = await axios.get<TagDTO[]>(`${BACKEND_URL}/job/tags`);
+
+        const sortedData = tagsRes.data.sort((a, b) => b.count - a.count);
+        const mappedTags = tagsRes.data.map(dto => ({
+          value: dto.tag.toLowerCase(), // value để gửi đi, vd: "react"
+          label: `${dto.tag} (${dto.count})` 
+        }));
+        setAllTags(mappedTags);
+
         document.title = "Thêm mới công việc"
       } catch (error) {
         console.error(error);
@@ -291,6 +310,7 @@ export default function CompanyManageJobCreatePage() {
               Các công nghệ 
             </label>
             <TagSelect 
+              allTags={allTags}
               value={data.tags} 
               onChange={(newTags) => {
                 dispatch({
