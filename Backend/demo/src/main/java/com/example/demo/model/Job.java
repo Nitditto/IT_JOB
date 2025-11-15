@@ -71,7 +71,7 @@ public class Job {
 
     @ElementCollection
     @CollectionTable(name = "job_images", joinColumns = @JoinColumn(name = "job_id"))
-    @Column(name = "image", columnDefinition = "LONGTEXT")
+    @Lob
     private List<String> images;
 
     @Column(length = 2000)
