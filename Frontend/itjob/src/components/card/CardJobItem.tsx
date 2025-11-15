@@ -2,6 +2,7 @@
 
 import { Link } from "react-router";
 import { FaBriefcase, FaLocationDot, FaUserTie } from "react-icons/fa6";
+import translation from "@/utils/translation";
 
 export const CardJobItem = ({jobInfo}: {jobInfo: any}) => {
   return (
@@ -41,10 +42,10 @@ export const CardJobItem = ({jobInfo}: {jobInfo: any}) => {
             {jobInfo.minSalary.toLocaleString() + "$ - " + jobInfo.maxSalary.toLocaleString() + "$"}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
-            <FaUserTie className="text-[16px]" /> {jobInfo.position}
+            <FaUserTie className="text-[16px]" /> {translation[jobInfo.position]}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
-            <FaBriefcase className="text-[16px]" /> {jobInfo.workstyle}
+            <FaBriefcase className="text-[16px]" /> {translation[jobInfo.workstyle]}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
             <FaLocationDot className="text-[16px]" /> {jobInfo.location.name}

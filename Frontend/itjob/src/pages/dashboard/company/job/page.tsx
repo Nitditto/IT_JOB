@@ -4,6 +4,7 @@ import { Link } from "react-router"
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
+import translation from "../../../../utils/translation";
 
 export default function CompanyJobList() {
   const {user} = useAuth();
@@ -58,10 +59,10 @@ export default function CompanyJobList() {
               {value.minSalary.toLocaleString() + "$ - " + value.maxSalary.toLocaleString() + "$"}
             </div>
             <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
-              <FaUserTie className="text-[16px]" /> {value.position}
+              <FaUserTie className="text-[16px]" /> {translation[value.position]}
             </div>
             <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
-              <FaBriefcase className="text-[16px]" /> {value.workstyle}
+              <FaBriefcase className="text-[16px]" /> {translation[value.workstyle]}
             </div>
             <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
               <FaLocationDot className="text-[16px]" /> {value.location.name}
@@ -75,7 +76,7 @@ export default function CompanyJobList() {
             </div>
             <div className="flex items-center justify-center gap-[12px] mb-[20px]">
               <Link
-                to={"#"}
+                to={`/dashboard/company/job/${value.id}/edit`}
                 className="bg-[#FFB200] rounded-[4px] font-[400] text-[14px] text-black inline-block py-[8px] px-[20px]"
               >
                 Sửa
