@@ -29,8 +29,10 @@ export function validateEmptyList(reason: string): ValidationRule {
 }
 
 export function validateLowerBound(bound: number, reason: string): ValidationRule {
-  return (value: number): ValidationResult => {
-    if (value <= bound) {
+  return (value: string): ValidationResult => {
+    try {
+      let valueNum = parseInt(value);
+          if (valueNum <= bound) {
     return {
       status: false,
       reason: reason
@@ -38,13 +40,21 @@ export function validateLowerBound(bound: number, reason: string): ValidationRul
     } else return {
       status: true,
       reason: ""
+    }
+    } catch (error: any) {
+      return {
+        status: false,
+        reason: error.message,
+      }
     }
   }
 }
 
 export function validateUpperBound(bound: number, reason: string): ValidationRule {
-  return (value: number): ValidationResult => {
-    if (value >= bound) {
+  return (value: string): ValidationResult => {
+    try {
+      const valueNum = parseInt(value);
+    if (valueNum >= bound) {
     return {
       status: false,
       reason: reason
@@ -53,7 +63,13 @@ export function validateUpperBound(bound: number, reason: string): ValidationRul
       status: true,
       reason: ""
     }
+  } catch (error: any) {
+    return {
+      status: false,
+      reason: error.message
+    }
   }
+}
 }
 
 export const validateEmail =  (email: string): ValidationResult => {
