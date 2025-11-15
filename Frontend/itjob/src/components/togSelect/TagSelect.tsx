@@ -37,14 +37,23 @@ const ALL_TAGS: TagOption[] = [
 ];
 
 interface TagSelectProps {
+  allTags: TagOption[];
   value: string[]; 
   onChange: (value: string[]) => void; 
 }
 
-export function TagSelect({ value, onChange }: TagSelectProps) {
-  const [availableTags, setAvailableTags] = React.useState(ALL_TAGS);
+export function TagSelect({ value, onChange, allTags }: TagSelectProps) {
+  const [availableTags, setAvailableTags] = React.useState<TagOption[]>(allTags);;
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
+
+  React.useEffect(() => {
+    setAvailableTags(prev => {
+      // Giữ lại các tag mới mà người dùng đã thêm
+      const newTags = prev.filter(p => !allTags.some(at => at.value === p.value));
+      return [...allTags, ...newTags];
+    });
+  }, [allTags]);
 
   const selectedTags = availableTags.filter(tag => value.includes(tag.value));
   
@@ -57,7 +66,7 @@ export function TagSelect({ value, onChange }: TagSelectProps) {
         value: newTagValue,
         label: trimmedValue, 
       };
-      setAvailableTags(prev => [...prev, newTag]);
+      setAvailableTags(prev => [newTag, ...prev]);
     }
   };
 
@@ -102,23 +111,37 @@ export function TagSelect({ value, onChange }: TagSelectProps) {
               <CommandGroup>
                 {availableTags.map((option) => {
                   const isSelected = value.includes(option.value);
+                  const isNewTag = !allTags.some(t => t.value === option.value);
                   return (
                     <CommandItem
                       key={option.value}
                       onSelect={() => {
                         if (isSelected) {
-                          // Bỏ chọn
                           onChange(value.filter((v) => v !== option.value));
                         } else {
                           onChange([...value, option.value]);
                         }
                       }}
+                      className="group" 
                     >
                       <Checkbox
                         className="mr-2"
                         checked={isSelected}
                       />
                       <span>{option.label}</span>
+                      {isNewTag && (
+                        <button
+                          type="button"
+                          className="ml-auto invisible group-hover:visible" 
+                          onClick={(e) => {
+                            e.stopPropagation(); // Ngăn 'onSelect' chạy
+                            setAvailableTags(prev => prev.filter(t => t.value !== option.value));
+                            onChange(value.filter((v) => v !== option.value));
+                          }}
+                        >
+                          <X className="h-4 w-4 text-red-500 hover:text-red-700" />
+                        </button>
+                      )}
                     </CommandItem>
                   );
                 })}
