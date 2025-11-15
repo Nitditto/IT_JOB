@@ -91,7 +91,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 // Cho phép các endpoint này không cần xác thực
-                .requestMatchers("/", "/csrf", "/auth/register", "/auth/login", "/job/search", "/location", "/job/count").permitAll()
+                .requestMatchers("/", "/csrf", "/auth/register", "/auth/login", "/job/search", "/location", "/job/count", "/job/tags").permitAll()
                 // Yêu cầu xác thực cho các endpoint còn lại
                 .anyRequest().authenticated()
             )

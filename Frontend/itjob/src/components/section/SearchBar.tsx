@@ -1,7 +1,7 @@
-import { useState } from 'react' 
+import { useEffect, useState } from 'react' 
 import { IoMdSearch } from 'react-icons/io'
-import type { Location } from '../../types'
-import { Calendar as CalendarIcon, X, Funnel, Plus } from 'lucide-react' 
+import type { Location, Tag } from '../../types'
+import { Calendar as CalendarIcon, X, Funnel, Plus, Check } from 'lucide-react' 
 import { format } from 'date-fns'
 import type { DateRange } from 'react-day-picker' 
 import { Button } from '../ui/button'
@@ -24,11 +24,37 @@ import { Input } from '../ui/input'
 import { Checkbox } from '../ui/checkbox'
 import { ScrollArea } from '../ui/scroll-area'
 import { Fa0 } from 'react-icons/fa6'
+import type { JobFilterParams } from '../../types'
+import { useNavigate, useSearchParams } from 'react-router';
 
-const FilterDialogContent = ({ setDialogOpen }: { setDialogOpen: (open: boolean) => void }) =>{
-  const [salaryRange,setSalaryRange]=useState([10,10000])
+const FilterDialogContent = ({
+  setDialogOpen,
+  onApplyFilters,
+  currentFilters,
+  tags
+}: {
+  setDialogOpen: (open: boolean) =>void,
+  onApplyFilters: (newFilters: Partial<JobFilterParams>) => void,
+  currentFilters: Partial<JobFilterParams>,
+  tags: Array<Tag>
+}) =>{
+  // State này chỉ dùng bên trong Modal
+  const [tempSalaryRange, setTempSalaryRange] = useState([currentFilters.minSalary || 100, currentFilters.maxSalary || 10000]);
+  const [tempPosition, setTempPosition] = useState<string[]>(currentFilters.position || []);
+  const [tempWorkstyle, setTempWorkstyle] = useState<string[]>(currentFilters.workstyle || []);
+  const [tempTags, setTempTags] = useState<string[]>(currentFilters.tags || []);
+
+  // const [salaryRange,setSalaryRange]=useState([10,10000])
+
   const handleApplyFilter=()=>{
-    console.log(salaryRange);
+    onApplyFilters({
+      position: tempPosition,
+      workstyle: tempWorkstyle,
+      minSalary: tempSalaryRange[0],
+      maxSalary: tempSalaryRange[1],
+      tags: tempTags
+    });
+    // console.log(salaryRange);
     setDialogOpen(false)
   }
 
@@ -44,23 +70,90 @@ const FilterDialogContent = ({ setDialogOpen }: { setDialogOpen: (open: boolean)
           <div>
             <label className="font-semibold text-lg mb-3 block">Cấp bậc</label>
             <div className="flex flex-wrap gap-2">
-              {/* Đây là các Badge. Tốt hơn nên dùng component ToggleGroup của shadcn
-                để làm các nút bấm chọn. Nhưng để cho giống ảnh, ta dùng Badge.
-              */}
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Intern <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempPosition.includes("intern") ? "default" : "outline"}
+                onClick={() => {
+                  const newPosition = tempPosition.includes("intern")
+                    ? tempPosition.filter(l => l !== "intern")
+                    : [...tempPosition, "intern"];
+                  setTempPosition(newPosition);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempPosition.includes("intern") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Intern {tempPosition.includes("intern") 
+                  ? <Check className="ml-2 h-4 w-4" /> 
+                  : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Fresher <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempPosition.includes("fresher") ? "default" : "outline"}
+                onClick={() => {
+                  const newPosition = tempPosition.includes("fresher")
+                    ? tempPosition.filter(l => l !== "fresher")
+                    : [...tempPosition, "fresher"];
+                  setTempPosition(newPosition);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempPosition.includes("fresher") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Fresher {tempPosition.includes("fresher") 
+                  ? <Check className="ml-2 h-4 w-4" /> 
+                  : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Middle <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempPosition.includes("middle") ? "default" : "outline"}
+                onClick={() => {
+                  const newPosition = tempPosition.includes("middle")
+                    ? tempPosition.filter(l => l !== "middle")
+                    : [...tempPosition, "middle"];
+                  setTempPosition(newPosition);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempPosition.includes("middle") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Middle {tempPosition.includes("middle") 
+                  ? <Check className="ml-2 h-4 w-4" /> 
+                  : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Junior <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempPosition.includes("junior") ? "default" : "outline"}
+                onClick={() => {
+                  const newPosition = tempPosition.includes("junior")
+                    ? tempPosition.filter(l => l !== "junior")
+                    : [...tempPosition, "junior"];
+                  setTempPosition(newPosition);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempPosition.includes("junior") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Junior {tempPosition.includes("junior") 
+                  ? <Check className="ml-2 h-4 w-4" /> 
+                  : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Senior <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempPosition.includes("senior") ? "default" : "outline"}
+                onClick={() => {
+                  const newPosition = tempPosition.includes("senior")
+                    ? tempPosition.filter(l => l !== "senior")
+                    : [...tempPosition, "senior"];
+                  setTempPosition(newPosition);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempPosition.includes("senior") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Senior {tempPosition.includes("senior") 
+                  ? <Check className="ml-2 h-4 w-4" /> 
+                  : <Plus className="ml-2 h-4 w-4" />}
               </Badge>
             </div>
           </div>
@@ -69,14 +162,62 @@ const FilterDialogContent = ({ setDialogOpen }: { setDialogOpen: (open: boolean)
           <div>
             <label className="font-semibold text-lg mb-3 block">Hình thức làm việc</label>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Tại văn phòng <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempWorkstyle.includes("onsite") ? "default" : "outline"}
+                onClick={() => {
+                  const newStyles = tempWorkstyle.includes("onsite")
+                    ? tempWorkstyle.filter(s => s !== "onsite")
+                    : [...tempWorkstyle, "onsite"];
+                  setTempWorkstyle(newStyles);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempWorkstyle.includes("onsite") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Tại văn phòng 
+                {tempWorkstyle.includes("onsite")
+                  ? <Check className='ml-2 h-4 w-4' />
+                  : <Plus className='ml-2 h-4 w-4' />
+                }
               </Badge>
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Làm từ xa <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempWorkstyle.includes("remote") ? "default" : "outline"}
+                onClick={() => {
+                  const newStyles = tempWorkstyle.includes("remote")
+                    ? tempWorkstyle.filter(s => s !== "remote")
+                    : [...tempWorkstyle, "remote"];
+                  setTempWorkstyle(newStyles);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempWorkstyle.includes("remote") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Làm từ xa
+                {tempWorkstyle.includes("remote")
+                  ? <Check className='ml-2 h-4 w-4' />
+                  : <Plus className='ml-2 h-4 w-4' />
+                }
               </Badge>
-              <Badge variant="outline" className="p-2 px-3 rounded-md text-base cursor-pointer hover:bg-gray-100">
-                Linh hoạt <Plus className="ml-2 h-4 w-4" />
+              <Badge 
+                variant={tempWorkstyle.includes("hybrid") ? "default" : "outline"}
+                onClick={() => {
+                  const newStyles = tempWorkstyle.includes("hybrid")
+                    ? tempWorkstyle.filter(s => s !== "hybrid")
+                    : [...tempWorkstyle, "hybrid"];
+                  setTempWorkstyle(newStyles);
+                }}
+                className={`p-2 px-3 rounded-md text-base cursor-pointer transition-colors
+                  ${tempWorkstyle.includes("hybrid") 
+                    ? "bg-indigo-500 text-white hover:bg-indigo-600" 
+                    : "border border-indigo-400 text-indigo-500 hover:bg-indigo-100"}`}
+              >
+                Linh hoạt
+                {tempWorkstyle.includes("hybrid")
+                  ? <Check className='ml-2 h-4 w-4' />
+                  : <Plus className='ml-2 h-4 w-4' />
+                }
               </Badge>
             </div>
           </div>
@@ -86,12 +227,12 @@ const FilterDialogContent = ({ setDialogOpen }: { setDialogOpen: (open: boolean)
             <div className="font-semibold text-lg mb-3 block">Mức lương</div>
             <div className="flex gap-5 items-center">
               <div className="flex gap-1 text-sm  mt-2">
-              <span>{salaryRange[0]}$</span> - <span>{salaryRange[1]}$</span>
+              <span>{tempSalaryRange[0]}$</span> - <span>{tempSalaryRange[1]}$</span>
             </div>
             <Slider 
               className="border border-gray-400 p-3 rounded-full w-[70%]"
-              value={salaryRange}
-              onValueChange={setSalaryRange} 
+              value={tempSalaryRange}
+              onValueChange={setTempSalaryRange} 
               min={100}
               max={10000}
               step={10}
@@ -106,26 +247,21 @@ const FilterDialogContent = ({ setDialogOpen }: { setDialogOpen: (open: boolean)
             {/* ScrollArea cho danh sách checkbox */}
             <ScrollArea className="h-[200px] mt-3 border rounded-md p-4">
               <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="field-1" />
-                  <label htmlFor="field-1" className="text-sm">NodeJS</label>
+                {
+                  tags.map((tag, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox id={tag.tag} 
+                    checked={tempTags.includes(tag.tag)}
+                    onCheckedChange={(checked) => {
+                      const newTags = checked
+                        ? [...tempTags, tag.tag]
+                        : tempTags.filter(s => s !== tag.tag); 
+                      setTempTags(newTags);
+                    }} />
+                  <label htmlFor={tag.tag} className="text-sm">{tag.tag}</label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="field-2" />
-                  <label htmlFor="field-2" className="text-sm">NextJS</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="field-2" />
-                  <label htmlFor="field-2" className="text-sm">Fullstack Java</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="field-2" />
-                  <label htmlFor="field-2" className="text-sm">Backend Java</label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="field-2" />
-                  <label htmlFor="field-2" className="text-sm">React</label>
-                </div>
+                  ))
+                }
               </div>
             </ScrollArea>
           </div>
@@ -143,31 +279,78 @@ const FilterDialogContent = ({ setDialogOpen }: { setDialogOpen: (open: boolean)
   )
 }
 
-const SearchBar = ({ locations }: { locations: Array<Location> }) => {
-  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false)
-  const [date, setDate] = useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  })
+const SearchBar = ({ 
+  locations,
+  tags
+}: { 
+  locations: Array<Location>,
+  tags: Array<Tag>
+}) => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();  
+  
   const [isFilterDialogOpen,setIsFilterDialogOpen] = useState(false)
-  // ĐỔI SANG DÙNG onSubmit ĐỂ LẤY ĐƯỢC CẢ STATE VÀ FORMDATA
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault() 
-    const formData = new FormData(e.currentTarget)
-    console.log(`region: ${formData.get('region')}`)
-    console.log(`query: ${formData.get('query')}`)
-    console.log(`Date from: ${date?.from}`)
-    console.log(`Date to: ${date?.to}`)
+
+  const [query, setQuery] = useState(searchParams.get('query') || "");
+  const [location, setLocation] = useState(searchParams.get('location') || "");
+  const [filters, setFilters] = useState<Partial<JobFilterParams>>({
+    position: searchParams.getAll('position') || [],
+    workstyle: searchParams.getAll('workstyle') || [],
+    minSalary: Number(searchParams.get('minSalary')) || 10,
+    maxSalary: Number(searchParams.get('maxSalary')) || 10000,
+    tags: searchParams.getAll('tags') || [],
+  });
+  useEffect(() => {
+    setQuery(searchParams.get('query') || "");
+    setLocation(searchParams.get('location') || "");
+    setFilters({
+      position: searchParams.getAll('position') || [],
+      workstyle: searchParams.getAll('workstyle') || [],
+      minSalary: Number(searchParams.get('minSalary')) || 10,
+      maxSalary: Number(searchParams.get('maxSalary')) || 10000,
+      tags: searchParams.getAll('tags') || [],
+    });
+  }, [searchParams]);
+
+  const navigateToSearch = (newFilters: Partial<JobFilterParams> = {}) => {
+    
+    // Gộp filter từ Dialog (newFilters) với filter từ thanh search (query, location)
+    const allFilters = {
+      ...filters,
+      ...newFilters,
+      query: query,
+      location: location,
+    };
+
+    // Tạo URL Query String
+    const params = new URLSearchParams();
+    if (allFilters.query) params.set('query', allFilters.query);
+    if (allFilters.location) params.set('location', allFilters.location);
+    if (allFilters.minSalary && allFilters.minSalary !== 10) params.set('minSalary', allFilters.minSalary.toString());
+    if (allFilters.maxSalary && allFilters.maxSalary !== 10000) params.set('maxSalary', allFilters.maxSalary.toString());
+    
+    allFilters.position?.forEach(level => params.append('position', level));
+    allFilters.workstyle?.forEach(style => params.append('workstyle', style));
+    allFilters.tags?.forEach(skill => params.append('tags', skill));
+    
+    // ĐIỀU HƯỚNG!
+    // Thao tác này sẽ tự động tải lại trang /search
+    navigate(`/search?${params.toString()}`);
   }
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={(e)=>{
+        e.preventDefault();
+        navigateToSearch();
+      }}
       className="flex flex-col gap-x-[15px] gap-y-[12px] mb-[30px] flex-wrap"
     >
       <div className="flex gap-x-[15px] gap-y-[12px] md:flex-nowrap flex-wrap">
         <select
-          name="region"
+          name="location"
+          value={location}
+          onChange={(e)=>setLocation(e.target.value)}
           className="md:w-[240px] w-full h-[56px] rounded-[4px] bg-white font-[500] text-[16px] text-[#121212] px-[20px]"
         >
           <option value="">Tất cả thành phố</option>
@@ -179,9 +362,11 @@ const SearchBar = ({ locations }: { locations: Array<Location> }) => {
         <div className="md:flex-1 w-full h-[56px] rounded-[4px] bg-white font-[500] flex justify-between items-center text-[16px] text-[#121212] px-[20px]">
           <input
             type="text"
-            className="w-full bg-transparent outline-none" // <-- Thêm bg-transparent và outline-none
+            className="w-full bg-transparent outline-none"
             placeholder="Nhập từ khóa..."
             name="query"
+            value={query}
+            onChange={(e)=>setQuery(e.target.value)}
           />
           {/* Nút bật/tắt tìm kiếm nâng cao */}
           <Funnel 
@@ -191,61 +376,24 @@ const SearchBar = ({ locations }: { locations: Array<Location> }) => {
         </div>
 
         <button
-          type="submit"
+          type="button"
+          onClick={()=>navigateToSearch()}
           className="flex items-center justify-center gap-x-[10px] md:w-[240px] w-full h-[56px] rounded-[4px] bg-[#0088FF] font-[500] text-[16px] text-[#fff] px-[20px] cursor-pointer"
         >
           <IoMdSearch className="text-[26px]" /> Tìm kiếm
         </button>
       </div>
 
-      {/* {isAdvancedSearchOpen && (
-        <div className="w-full bg-white p-4 rounded-[4px] shadow-md">
-          <label className="font-[500] text-[14px] text-black mb-2 block">
-            Bộ lọc
-          </label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="date"
-                variant={'outline'}
-                className={`
-                  w-full h-[56px] justify-start text-left font-normal
-                  ${!date && 'text-muted-foreground'}
-                `}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date?.from ? (
-                  date.to ? (
-                    <>
-                      {format(date.from, 'LLL dd, y')} -{' '}
-                      {format(date.to, 'LLL dd, y')}
-                    </>
-                  ) : (
-                    format(date.from, 'LLL dd, y')
-                  )
-                ) : (
-                  <span>Chọn một khoảng ngày</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white">
-              
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={date?.from}
-                selected={date}
-                onSelect={setDate}
-                numberOfMonths={2} 
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      )} */}
-
       <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
         <DialogContent className='min-w-[800px] border-0 p-0 bg-white'>
-          <FilterDialogContent setDialogOpen={setIsFilterDialogOpen}/>
+          <FilterDialogContent 
+          setDialogOpen={setIsFilterDialogOpen}
+          currentFilters={filters}
+          onApplyFilters={(newFilters)=>{
+            setFilters(prev=>({...prev,...newFilters}))
+            navigateToSearch(newFilters)
+          }}
+          tags={tags}/>
         </DialogContent>
       </Dialog>
     </form>
