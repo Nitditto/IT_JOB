@@ -1,30 +1,18 @@
-//Frontend\itjob\src\pages\dashboard\company\job\create\page.tsx
+//Frontend\itjob\src\pages\dashboard\edit
 import { useCallback, useEffect, useReducer, useState } from "react"
-import { Link, redirect, useNavigate } from "react-router";
+import { Link, redirect, useNavigate, useParams } from "react-router";
 import api from "../../../../../utils/api";
 import { formReducer, handleFieldChange, handleFileChange } from "../../../../../utils/formUtils";
 import { validate, validateEmpty, validateEmptyList, validateLowerBound, validateUpperBound } from "../../../../../utils/validateForms";
 import axios from "axios";
 import type { Location } from "@/types";
-import { useFilePicker } from 'use-file-picker';
 
-export default function CompanyManageJobCreatePage() {
+export default function CompanyManageJobEditPage() {
+  const {id} = useParams();
   const navigate = useNavigate();
   const [location, setLocation] = useState(Array<Location>);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  useEffect(() => {
-    const init = async () => {
-      try {
-        const locationRes = await axios.get<Array<Location>>(`${BACKEND_URL}/location`);
-        setLocation(locationRes.data);
-        document.title = "Thêm mới công việc"
-      } catch (error) {
-        console.error(error);
-      }
-    }
 
-    init();
-  }, [])
   const defaultJob = {
     data: {
       name: "",
@@ -52,24 +40,39 @@ export default function CompanyManageJobCreatePage() {
   }
   const [state, dispatch] = useReducer(formReducer(defaultJob), defaultJob)
   const { data, error, isLoading, status } = state;
-  const {openFilePicker, filesContent, loading, errors: fileErrors} =  useFilePicker({
-    readAs: 'DataURL', // <-- Yêu cầu nó đọc file sang Data URL (giống code cũ)
-    accept: 'image/*',
-    multiple: true,
-  });
   useEffect(() => {
-    dispatch({
-      type: 'CHANGE_FIELD',
-        field: 'images', 
-        // filesContent là mảng [{ name: '...', content: 'data:image/...' }]
-        // Chúng ta chỉ lấy 'content' (chính là Data URL string)
-        value: filesContent.map(file => file.content) 
-      
-    });
-  }, [filesContent]);
-  /**
-   * The main handler for the file input's onChange event.
-   */
+    const init = async () => {
+      try {
+        const locationRes = await axios.get<Array<Location>>(`${BACKEND_URL}/location`);
+        setLocation(locationRes.data);
+        if (id) { // Chỉ chạy nếu có id
+          document.title = "Sửa đổi công việc";
+
+          const jobRes = await api.get(`/job/${id}`); 
+          const jobData = jobRes.data;
+          
+          dispatch({ type: 'CHANGE_FIELD', field: 'name', value: jobData.name  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'minSalary', value: jobData.minSalary  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'maxSalary', value: jobData.maxSalary  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'position', value: jobData.position  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'workstyle', value: jobData.workstyle  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'address', value: jobData.address  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'location', value: jobData.location.abbreviation  }); // Lấy abbreviation
+          dispatch({ type: 'CHANGE_FIELD', field: 'description', value: jobData.description  });
+          
+          const tagsString = jobData.tags ? jobData.tags.join(';') : '';
+          dispatch({ type: 'CHANGE_FIELD', field: 'tags', value: tagsString  });
+        }
+
+      } catch (error) {
+        console.error(error);
+        navigate("/dashboard/company/job");
+      }
+    }
+
+    init();
+  }, [id, navigate, BACKEND_URL]);
+
   const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nameChecker = validate(
@@ -143,10 +146,12 @@ export default function CompanyManageJobCreatePage() {
       type: "SUBMIT_START"
     })
     try {
-      await api.post("/job/create", { ...data, "tags": data.tags.split(";") })
+      await api.put(`/job/${id}`, { ...data, "tags": data.tags.split(";"), 'jobID': id 
+
+      })
       dispatch({
         type: "SUBMIT_SUCCESS",
-        payload: "Tạo công việc mới thành công!"
+        payload: "Cập nhật công việc thành công!"
 
       })
       navigate("/dashboard/company/job")
@@ -162,7 +167,7 @@ export default function CompanyManageJobCreatePage() {
       <div className="border border-[#DEDEDE] rounded-[8px] p-[20px]">
         <div className="flex flex-wrap gap-[20px] items-center justify-between mb-[20px]">
           <h1 className="sm:w-auto w-[100%] font-[700] text-[20px] text-black">
-            Thêm mới công việc
+            Sửa đổi công việc
           </h1>
           <Link to={"../company/job"} className="font-[400] text-[14px] text-[#0088FF] underline">
             Quay lại danh sách
@@ -301,38 +306,15 @@ export default function CompanyManageJobCreatePage() {
             <label htmlFor="images" aria-required className="block font-[500] text-[14px] text-black mb-[5px] required">
               Danh sách ảnh
             </label>
-            <div>
-              {/* Nút bấm để mở File Picker */}
-              <button 
-                type="button" 
-                onClick={() => openFilePicker()}
-                className="h-[46px] rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black bg-white hover:bg-gray-50"
-              >
-                {loading ? "Đang tải..." : "Chọn ảnh"}
-              </button>
-
-              {/* (Tùy chọn) Nút Xóa */}
-              {data.images.length > 0 && (
-                <button 
-                  type="button" 
-                  onClick={() => clear()}
-                  className="ml-2 h-[46px] rounded-[4px] border border-red-300 px-[20px] text-[14px] font-[500] text-red-600 bg-white hover:bg-red-50"
-                >
-                  Xóa
-                </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-4">
-              {data.images.map((dataUrl: string, index: number) => (
-                <img 
-                  key={index} 
-                  src={dataUrl} 
-                  alt={`preview ${index}`} 
-                  className="w-24 h-24 object-cover rounded-md border" 
-                />
-              ))}
-            </div>
-            {fileErrors.length > 0 && <div className="text-red-400">Lỗi file: {fileErrors[0].name} có thể quá lớn.</div>}
+            <input
+              type="file"
+              name="images"
+              id="images"
+              onChange={handleFileChange(dispatch)}
+              accept="image/*"
+              multiple
+              className=""
+            />
             {error.images && <div className="text-red-400">{error.images}</div>}
           </div>
           <div className="sm:col-span-2">
@@ -349,7 +331,7 @@ export default function CompanyManageJobCreatePage() {
           </div>
           <div className="sm:col-span-2">
             <button disabled={isLoading} type="submit" className="bg-[#0088FF] disabled:bg-[#0088FF]/50 rounded-[4px] h-[48px] px-[20px] font-[700] text-[16px] text-white">
-              {isLoading ? "Đang xử lý..." : "Tạo mới"}
+              {isLoading ? "Đang xử lý..." : "Cập nhật"}
             </button>
             <div className={status.isError ? "text-red-400" : "text-green-400"}>{status.reason}</div>
           </div>

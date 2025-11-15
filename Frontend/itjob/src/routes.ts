@@ -41,7 +41,6 @@ export default [
         path: "company/setting",
         file: "./pages/dashboard/settings/page.tsx"
       },
-
       {
         path: "company/job/create",
         file: "./pages/dashboard/company/job/create/page.tsx"
@@ -49,6 +48,10 @@ export default [
       {
         path: "admin/register",
         file : "./pages/dashboard/admin/register/page.tsx"
+      },
+      {
+        path: "company/job/:id/edit",
+        file: "./pages/dashboard/company/job/edit/page.tsx"
       }
     ]),
 
