@@ -7,6 +7,8 @@ import { validate, validateEmpty, validateEmptyList, validateLowerBound, validat
 import axios from "axios";
 import type { Location } from "@/types";
 import { useFilePicker } from 'use-file-picker';
+import { Button } from "@/components/ui/button";
+import { TagSelect } from "@/components/togSelect/TagSelect";
 
 export default function CompanyManageJobCreatePage() {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export default function CompanyManageJobCreatePage() {
     }
 
     init();
-  }, [])
+  }, [BACKEND_URL])
   const defaultJob = {
     data: {
       name: "",
@@ -34,7 +36,7 @@ export default function CompanyManageJobCreatePage() {
       workstyle: "",
       address: "",
       location: "",
-      tags: "",
+      tags: [],
       images: [],
       description: ""
     },
@@ -143,7 +145,7 @@ export default function CompanyManageJobCreatePage() {
       type: "SUBMIT_START"
     })
     try {
-      await api.post("/job/create", { ...data, "tags": data.tags.split(";") })
+      await api.post("/job/create", data);
       dispatch({
         type: "SUBMIT_SUCCESS",
         payload: "Tạo công việc mới thành công!"
@@ -278,48 +280,48 @@ export default function CompanyManageJobCreatePage() {
               <option value=""></option>
               {
                 location.map(value => (
-                  <option value={value.abbreviation}>{value.name}</option>
+                  <option key={value.abbreviation} value={value.abbreviation}>{value.name}</option>
                 ))
               }
             </select>
             {error.location && <div className="text-red-400">{error.location}</div>}
           </div>
-          <div className="sm:col-span-2">
+          <div className="">
             <label htmlFor="technologies" className="block font-[500] text-[14px] text-black mb-[5px]">
-              Các công nghệ (Mỗi công nghệ được ngăn cách bởi dấu ;)
+              Các công nghệ 
             </label>
-            <input
-              type="text"
-              name="tags"
-              onChange={handleFieldChange(dispatch)}
-              value={data.tags}
-              id="technologies"
-              className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
+            <TagSelect 
+              value={data.tags} 
+              onChange={(newTags) => {
+                dispatch({
+                  type: 'CHANGE_FIELD', field: 'tags', value: newTags 
+                });
+              }}
             />
           </div>
           <div className="sm:col-span-2">
             <label htmlFor="images" aria-required className="block font-[500] text-[14px] text-black mb-[5px] required">
               Danh sách ảnh
             </label>
-            <div>
+            <div className="mb-4">
               {/* Nút bấm để mở File Picker */}
-              <button 
+              <Button 
                 type="button" 
                 onClick={() => openFilePicker()}
-                className="h-[46px] rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black bg-white hover:bg-gray-50"
+                className="h-[46px] rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black bg-white hover:bg-gray-50 cursor-pointer"
               >
                 {loading ? "Đang tải..." : "Chọn ảnh"}
-              </button>
+              </Button>
 
               {/* (Tùy chọn) Nút Xóa */}
               {data.images.length > 0 && (
-                <button 
+                <Button 
                   type="button" 
                   onClick={() => clear()}
-                  className="ml-2 h-[46px] rounded-[4px] border border-red-300 px-[20px] text-[14px] font-[500] text-red-600 bg-white hover:bg-red-50"
+                  className="ml-2 h-[46px] rounded-[4px] border border-red-300 px-[20px] text-[14px] font-[500] text-red-600 bg-white hover:bg-red-50 cursor-pointer"
                 >
                   Xóa
-                </button>
+                </Button>
               )}
             </div>
             <div className="flex flex-wrap gap-4">
