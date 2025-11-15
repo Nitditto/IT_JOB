@@ -26,3 +26,18 @@ export type ValidationResult = {
 }
 
 export type ValidationRule = (value: any) => ValidationResult
+
+export interface JobFilterParams {
+  query?: string;
+  location?: string;
+  position?: string[];
+  workstyle?: string[];
+  minSalary?: number;
+  maxSalary?: number;
+  tags?: string[];
+}
+
+export interface Tag {
+  tag: string;
+  count: number;
+}

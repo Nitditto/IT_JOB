@@ -1,11 +1,15 @@
 package com.example.demo.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.JobCardDTO;
 import com.example.demo.dto.JobCreationRequest;
+import com.example.demo.dto.JobEditRequest;
+import com.example.demo.dto.JobFilterDTO;
+import com.example.demo.dto.TagDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.model.Job;
 import com.example.demo.repository.JobRepository;
@@ -32,6 +36,22 @@ public class JobServices {
         job.setPosition(request.getPosition());
         job.setWorkstyle(request.getWorkstyle());
         job.setTags(request.getTags());
+
+        return jobRepository.save(job);
+    }
+
+    public Job editJob(JobEditRequest jobEditRequest) {
+        Job job = jobRepository.findById(jobEditRequest.getJobID()).orElseThrow();
+        job.setName(jobEditRequest.getName());
+        job.setMinSalary(jobEditRequest.getMinSalary());
+        job.setMaxSalary(jobEditRequest.getMaxSalary());
+        job.setPosition(jobEditRequest.getPosition());
+        job.setWorkstyle(jobEditRequest.getWorkstyle());
+        job.setAddress(jobEditRequest.getAddress());
+        job.setLocation(locationRepository.findByAbbreviation(jobEditRequest.getLocation()).get());
+        job.setTags(jobEditRequest.getTags());
+        job.setImages(jobEditRequest.getImages());
+        job.setDescription(jobEditRequest.getDescription());
 
         return jobRepository.save(job);
     }
@@ -63,7 +83,20 @@ public class JobServices {
         return jobRepository.findByCompanyID(companyId);
     }
 
+    public Optional<Job> getJobByID(Long jobID) {
+        return jobRepository.findById(jobID);
+    }
+
     public List<Job> getAllJobs() {
         return jobRepository.findAll();
+    }
+
+    public List<TagDTO> getAllTags() {
+        return jobRepository.findAllTags();
+    }
+
+    public List<Job> searchJobsByFilters(JobFilterDTO filters) {
+        // Gọi thẳng xuống Repository, nơi sẽ xử lý logic Criteria (Bước 4)
+        return jobRepository.findJobsByFilters(filters);
     }
 }

@@ -47,7 +47,7 @@ export const CardJobItem = ({jobInfo}: {jobInfo: any}) => {
             <FaBriefcase className="text-[16px]" /> {jobInfo.workstyle}
           </div>
           <div className="flex items-center justify-center gap-[8px] mb-[6px] text-[14px]">
-            <FaLocationDot className="text-[16px]" /> {jobInfo.location}
+            <FaLocationDot className="text-[16px]" /> {jobInfo.location.name}
           </div>
           <div className="mt-[12px] mb-[20px] flex justify-center flex-wrap gap-[8px]">
           {jobInfo.tags.map((value, index) => (
