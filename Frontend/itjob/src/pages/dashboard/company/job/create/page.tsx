@@ -306,7 +306,7 @@ export default function CompanyManageJobCreatePage() {
             {error.location && <div className="text-red-400">{error.location}</div>}
           </div>
           <div className="">
-            <label htmlFor="technologies" className="block font-[500] text-[14px] text-black mb-[5px]">
+            <label htmlFor="technologies" className="block font-medium text-[14px] text-black mb-[5px]">
               Các công nghệ 
             </label>
             <TagSelect 
@@ -320,7 +320,7 @@ export default function CompanyManageJobCreatePage() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="images" aria-required className="block font-[500] text-[14px] text-black mb-[5px] required">
+            <label htmlFor="images" aria-required className="block font-medium text-[14px] text-black mb-[5px] required">
               Danh sách ảnh
             </label>
             <div className="mb-4">
