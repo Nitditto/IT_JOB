@@ -6,13 +6,23 @@ import { formReducer, handleFieldChange, handleFileChange } from "../../../../..
 import { validate, validateEmpty, validateEmptyList, validateLowerBound, validateUpperBound } from "../../../../../utils/validateForms";
 import axios from "axios";
 import type { Location } from "@/types";
-
+import { useFilePicker } from 'use-file-picker';
+import { TagSelect } from "@/components/togSelect/TagSelect";
+import { Button } from "@/components/ui/button";
+interface TagDTO {
+  tag: string;
+  count: number;
+}
+interface TagOption {
+  value: string;
+  label: string;
+}
 export default function CompanyManageJobEditPage() {
   const {id} = useParams();
   const navigate = useNavigate();
-  const [location, setLocation] = useState(Array<Location>);
+  const [location, setLocation] = useState<Location[]>([]); 
+  const [allTags, setAllTags] = useState<TagOption[]>([]);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
   const defaultJob = {
     data: {
       name: "",
@@ -22,7 +32,7 @@ export default function CompanyManageJobEditPage() {
       workstyle: "",
       address: "",
       location: "",
-      tags: "",
+      tags: [],
       images: [],
       description: ""
     },
@@ -38,13 +48,26 @@ export default function CompanyManageJobEditPage() {
     status: { isError: false, reason: "" }
 
   }
+  
   const [state, dispatch] = useReducer(formReducer(defaultJob), defaultJob)
   const { data, error, isLoading, status } = state;
+  const {openFilePicker, filesContent, loading, errors: fileErrors, clear} =  useFilePicker({ // <-- Thêm 'clear'
+    readAs: 'DataURL',
+    accept: 'image/*',
+    multiple: true,
+  });
   useEffect(() => {
     const init = async () => {
       try {
         const locationRes = await axios.get<Array<Location>>(`${BACKEND_URL}/location`);
         setLocation(locationRes.data);
+        const tagsRes = await axios.get<TagDTO[]>(`${BACKEND_URL}/job/tags`);
+        const sortedData = tagsRes.data.sort((a, b) => b.count - a.count);
+        const mappedTags = sortedData.map(dto => ({
+          value: dto.tag.toLowerCase(),
+          label: `${dto.tag} (${dto.count})` 
+        }));
+        setAllTags(mappedTags);
         if (id) { // Chỉ chạy nếu có id
           document.title = "Sửa đổi công việc";
 
@@ -57,11 +80,10 @@ export default function CompanyManageJobEditPage() {
           dispatch({ type: 'CHANGE_FIELD', field: 'position', value: jobData.position  });
           dispatch({ type: 'CHANGE_FIELD', field: 'workstyle', value: jobData.workstyle  });
           dispatch({ type: 'CHANGE_FIELD', field: 'address', value: jobData.address  });
-          dispatch({ type: 'CHANGE_FIELD', field: 'location', value: jobData.location.abbreviation  }); // Lấy abbreviation
+          dispatch({ type: 'CHANGE_FIELD', field: 'location', value: jobData.location.abbreviation  }); 
           dispatch({ type: 'CHANGE_FIELD', field: 'description', value: jobData.description  });
-          
-          const tagsString = jobData.tags ? jobData.tags.join(';') : '';
-          dispatch({ type: 'CHANGE_FIELD', field: 'tags', value: tagsString  });
+          dispatch({ type: 'CHANGE_FIELD', field: 'tags', value: jobData.tags || [] });
+          dispatch({ type: 'CHANGE_FIELD', field: 'images', value: jobData.images || [] });          
         }
 
       } catch (error) {
@@ -71,7 +93,19 @@ export default function CompanyManageJobEditPage() {
     }
 
     init();
-  }, [id, navigate, BACKEND_URL]);
+  },[BACKEND_URL, id, navigate]);
+
+  
+  
+  useEffect(() => {
+    if (filesContent.length > 0) {
+      dispatch({
+        type: 'CHANGE_FIELD',
+          field: 'images', 
+          value: filesContent.map(file => file.content) 
+      });
+    }
+  }, [filesContent]);
 
   const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -146,9 +180,7 @@ export default function CompanyManageJobEditPage() {
       type: "SUBMIT_START"
     })
     try {
-      await api.put(`/job/${id}`, { ...data, "tags": data.tags.split(";"), 'jobID': id 
-
-      })
+      await api.put(`/job/${id}`,{ ...data, jobID: id })
       dispatch({
         type: "SUBMIT_SUCCESS",
         payload: "Cập nhật công việc thành công!"
@@ -283,38 +315,67 @@ export default function CompanyManageJobEditPage() {
               <option value=""></option>
               {
                 location.map(value => (
-                  <option value={value.abbreviation}>{value.name}</option>
+                  <option key={value.abbreviation} value={value.abbreviation}>{value.name}</option>
                 ))
               }
             </select>
             {error.location && <div className="text-red-400">{error.location}</div>}
           </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="technologies" className="block font-[500] text-[14px] text-black mb-[5px]">
-              Các công nghệ (Mỗi công nghệ được ngăn cách bởi dấu ;)
+          <div className="">
+            <label htmlFor="technologies" className="block font-medium text-[14px] text-black mb-[5px]">
+              Các công nghệ 
             </label>
-            <input
-              type="text"
-              name="tags"
-              onChange={handleFieldChange(dispatch)}
-              value={data.tags}
-              id="technologies"
-              className="w-[100%] h-[46px] border border-[#DEDEDE] rounded-[4px] py-[14px] px-[20px] font-[500] text-[14px] text-black"
+            <TagSelect 
+              allTags={allTags}
+              value={data.tags} // <-- Sẽ tự động điền tags (vd: ["react", "nodejs"])
+              onChange={(newTags) => {
+                dispatch({
+                  type: 'CHANGE_FIELD', field: 'tags', value: newTags 
+                });
+              }}
             />
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="images" aria-required className="block font-[500] text-[14px] text-black mb-[5px] required">
-              Danh sách ảnh
+            <label htmlFor="images" aria-required className="block font-medium text-[14px] text-black mb-[5px] required">
+              Danh sách ảnh (Chọn lại nếu muốn thay đổi)
             </label>
-            <input
-              type="file"
-              name="images"
-              id="images"
-              onChange={handleFileChange(dispatch)}
-              accept="image/*"
-              multiple
-              className=""
-            />
+            <div className="mb-4">
+              <Button 
+                type="button" 
+                onClick={() => openFilePicker()}
+                className="h-[46px] rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black bg-white hover:bg-gray-50 cursor-pointer"
+              >
+                {loading ? "Đang tải..." : "Chọn ảnh mới"}
+              </Button>
+
+              {/* (Nút Xóa: clear() chỉ xóa file MỚI CHỌN, 
+                  để xóa file cũ, bạn cần logic dispatch([])) */}
+              {data.images.length > 0 && (
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    clear(); // Xóa file đang chọn (nếu có)
+                    dispatch({ type: 'CHANGE_FIELD', field: 'images', value: [] }); // Xóa ảnh hiện tại
+                  }}
+                  className="ml-2 h-[46px] rounded-[4px] border border-red-300 px-[20px] text-[14px] font-[500] text-red-600 bg-white hover:bg-red-50 cursor-pointer"
+                >
+                  Xóa
+                </Button>
+              )}
+            </div>
+            {/* Hiển thị ảnh (sẽ hiển thị ảnh cũ TẢI TỪ API 
+                hoặc ảnh mới TỪ USEFILEPICKER) */}
+            <div className="flex flex-wrap gap-4"> 
+              {data.images.map((dataUrl: string, index: number) => (
+                <img 
+                  key={index} 
+                  src={dataUrl} 
+                  alt={`preview ${index}`} 
+                  className="w-24 h-24 object-cover rounded-md border" 
+                />
+              ))}
+            </div>
+            {fileErrors.length > 0 && <div className="text-red-400">Lỗi file: {fileErrors[0].name} có thể quá lớn.</div>}
             {error.images && <div className="text-red-400">{error.images}</div>}
           </div>
           <div className="sm:col-span-2">
