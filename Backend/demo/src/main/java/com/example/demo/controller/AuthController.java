@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.AccountDTO;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.RegistrationRequest;
-import com.example.demo.dto.UserDTO;
 import com.example.demo.enums.UserRole;
-import com.example.demo.model.User;
+import com.example.demo.model.Account;
 import com.example.demo.services.AuthServices;
 import com.example.demo.services.UserServices;
 
@@ -75,10 +75,10 @@ public class AuthController {
     
 
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal User currentUser){
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Account currentUser){
         try {
-           UserDTO userDTO = userServices.convertToDTO(currentUser);
-            return ResponseEntity.ok(userDTO);
+           AccountDTO accountDTO = userServices.convertToBrief(currentUser);
+            return ResponseEntity.ok(accountDTO);
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }

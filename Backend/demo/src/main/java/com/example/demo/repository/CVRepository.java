@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.demo.model.CV;
 import com.example.demo.model.CVId;
 import com.example.demo.model.Job;
-import com.example.demo.model.User;
+
+
+import com.example.demo.model.Account;
 
 public interface CVRepository extends JpaRepository<CV, CVId>{
-    List<CV> findByUser(User user);
+    List<CV> findByUser(Account user);
     List<CV> findByJob(Job job);
 }

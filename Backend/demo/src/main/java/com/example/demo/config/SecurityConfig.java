@@ -29,7 +29,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.demo.config.filter.JwtAuthenticationFilter;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.AccountRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,7 +45,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
 
     // THÊM DEPENDENCY INJECTION CHO USER REPOSITORY
-    private final UserRepository userRepository;
+    private final AccountRepository userRepository;
 		private final JwtAuthenticationFilter jwtAuthFilter; // TIÊM FILTER VÀO
 
 
@@ -91,7 +91,17 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 // Cho phép các endpoint này không cần xác thực
-                .requestMatchers("/", "/csrf", "/auth/register", "/auth/login", "/job/search", "/location", "/job/count", "/job/tags").permitAll()
+                .requestMatchers(
+                    "/", 
+                    "/csrf", 
+                    "/auth/register", 
+                    "/auth/login", 
+                    "/job/search", 
+                    "/location", 
+                    "/job/count", 
+                    "/job/tags",
+                    "/user/*",
+                    "/company/*").permitAll()
                 // Yêu cầu xác thực cho các endpoint còn lại
                 .anyRequest().authenticated()
             )

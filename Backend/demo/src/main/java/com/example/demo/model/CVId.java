@@ -9,6 +9,6 @@ import lombok.Setter;
 @Embeddable
 @NoArgsConstructor @AllArgsConstructor @Getter @Setter
 public class CVId {
-    private Long userID;
+    private Long accountID;
     private Long jobID;
 }
