@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.AccountDTO;
 import com.example.demo.dto.CompanyDTO;
+import com.example.demo.dto.CompanyEditRequest;
 import com.example.demo.dto.RegistrationRequest;
 import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.UserEditRequest;
 import com.example.demo.enums.UserRole;
 import com.example.demo.model.Account;
 import com.example.demo.repository.AccountRepository;
@@ -90,5 +92,38 @@ public class UserServices {
         Account account = accountRepository.findById(userID)
         .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
         return account;
+    }
+
+    public Account editUser(Long accountID, UserEditRequest request) {
+        Account account = accountRepository.findById(accountID).get();
+        account.setName(request.getName());
+        account.setAddress(request.getAddress());
+        account.setAvatar(request.getAvatar());
+        account.setDescription(request.getDescription());
+        account.setEmail(request.getEmail());
+        account.setLocation(request.getLocation());
+        account.setLookingfor(request.getLookingfor());
+        account.setStatus(request.getStatus());
+        account.setPhone(request.getPhone());
+
+        return accountRepository.save(account);
+    }
+
+        public Account editCompany(Long accountID, CompanyEditRequest request) {
+        Account account = accountRepository.findById(accountID).get();
+        account.setName(request.getName());
+        account.setAddress(request.getAddress());
+        account.setAvatar(request.getAvatar());
+        account.setDescription(request.getDescription());
+        account.setEmail(request.getEmail());
+        account.setLocation(request.getLocation());
+        account.setPhone(request.getPhone());
+        account.setModel(request.getModel());
+        account.setScale(request.getScale());
+        account.setStartWork(request.getStartWork());
+        account.setEndWork(request.getEndWork());
+        account.setHasOvertime(request.getHasOvertime());
+        
+        return accountRepository.save(account);
     }
 }
