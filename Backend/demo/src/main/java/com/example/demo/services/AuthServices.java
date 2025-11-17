@@ -2,8 +2,8 @@ package com.example.demo.services;
 
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.model.Account;
+import com.example.demo.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class AuthServices {
 
     private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final JwtServices jwtServices;
 
     public LoginResponse login(LoginRequest request) {
@@ -34,7 +34,7 @@ public class AuthServices {
 
         // 3. Find the user entity to get details for the response (like the ID).
         // This is a quick lookup and avoids re-validating the password.
-        User user = userRepository.findByEmail(userDetails.getUsername())
+        Account user = accountRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(() -> new UsernameNotFoundException("User not found after authentication"));
 
         // 4. Generate the token using the already-created UserDetails.

@@ -22,9 +22,9 @@ public class CV {
     private CVId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userID")
-    @JoinColumn(name = "users_id")
-    private User user;
+    @MapsId("accountID")
+    @JoinColumn(name = "accounts_id")
+    private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("jobID")
@@ -38,5 +38,6 @@ public class CV {
     @Lob
     private String cvFile;
 
-    
+    @Lob
+    private String referral;
 }

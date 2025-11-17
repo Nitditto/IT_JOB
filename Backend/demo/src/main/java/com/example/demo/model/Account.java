@@ -33,10 +33,10 @@ import lombok.Setter;
 
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = "accounts")
 @NoArgsConstructor
 @Getter @Setter
-public class User implements UserDetails {
+public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;

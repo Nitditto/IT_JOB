@@ -6,23 +6,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.CompanyDTO;
 import com.example.demo.dto.JobCardDTO;
 import com.example.demo.dto.JobCreationRequest;
 import com.example.demo.dto.JobEditRequest;
 import com.example.demo.dto.JobFilterDTO;
 import com.example.demo.dto.TagDTO;
-import com.example.demo.dto.UserDTO;
 import com.example.demo.model.Job;
-import com.example.demo.repository.JobRepository;
 import com.example.demo.services.JobServices;
 import com.example.demo.services.UserServices;
 
@@ -44,7 +41,7 @@ public class JobController {
     @PreAuthorize("hasRole('COMPANY')")
     public Job create(@RequestBody JobCreationRequest job, Principal principal) {
 
-        UserDTO company = userServices.getCurrentUser(principal); 
+        CompanyDTO company = userServices.convertToCompany(userServices.getCurrentUser(principal)); 
         
         return jobServices.createJob(job, company);
     }

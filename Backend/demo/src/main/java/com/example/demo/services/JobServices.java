@@ -5,16 +5,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.CompanyDTO;
 import com.example.demo.dto.JobCardDTO;
 import com.example.demo.dto.JobCreationRequest;
 import com.example.demo.dto.JobEditRequest;
 import com.example.demo.dto.JobFilterDTO;
 import com.example.demo.dto.TagDTO;
-import com.example.demo.dto.UserDTO;
 import com.example.demo.model.Job;
 import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.LocationRepository;
-import com.example.demo.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +22,7 @@ public class JobServices {
     private final JobRepository jobRepository;
     private final LocationRepository locationRepository;
     private final UserServices userServices;
-    public Job createJob(JobCreationRequest request, UserDTO company) {
+    public Job createJob(JobCreationRequest request, CompanyDTO company) {
         Job job = new Job();
         job.setCompanyID(company.getId());
         job.setName(request.getName());
@@ -58,7 +57,7 @@ public class JobServices {
 
     public JobCardDTO toCard(Job job) {
         JobCardDTO card = new JobCardDTO();
-        UserDTO company = userServices.convertToDTO(userServices.getUserById(job.getCompanyID()));
+        CompanyDTO company = userServices.convertToCompany(userServices.getUserById(job.getCompanyID()));
         card.setId(job.getId());
         card.setName(job.getName());
         card.setCompanyID(job.getCompanyID());

@@ -5,12 +5,10 @@ import java.util.List;
 import com.example.demo.enums.JobPosition;
 import com.example.demo.enums.JobWorkstyle;
 
-import jakarta.persistence.Lob;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

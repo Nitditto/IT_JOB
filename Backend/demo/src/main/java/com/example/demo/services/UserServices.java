@@ -6,70 +6,89 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.AccountDTO;
+import com.example.demo.dto.CompanyDTO;
 import com.example.demo.dto.RegistrationRequest;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.enums.UserRole;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.model.Account;
+import com.example.demo.repository.AccountRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service @RequiredArgsConstructor
 public class UserServices {
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
 
-    public User register(RegistrationRequest request, UserRole role) {
+    public Account register(RegistrationRequest request, UserRole role) {
         // Check if email already exists
-        if (!userRepository.findByEmail(request.getEmail()).isEmpty()) {
+        if (!accountRepository.findByEmail(request.getEmail()).isEmpty()) {
             throw new IllegalStateException("Email đã được sử dụng!");
         }
 
-        // Create user
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setRole(role);
+        // Create account
+        Account account = new Account();
+        account.setName(request.getName());
+        account.setEmail(request.getEmail());
+        account.setRole(role);
         // Encrypt password before setting it
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
-        user.setPassword(encryptedPassword);
+        account.setPassword(encryptedPassword);
 
-        return userRepository.save(user);
+        return accountRepository.save(account);
     }
 
-    public UserDTO convertToDTO(User user) {
+    public UserDTO convertToUser(Account account) {
         return new UserDTO(
-            user.getId(),
-            user.getName(),
-            user.getEmail(),
-            user.getRole(),
-            user.getAvatar(),
-            user.getPhone(),
-            user.getDescription(),
-            user.getStatus(),
-            user.getLookingfor(),
-            user.getAddress(),
-            user.getLocation(),
-            user.getModel(),
-            user.getScale(),
-            user.getStartWork(),
-            user.getEndWork(),
-            user.getHasOvertime()
+            account.getId(),
+            account.getName(),
+            account.getEmail(),
+            account.getRole(),
+            account.getAvatar(),
+            account.getPhone(),
+            account.getDescription(),
+            account.getStatus(),
+            account.getLookingfor(),
+            account.getAddress(),
+            account.getLocation()
         );
     }
     
-    public UserDTO getCurrentUser(Principal principal) {
-        String email = principal.getName();
-
-        User user = userRepository.findByEmail(email)
-        .orElseThrow(()->new UsernameNotFoundException("Username not found"));
-        return convertToDTO(user);
+    public CompanyDTO convertToCompany(Account account) {
+        return new CompanyDTO(
+            account.getId(),
+            account.getName(),
+            account.getEmail(),
+            account.getRole(),
+            account.getAvatar(),
+            account.getPhone(),
+            account.getDescription(),
+            account.getAddress(),
+            account.getLocation(),
+            account.getModel(),
+            account.getScale(),
+            account.getStartWork(),
+            account.getEndWork(),
+            account.getHasOvertime()
+        );
     }
 
-    public User getUserById(Long userID) {
-        User user = userRepository.findById(userID)
+    public AccountDTO convertToBrief(Account account) {
+        return new AccountDTO(account.getId(), account.getName(), account.getEmail(), account.getRole());
+    }
+    public Account getCurrentUser(Principal principal) {
+        String email = principal.getName();
+
+        Account account = accountRepository.findByEmail(email)
+        .orElseThrow(()->new UsernameNotFoundException("Username not found"));
+        return account;
+    }
+
+    public Account getUserById(Long userID) {
+        Account account = accountRepository.findById(userID)
         .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
-        return user;
+        return account;
     }
 }
