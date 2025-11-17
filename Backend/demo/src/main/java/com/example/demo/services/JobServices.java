@@ -58,7 +58,7 @@ public class JobServices {
 
     public JobCardDTO toCard(Job job) {
         JobCardDTO card = new JobCardDTO();
-        UserDTO company = userServices.getUserById(job.getCompanyID());
+        UserDTO company = userServices.convertToDTO(userServices.getUserById(job.getCompanyID()));
         card.setId(job.getId());
         card.setName(job.getName());
         card.setCompanyID(job.getCompanyID());

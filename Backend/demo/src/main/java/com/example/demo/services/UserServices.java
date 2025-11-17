@@ -50,7 +50,12 @@ public class UserServices {
             user.getStatus(),
             user.getLookingfor(),
             user.getAddress(),
-            user.getLocation()
+            user.getLocation(),
+            user.getModel(),
+            user.getScale(),
+            user.getStartWork(),
+            user.getEndWork(),
+            user.getHasOvertime()
         );
     }
     
@@ -62,9 +67,9 @@ public class UserServices {
         return convertToDTO(user);
     }
 
-    public UserDTO getUserById(Long userID) {
+    public User getUserById(Long userID) {
         User user = userRepository.findById(userID)
         .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
-        return convertToDTO(user);
+        return user;
     }
 }

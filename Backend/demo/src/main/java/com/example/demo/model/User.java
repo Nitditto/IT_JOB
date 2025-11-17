@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.example.demo.enums.CompanyModel;
+import com.example.demo.enums.CompanyScale;
 import com.example.demo.enums.UserRole;
 import com.example.demo.enums.UserStatus;
 
@@ -72,8 +74,16 @@ public class User implements UserDetails {
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 
+    private CompanyModel model;
 
+    private CompanyScale scale;
 
+    private Long startWork;
+
+    private Long endWork;
+
+    private Boolean hasOvertime;
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Trả về một danh sách các quyền của user
