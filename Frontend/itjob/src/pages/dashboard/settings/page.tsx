@@ -28,7 +28,7 @@ const Settings = () => {
               </Link>
               <Link to="#" className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl">
                 <PiUserCircleGearFill className='' size={30}/>
-                <Link to={"#"} className="">Đổi mật khẩu</Link>
+                <Link to="/dashboard/settings/change-password" className="">Đổi mật khẩu</Link>
               </Link>
               
               <Link to="#" className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl">
