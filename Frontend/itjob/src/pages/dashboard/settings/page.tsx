@@ -2,7 +2,11 @@ import { Info, UserStar } from 'lucide-react';
 import React, { useEffect } from 'react'
 import {Link} from 'react-router'
 import { PiUserCircleGearFill, PiUserCirclePlusBold } from "react-icons/pi";
+import { useAuth } from '@/context/AuthContext';
 const Settings = () => {
+  const { user } = useAuth();
+  const isCompany = user?.role === "ROLE_COMPANY";
+
   useEffect(()=>{
       document.title="Settings";
     },[])
@@ -14,20 +18,24 @@ const Settings = () => {
               Cài đặt chung 
             </h2>
             <div className="flex mt-5 gap-[32px] items-center">
-              <Link to="#" className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl">
+              <Link 
+              to={isCompany ? "/dashboard/settings/company-profile" : "/dashboard/settings/user-profile"}
+              className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl">
                 <Info className='' size={30}/>
-                <div className="">Thông tin công ty</div>
+                <span className="">
+                  {isCompany ? "Thông tin công ty" : "Thông tin cá nhân"}
+                </span>
               </Link>
               <Link to="#" className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl">
-                <PiUserCircleGearFill  className='' size={30}/>
-                <div className="">Tài khoản quản trị</div>
+                <PiUserCircleGearFill className='' size={30}/>
+                <Link to={"#"} className="">Đổi mật khẩu</Link>
               </Link>
+              
               <Link to="#" className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl">
                 <PiUserCirclePlusBold className='' size={30}/>
-                <div className="">Nhóm quyền</div>
+                <Link to={"#"} className="">Xóa tài khoản</Link>
               </Link>
             </div>
-            
           </div>
         </div>
       </>

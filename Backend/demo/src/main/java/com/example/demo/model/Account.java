@@ -125,4 +125,9 @@ public class Account implements UserDetails {
         // Tài khoản luôn được kích hoạt
         return true;
     }
+
+    public void setLocation(Location loc) {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'setLocation'");
+    }
 }

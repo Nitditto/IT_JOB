@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.CVDTO;
+import com.example.demo.model.Account;
 import com.example.demo.model.CV;
 import com.example.demo.model.CVId;
 import com.example.demo.model.Job;
-import com.example.demo.dto.CVDTO;
-import com.example.demo.model.Account;
 import com.example.demo.repository.CVRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public class CVServices {
     public List<CV> getCVByUserID(Long userID) {
         Account user = userServices.getUserById(userID);
 
-        return cvRepository.findByUser(user);
+        return cvRepository.findByAccount(user);
     }
 
     public List<CV> getCVByJobID(Long jobID) {

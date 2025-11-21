@@ -1,5 +1,16 @@
 package com.example.demo.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,19 +25,6 @@ import com.example.demo.services.CVServices;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
-
 
 
 
@@ -38,11 +36,11 @@ public class CVController {
     private final CVRepository cvRepository;
     private final CVServices cvServices;
 
-    @GetMapping("/{id}")
+    @GetMapping("/{jobId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getCVFromJob(@PathVariable Long jobID, @AuthenticationPrincipal Account user){
         try {
-            CV cv = cvRepository.findById(new CVId(user.getId(), jobID)).get();
+            CV cv = cvRepository.findById(new CVId(user.getId(), jobID)).orElseThrow(() -> new Exception("CV not found"));
             return ResponseEntity.ok(cv);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -73,7 +71,7 @@ public class CVController {
     
     @GetMapping("/{id}/list")
     @PreAuthorize("hasRole('COMPANY')")
-    public List<CV> getJobCV(@PathVariable Long jobID) {
+    public List<CV> getJobCV(@PathVariable("id") Long jobID) {
         return cvServices.getCVByJobID(jobID);
     }
     

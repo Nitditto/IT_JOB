@@ -1,6 +1,7 @@
 import { MoreVertical, ChevronLast, ChevronFirst } from "lucide-react"
 import { useContext, createContext, useState, type ReactNode } from "react"
 import { SidebarContext } from "../../context/SidebarContext"
+import { useAuth } from "@/context/AuthContext"
 
 interface SidebarProps {
   children: ReactNode
@@ -8,6 +9,8 @@ interface SidebarProps {
 export default function Sidebar({ children }:SidebarProps) {
   const [expanded, setExpanded] = useState(true)
   const [activeItem, setActiveItem] = useState("Dashboard")
+  const { user } = useAuth();
+  const defaultAvatar = "/assets/images/avatar.jpg";
   return (
     <aside className={` ${expanded ? "w-[256px]" : "w-17"}`}>
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
@@ -32,11 +35,13 @@ export default function Sidebar({ children }:SidebarProps) {
         </SidebarContext.Provider>
 
         <div className="border-t flex p-3">
+          {/* 3. HIỂN THỊ AVATAR THẬT */}
           <img
-            src="/assets/images/avatar.jpg"
-            alt=""
-            className="w-10 h-10 rounded-md"
+            src={user?.avatar || defaultAvatar} // Dùng avatar của user hoặc mặc định
+            alt="User Avatar"
+            className="w-10 h-10 rounded-md object-cover" // Thêm object-cover cho đẹp
           />
+          
           <div
             className={`
               flex justify-between items-center
@@ -44,8 +49,13 @@ export default function Sidebar({ children }:SidebarProps) {
           `}
           >
             <div className="leading-4">
-              <h4 className="font-semibold">SKIBIDI</h4>
-              <span className="text-xs text-gray-600">skibidi@gmail.com</span>
+              {/* 4. HIỂN THỊ TÊN VÀ EMAIL THẬT */}
+              <h4 className="font-semibold truncate w-[120px]" title={user?.name}>
+                  {user?.name || "Guest User"}
+              </h4>
+              <span className="text-xs text-gray-600 truncate w-[120px] block" title={user?.email}>
+                  {user?.email || "guest@itjob.com"}
+              </span>
             </div>
             <MoreVertical size={20} />
           </div>
