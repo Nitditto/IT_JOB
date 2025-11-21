@@ -58,6 +58,10 @@ export default [
       {
         path: "company/job/:id/edit",
         file: "./pages/dashboard/company/job/edit/page.tsx"
+      },
+      {
+        path: "settings/change-password",
+        file: "./pages/dashboard/settings/changePassword/page.tsx"
       }
     ]),
 
