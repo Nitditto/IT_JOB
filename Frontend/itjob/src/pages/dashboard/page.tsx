@@ -18,7 +18,7 @@ import { useAuth } from '../../context/AuthContext'
 
 export default function DashboardLayout() {
     // Gọi hook để lấy trạng thái xác thực và thông tin user
-    const { isAuthenticated, isLoading } = useAuth()
+    const { isAuthenticated, isLoading, user } = useAuth()
     useEffect(() => {
         document.title = 'Quản lý công việc'
     }, [isAuthenticated])
@@ -50,47 +50,58 @@ export default function DashboardLayout() {
             </div>
         )
     }
+    const role = user?.role;
+    const isAdmin = role === "ROLE_ADMIN";
+    const isCompany = role === "ROLE_COMPANY";
+    const isUser = role === "ROLE_USER";
     return isAuthenticated ? (
         <>
             <div className="ml-0 flex flex-1 justify-center">
                 <Sidebar>
-                    <SidebarItem
-                        icon={<LayoutDashboard size={20} />}
-                        text="Dashboard"
-                        to=""
-                        alert
-                    />
-                    <SidebarItem
-                        icon={<BarChart3 size={20} />}
-                        text="Quản lý công việc"
-                        to="/dashboard/company/job"
-                    />
-                    <SidebarItem
-                        icon={<UserCircle size={20} />}
-                        text="Quản lý CV"
-                        to="/dashboard/company/cv/list"
-                    />
-                    <SidebarItem
-                        icon={<Boxes size={20} />}
-                        text="Chi tiết công ty"
-                        to=''
-                        alert
-                    />
-                    <SidebarItem
-                        icon={<Package size={20} />}
-                        text="Đăng ký công ty"
-                        to=''
-                        alert
-                    />
-                    <SidebarItem icon={<Receipt size={20} 
-                    />} text="Billings" 
-                      to=''
-                    />
+                    {(isAdmin ) && (
+                        <SidebarItem
+                            icon={<LayoutDashboard size={20} />}
+                            text="Dashboard"
+                            to="/dashboard"
+                            alert
+                        />
+                    )}
+                    {(isAdmin || isCompany) && (
+                        <SidebarItem
+                            icon={<BarChart3 size={20} />}
+                            text="Quản lý công việc"
+                            to="/dashboard/company/job"
+                        />
+                    )}
+                    {(isAdmin || isUser) && (
+                        <SidebarItem
+                            icon={<UserCircle size={20} />}
+                            text="Quản lý CV"
+                            to="/dashboard/company/cv/list" // (Có thể bạn cần sửa link này cho User)
+                        />
+                    )}
+                    {isAdmin && (
+                        <>
+                            <SidebarItem
+                                icon={<Boxes size={20} />}
+                                text="Chi tiết công ty"
+                                to=''
+                                alert
+                            />
+                            <SidebarItem
+                                icon={<Package size={20} />}
+                                text="Đăng ký công ty"
+                                to=''
+                                alert
+                            />
+                        </>
+                    )}
                     <hr className="my-3" />
 
                     <SidebarItem
                         icon={<Settings size={20} />}
                         text="Cài đặt chung"
+                        to="/dashboard/setting"
                     />
                     <SidebarItem icon={<LifeBuoy size={20} />} text="Help" />
                     <SidebarItem

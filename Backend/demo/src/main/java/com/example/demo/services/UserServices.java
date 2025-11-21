@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.dto.AccountDTO;
 import com.example.demo.dto.CompanyDTO;
+import com.example.demo.dto.CompanyEditRequest;
 import com.example.demo.dto.RegistrationRequest;
 import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.UserEditRequest;
 import com.example.demo.enums.UserRole;
 import com.example.demo.model.Account;
+import com.example.demo.model.Location;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.repository.LocationRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class UserServices {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final LocationRepository locationRepository;
 
     public Account register(RegistrationRequest request, UserRole role) {
         // Check if email already exists
@@ -90,5 +94,61 @@ public class UserServices {
         Account account = accountRepository.findById(userID)
         .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
         return account;
+    }
+
+    public Account editUser(Long accountID, UserEditRequest request) {
+        Account account = accountRepository.findById(accountID).get();
+        
+        account.setName(request.getName());
+        account.setAddress(request.getAddress());
+        account.setAvatar(request.getAvatar());
+        account.setDescription(request.getDescription());
+        account.setEmail(request.getEmail());
+        // account.setLocation(request.getLocation());
+        account.setLookingfor(request.getLookingfor());
+        account.setStatus(request.getStatus());
+        account.setPhone(request.getPhone());
+        if (request.getLocation() != null && request.getLocation().getAbbreviation() != null) { 
+             
+             // 1. Lấy String mã vùng (ví dụ "HN") từ Object
+             String abbr = request.getLocation().getAbbreviation();
+
+             // 2. Truyền String vào hàm tìm kiếm
+             // (Nếu không tìm thấy mã vùng mới, giữ nguyên mã vùng cũ)
+             Location loc = locationRepository.findByAbbreviation(abbr)
+                 .orElse(account.getLocation());
+             
+             account.setLocation(loc);
+        }
+        return accountRepository.save(account);
+    }
+
+        public Account editCompany(Long accountID, CompanyEditRequest request) {
+        Account account = accountRepository.findById(accountID).get();
+        account.setName(request.getName());
+        account.setAddress(request.getAddress());
+        account.setAvatar(request.getAvatar());
+        account.setDescription(request.getDescription());
+        account.setEmail(request.getEmail());
+        account.setLocation(request.getLocation());
+        account.setPhone(request.getPhone());
+        
+        if (request.getLocation() != null && request.getLocation().getAbbreviation() != null) {
+            
+            // Lấy mã vùng từ object request
+            String abbr = request.getLocation().getAbbreviation();
+            
+            // Tìm trong DB để đảm bảo dữ liệu chính xác
+            Location loc = locationRepository.findByAbbreviation(abbr)
+                .orElse(account.getLocation()); // Nếu không tìm thấy thì giữ nguyên cũ
+            
+            account.setLocation(loc);
+        }
+        account.setModel(request.getModel());
+        account.setScale(request.getScale());
+        account.setStartWork(request.getStartWork());
+        account.setEndWork(request.getEndWork());
+        account.setHasOvertime(request.getHasOvertime());
+        return accountRepository.save(account);
     }
 }

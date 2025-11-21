@@ -8,7 +8,6 @@ export default [
   route("/", "./pages/Home.tsx"),
   route("/search/", "./pages/search/page.tsx"), // trang kết quả tìm kiếm
   
-  route("/dashboard/profile", "./pages/dashboard/profile/page.tsx"),
 
   route("/company/cv/detail/:id", "./pages/company/cv/detail/page.tsx"),
   route("/company/:id", "./pages/company/page.tsx"),
@@ -19,7 +18,6 @@ export default [
   route("job/apply/success","./pages/job/jobApplySuccess/page.tsx"),
 
   route("/user/cv", "./pages/user/cv/list/page.tsx"),
-  route("/user/profile", "./pages/user/profile/page.tsx"),
 
   route("/login", "./pages/login/page.tsx"),
   route("/register", "./pages/register/page.tsx"),
@@ -38,8 +36,16 @@ export default [
         file: "./pages/company/cv/list/page.tsx",
       },
       {
-        path: "company/setting",
+        path: "setting",
         file: "./pages/dashboard/settings/page.tsx"
+      },
+      {
+        path: "settings/user-profile", 
+        file: "./pages/dashboard/settings/profile/UserProfile/page.tsx"
+      },
+      {
+        path: "settings/company-profile", 
+        file: "./pages/dashboard/settings/profile/CompanyProfile/page.tsx"
       },
       {
         path: "company/job/create",
