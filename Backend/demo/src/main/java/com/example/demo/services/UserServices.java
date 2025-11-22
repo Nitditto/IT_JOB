@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +49,6 @@ public class UserServices {
             account.getId(),
             account.getName(),
             account.getEmail(),
-            account.getRole(),
             account.getAvatar(),
             account.getPhone(),
             account.getDescription(),
@@ -64,7 +64,6 @@ public class UserServices {
             account.getId(),
             account.getName(),
             account.getEmail(),
-            account.getRole(),
             account.getAvatar(),
             account.getPhone(),
             account.getDescription(),
@@ -94,7 +93,9 @@ public class UserServices {
         .orElseThrow(()-> new UsernameNotFoundException("Username not found"));
         return account;
     }
-
+    public List<Account> getUsersByRole(UserRole role) {
+        return accountRepository.findByRole(role);
+    }
     public Account editUser(Long accountID, UserEditRequest request) {
         Account account = accountRepository.findById(accountID).get();
         
