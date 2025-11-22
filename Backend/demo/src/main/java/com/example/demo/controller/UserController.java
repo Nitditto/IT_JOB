@@ -7,10 +7,14 @@ import com.example.demo.dto.CompanyDTO;
 import com.example.demo.dto.CompanyEditRequest;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.dto.UserEditRequest;
+import com.example.demo.enums.UserRole;
 import com.example.demo.model.Account;
 import com.example.demo.services.UserServices;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +24,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -37,6 +43,14 @@ public class UserController {
     public CompanyDTO getCompany(@PathVariable Long id) {
         return userServices.convertToCompany(userServices.getUserById(id));
     }
+
+    @GetMapping("/company/list")
+    public List<CompanyDTO> getCompanyList() {
+        return userServices.getUsersByRole(UserRole.ROLE_COMPANY).stream()
+        .map(userServices::convertToCompany)
+        .collect(Collectors.toList());
+    }
+    
 
     @PutMapping("/edit/user")
     @PreAuthorize("hasRole('USER')")

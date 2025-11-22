@@ -14,7 +14,6 @@ public class CompanyDTO {
     private Long id;
     private String name;
     private String email;
-    private UserRole role;
     private String avatar;
     private String phone;
     private String description;
