@@ -1,12 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { FaUserTie } from "react-icons/fa6"
 
 import { Link } from "react-router";
 export const CardCompanyItem=({companyInfo}: {companyInfo: any})=>{
-  return(
+  
+  const [jobCount, setJobCount] = useState(0);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+  useEffect(() => {
+    const init = async () => {
+      const jobCountRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${companyInfo["id"]}`);
+      setJobCount(jobCountRes.data.length);
+    }
+
+    init()
+  }, [])
+  return (
     <>
               <Link
-              to={`/company/${companyInfo.id}`}
+              to={`/company/${companyInfo["id"]}`}
               className="rounded-[8px] border-[1px] border-[#DEDEDE] relative"
               style={{
               background: "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)"
@@ -25,20 +39,20 @@ export const CardCompanyItem=({companyInfo}: {companyInfo: any})=>{
                   }}
                   >
                     <img 
-                    src={companyInfo.logoURL}
-                    alt={companyInfo.title} 
+                    src={companyInfo["avatar"]}
+                    alt={companyInfo["name"]} 
                     className="w-full h-full object-contain p-[10px]" 
                     />
                   </div>
                   <div 
                   className="font-bold sm:text-[18px] text-[14px] text-[#121212] sm:mb-[24px] mb-[16px] mx-[16px] flex justify-center text-center grow line-clamp-2 "
-                  >{companyInfo.title} </div>
+                  >{companyInfo["name"]} </div>
                   <div className="bg-[#F7F7F7] py-[12px] px-[16px] flex items-center sm:justify-between justify-center flex-wrap gap-[12px]">
                     <div className="font-[400] text-[14px] text-[#414042]">
-                      {companyInfo.location}
+                      {companyInfo["location"] ? companyInfo["location"]["name"] : "Không xác định"}
                     </div>
                     <div className="inline-flex items-center gap-[6px] font-[400] text-[14px] text-[#121212]">
-                      <FaUserTie className="text-[16px] text-[#000096]"/> {companyInfo.jobCount} Việc làm
+                      <FaUserTie className="text-[16px] text-[#000096]"/> {jobCount} Việc làm
                     </div>
                   </div>
                 </div>
