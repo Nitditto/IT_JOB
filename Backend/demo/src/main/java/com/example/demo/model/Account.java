@@ -126,8 +126,4 @@ public class Account implements UserDetails {
         return true;
     }
 
-    public void setLocation(Location loc) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'setLocation'");
-    }
 }

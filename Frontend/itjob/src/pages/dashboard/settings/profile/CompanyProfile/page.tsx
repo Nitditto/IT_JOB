@@ -13,7 +13,6 @@ const DAYS_OF_WEEK = [
   { value: 5, label: "Thứ 5" },
   { value: 6, label: "Thứ 6" },
   { value: 7, label: "Thứ 7" },
-  { value: 8, label: "Chủ Nhật" },
 ];
 export default function CompanyManageProfilePage() {
   const navigate = useNavigate();
@@ -95,8 +94,7 @@ export default function CompanyManageProfilePage() {
         // --- TẠO PAYLOAD MỚI ---
         // Biến đổi dữ liệu trước khi gửi
         const payload = {
-            ...formData,
-            location: formData.location ? { abbreviation: formData.location } : null
+            ...formData
         };
 
         // Gửi payload này đi (thay vì formData gốc)

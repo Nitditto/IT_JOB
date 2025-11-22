@@ -60,7 +60,7 @@ export const Header = () => {
                 isAuthenticated && !!user ? 
               <HeaderHoverItem toHref='/profile' linkText={user.name}>
                 <HeaderMenu>
-                  <HeaderItem to='/company' linkText="Thông tin công ty"/>
+                  <HeaderItem to={`/company/${user.id}`} linkText="Thông tin công ty"/>
                   <HeaderItem to='/dashboard/company/job' linkText="Quản lý công việc"/>
                   <HeaderItem to='/dashboard/company/cv' linkText="Quản lý CV"/>
                   <HeaderItem to='/' onClick={()=>logoutFunction()}linkText="Đăng xuất"/>

@@ -17,5 +17,5 @@ public class UserEditRequest {
     private UserStatus status;
     private String lookingfor;
     private String address;
-    private Location location;
+    private String location;
 }
