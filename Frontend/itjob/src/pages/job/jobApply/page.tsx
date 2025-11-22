@@ -81,7 +81,7 @@ const JobApplication = () => {
      // MỞ LẠI LỆNH GỌI API THẬT (BỎ setTimeout)
       // Vì đã bảo vệ backend, lệnh này sẽ thành công nếu có token
       // và thất bại (vào catch) nếu không có token
-      await api.post(`/job/${jobId}/apply`, submissionData, {
+      await api.post(`/cv/${jobId}/apply`, submissionData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

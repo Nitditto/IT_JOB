@@ -7,11 +7,13 @@ import {
     FaUserTie,
 } from 'react-icons/fa6'
 import { handleFieldChange } from '../../utils/formUtils';
+import axios from 'axios';
+import translation from '@/utils/translation';
 
 export default function JobDetailPage() {
 
     const { id } = useParams();
-
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [infoJob, setInfoJob] = useState({
         name: '',
         minSalary: 0,
@@ -29,34 +31,40 @@ export default function JobDetailPage() {
         name: "",
         avatar: "",
         model: "",
-        size: "",
-        workHours: "",
+        scale: "",
+        startWork: 0,
+        endWork: 0,
         overtime: false
     })
     useEffect(() => {
+        const init = async () => {
+            const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`)
+            setInfoJob(jobRes.data);
+            const companyRes = await axios.get(`${BACKEND_URL}/company/${jobRes.data.companyID}`)
+            setInfoCompany(companyRes.data);
+        }
+        // setInfoJob({
+        //     name: "Front End Developer ( Javascript, ReactJS)",
+        //     minSalary: 1000,
+        //     maxSalary: 1500,
+        //     position: "Fresher",
+        //     workstyle: "Tại văn phòng",
+        //     address: 'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
+        //     tags: ['ReactJS', 'NextJS', 'Javascript'],
+        //     images: ["/assets/images/demo-banner-1.jpg", "/assets/images/demo-banner-2.jpg", "/assets/images/demo-banner-3.jpg"],
+        //     description: `Job ID: ${id}\nLorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.`
+        // })
 
-        setInfoJob({
-            name: "Front End Developer ( Javascript, ReactJS)",
-            minSalary: 1000,
-            maxSalary: 1500,
-            position: "Fresher",
-            workstyle: "Tại văn phòng",
-            address: 'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
-            tags: ['ReactJS', 'NextJS', 'Javascript'],
-            images: ["/assets/images/demo-banner-1.jpg", "/assets/images/demo-banner-2.jpg", "/assets/images/demo-banner-3.jpg"],
-            description: `Job ID: ${id}\nLorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.`
-        })
-
-        setInfoCompany({
-            id: 1,
-            name: "LG CNS Việt Nam",
-            avatar: "/assets/images/demo-logo-company-1.jpg",
-            model: "Sản phẩm",
-            size: "151 - 300 nhân viên",
-            workHours: "Thứ 2 - Thứ 6",
-            overtime: false
-        })
-
+        // setInfoCompany({
+        //     id: 1,
+        //     name: "LG CNS Việt Nam",
+        //     avatar: "/assets/images/demo-logo-company-1.jpg",
+        //     model: "Sản phẩm",
+        //     size: "151 - 300 nhân viên",
+        //     workHours: "Thứ 2 - Thứ 6",
+        //     overtime: false
+        // })
+        init();
         document.title = 'Chi tiết công việc'
     }, [])
 
@@ -149,11 +157,11 @@ export default function JobDetailPage() {
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaUserTie className="text-[16px]" />{' '}
-                                    {infoJob.position}
+                                    {translation[infoJob.position]}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaBriefcase className="text-[16px]" />
-                                    {infoJob.workstyle}
+                                    {translation[infoJob.workstyle]}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaLocationDot className="text-[16px]" />{' '}
@@ -285,7 +293,7 @@ export default function JobDetailPage() {
                                             Mô hình công ty
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            {infoCompany.model}
+                                            {translation[infoCompany.model]}
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between gap-[10px]">
@@ -293,7 +301,7 @@ export default function JobDetailPage() {
                                             Quy mô công ty
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            {infoCompany.size}
+                                            {translation[infoCompany.scale]}
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between gap-[10px]">
@@ -301,7 +309,7 @@ export default function JobDetailPage() {
                                             Thời gian làm việc
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            {infoCompany.workHours}
+                                            {`Thứ ${infoCompany.startWork} - Thứ ${infoCompany.endWork}`}
                                         </div>
                                     </div>
                                     <div className="flex items-center justify-between gap-[10px]">
@@ -309,7 +317,7 @@ export default function JobDetailPage() {
                                             Làm việc ngoài giờ
                                         </div>
                                         <div className="text-right text-[16px] font-[400] text-[#121212]">
-                                            {infoCompany.overtime ? "Có" : "Không"}
+                                            {infoCompany.overtime ? "Có OT" : "Không có OT"}
                                         </div>
                                     </div>
                                 </div>

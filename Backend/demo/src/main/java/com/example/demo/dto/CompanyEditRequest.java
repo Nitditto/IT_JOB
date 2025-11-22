@@ -2,7 +2,6 @@ package com.example.demo.dto;
 
 import com.example.demo.enums.CompanyModel;
 import com.example.demo.enums.CompanyScale;
-import com.example.demo.model.Location;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +15,7 @@ public class CompanyEditRequest {
     private String phone;
     private String description;
     private String address;
-    private Location location;
+    private String location;
     private CompanyModel model;
     private CompanyScale scale;
     private Long startWork;

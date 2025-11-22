@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,8 +26,6 @@ import com.example.demo.services.JobServices;
 import com.example.demo.services.UserServices;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
@@ -70,7 +70,7 @@ public class JobController {
             .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
     public Job getJobInfo(@PathVariable Long id) {
         Optional<Job> job = jobServices.getJobByID(id);
         if (job.isPresent()) {

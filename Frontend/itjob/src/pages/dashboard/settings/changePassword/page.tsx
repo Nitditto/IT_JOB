@@ -138,7 +138,7 @@ export default function ChangePasswordPage() {
 
                         <div className="flex items-center justify-center gap-1 mt-2">
                             <Link
-                                to="/dashboard/settings"
+                                to="/dashboard/setting"
                                 className="cursor-pointer text-[14px] text-[#0088FF] hover:underline"
                             >
                                 Quay lại Cài đặt

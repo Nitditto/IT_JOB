@@ -14,7 +14,6 @@ import com.example.demo.dto.UserDTO;
 import com.example.demo.dto.UserEditRequest;
 import com.example.demo.enums.UserRole;
 import com.example.demo.model.Account;
-import com.example.demo.model.Location;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.LocationRepository;
 
@@ -25,7 +24,7 @@ public class UserServices {
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final LocationRepository locationRepository;
-
+    private final LocationServices locationServices;
     public Account register(RegistrationRequest request, UserRole role) {
         // Check if email already exists
         if (!accountRepository.findByEmail(request.getEmail()).isEmpty()) {
@@ -80,7 +79,7 @@ public class UserServices {
     }
 
     public AccountDTO convertToBrief(Account account) {
-        return new AccountDTO(account.getId(), account.getName(), account.getEmail(), account.getRole());
+        return new AccountDTO(account.getId(), account.getName(), account.getEmail(), account.getRole(), account.getAvatar());
     }
     public Account getCurrentUser(Principal principal) {
         String email = principal.getName();
@@ -108,18 +107,19 @@ public class UserServices {
         account.setLookingfor(request.getLookingfor());
         account.setStatus(request.getStatus());
         account.setPhone(request.getPhone());
-        if (request.getLocation() != null && request.getLocation().getAbbreviation() != null) { 
+        account.setLocation(locationServices.getLocation(request.getLocation()));
+        // if (request.getLocation() != null && request.getLocation().getAbbreviation() != null) { 
              
-             // 1. Lấy String mã vùng (ví dụ "HN") từ Object
-             String abbr = request.getLocation().getAbbreviation();
+        //      // 1. Lấy String mã vùng (ví dụ "HN") từ Object
+        //      String abbr = request.getLocation().getAbbreviation();
 
-             // 2. Truyền String vào hàm tìm kiếm
-             // (Nếu không tìm thấy mã vùng mới, giữ nguyên mã vùng cũ)
-             Location loc = locationRepository.findByAbbreviation(abbr)
-                 .orElse(account.getLocation());
+        //      // 2. Truyền String vào hàm tìm kiếm
+        //      // (Nếu không tìm thấy mã vùng mới, giữ nguyên mã vùng cũ)
+        //      Location loc = locationRepository.findByAbbreviation(abbr)
+        //          .orElse(account.getLocation());
              
-             account.setLocation(loc);
-        }
+        //      account.setLocation(loc);
+        // }
         return accountRepository.save(account);
     }
 
@@ -130,20 +130,20 @@ public class UserServices {
         account.setAvatar(request.getAvatar());
         account.setDescription(request.getDescription());
         account.setEmail(request.getEmail());
-        account.setLocation(request.getLocation());
+        account.setLocation(locationServices.getLocation(request.getLocation()));
         account.setPhone(request.getPhone());
         
-        if (request.getLocation() != null && request.getLocation().getAbbreviation() != null) {
+        // if (request.getLocation() != null && request.getLocation().getAbbreviation() != null) {
             
-            // Lấy mã vùng từ object request
-            String abbr = request.getLocation().getAbbreviation();
+        //     // Lấy mã vùng từ object request
+        //     String abbr = request.getLocation().getAbbreviation();
             
-            // Tìm trong DB để đảm bảo dữ liệu chính xác
-            Location loc = locationRepository.findByAbbreviation(abbr)
-                .orElse(account.getLocation()); // Nếu không tìm thấy thì giữ nguyên cũ
+        //     // Tìm trong DB để đảm bảo dữ liệu chính xác
+        //     Location loc = locationRepository.findByAbbreviation(abbr)
+        //         .orElse(account.getLocation()); // Nếu không tìm thấy thì giữ nguyên cũ
             
-            account.setLocation(loc);
-        }
+        //     account.setLocation(loc);
+        // }
         account.setModel(request.getModel());
         account.setScale(request.getScale());
         account.setStartWork(request.getStartWork());

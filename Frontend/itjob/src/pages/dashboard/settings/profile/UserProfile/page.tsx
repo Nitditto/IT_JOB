@@ -29,7 +29,7 @@ export default function UserManageProfilePage() {
     location: "", 
     description: "",
     lookingfor: "", 
-    status: "EMPLOYED"
+    status: "employed"
   });
 
   const { openFilePicker, filesContent, loading, clear } = useFilePicker({
@@ -58,7 +58,7 @@ export default function UserManageProfilePage() {
             location: info.location?.abbreviation || "", 
             description: info.description || "",
             lookingfor: info.lookingfor || "",
-            status: info.status || "EMPLOYED"
+            status: info.status || "employed"
           });
         }
         document.title = "Thông tin cá nhân";
@@ -83,8 +83,7 @@ export default function UserManageProfilePage() {
 
     try {
         const payload = {
-            ...formData,
-            location: formData.location ? { abbreviation: formData.location } : null
+            ...formData
         };
 
         await api.put("/edit/user", payload);
