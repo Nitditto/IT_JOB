@@ -11,7 +11,7 @@ const translation = {
   employed: "Đã có việc làm",
   freelancer: "Làm tự do",
   inactive: "Đang tìm kiếm việc làm",
-  small: "Ít hơn 150 nhân viên",
+  small: "10 - 150 nhân viên",
   medium: "150 - 300 nhân viên",
   large: "Nhiều hơn 300 nhân viên",
   product: "Sản phẩm",
