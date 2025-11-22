@@ -60,10 +60,20 @@ export const Header = () => {
                 isAuthenticated && !!user ? 
               <HeaderHoverItem toHref='/profile' linkText={user.name}>
                 <HeaderMenu>
+                  {
+                    user.role == "ROLE_COMPANY" ? ( <>
                   <HeaderItem to={`/company/${user.id}`} linkText="Thông tin công ty"/>
                   <HeaderItem to='/dashboard/company/job' linkText="Quản lý công việc"/>
-                  <HeaderItem to='/dashboard/company/cv' linkText="Quản lý CV"/>
-                  <HeaderItem to='/' onClick={()=>logoutFunction()}linkText="Đăng xuất"/>
+                  </>
+                    ) : (
+                      <>
+                      <HeaderItem to={`/user/${user.id}`} linkText="Thông tin cá nhân"/>
+                      <HeaderItem to={`/dashboard/cv`} linkText='Xem CV đã nộp'/>
+                      </>
+                    )
+                  }
+                  <HeaderItem to="/dashboard/setting" linkText='Cài đặt chung' />
+                  <HeaderItem to='/' onClick={()=>logoutFunction()} linkText="Đăng xuất"/>
                 </HeaderMenu>
               </HeaderHoverItem>
               :
