@@ -1,46 +1,41 @@
 import { useEffect, useState } from "react";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot, FaPhone } from "react-icons/fa6";
 import { CardJobItem } from "../../components/card/CardJobItem";
 import { useParams } from 'react-router';
+import axios from "axios";
+import translation from "@/utils/translation";
 export default function CompanyDetailPage() {
 
   const { id } = useParams();
   const [info, setInfo] = useState({
     name: "",
     avatar: "",
+    phone: "",
     address: "",
+    location: "",
     model: "",
-    size: "",
-    workHours: "",
-    overtime: false,
+    scale: "",
+    startWork: 0,
+    endWork: 0,
+
+    hasOvertime: null,
     description: "",
-    jobs: []
   })
-  const jobInfo = {
-    id: 0,
-    name: "Frontend Engineer (ReactJS)",
-    company: "LG CNS Việt Nam",
-    logo: "/assets/images/demo-company-1.png",
-    minSalary: 1000,
-    maxSalary: 1500,
-    position: "Fresher",
-    workstyle: "Tại văn phòng",
-    location: "Hà Nội",
-    tags: ["ReactJS", "NextJS", "Javascript"]
-  }
+  const [jobList, setJobList] = useState([])
+  const [page, setPage] = useState(1);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  
   useEffect(()=>{
+    const init = async () => {
+      const companyRes = await axios.get(`${BACKEND_URL}/company/${id}`)
+      setInfo(companyRes.data)
+      const jobListRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${id}`)
+      setJobList(jobListRes.data)
+    }
+    
+    init()
     document.title="Chi tiết công ty";
-    setInfo({
-      name: "LG CNS Việt Nam",
-      avatar: "/assets/images/demo-logo-company-1.jpg",
-      address: "Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi",
-      model: "Sản phẩm",
-      size: "151 - 300 nhân viên",
-      workHours: "Thứ 2 - Thứ 6",
-      overtime: false,
-      description: `Company ID: ${id}`,
-      jobs: Array(6).fill(0).map((_, index) => (<CardJobItem key={index} jobInfo={{...jobInfo, id:index+1}}/>))
-    })
+
   },[])
   return (
     <>
@@ -51,17 +46,18 @@ export default function CompanyDetailPage() {
             <div className="flex flex-wrap gap-[16px] items-center">
               <div className="w-[100px] aspect-square rounded-[4px] truncate">
                 <img
-                  src={info.avatar}
-                  alt=""
+                  src={info["avatar"]}
+                  alt={info["name"]}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="sm:flex-1 w-full">
                 <div className="font-bold text-[28px] text-[#121212] mb-[10px]">
-                  {info.name}
+                  {info["name"]}
                 </div>
-                <div className="flex items-center  gap-[8px] font-[400] text-[14px] text-[#121212]">
-                  <FaLocationDot className="text-[16px]" /> {info.address}
+                <div className="flex flex-row items-center  gap-[8px] font-[400] text-[14px] text-[#121212]">
+                  <FaLocationDot className="text-[16px]" /> {info["address"] ? info["address"] : "Không xác định"}
+                  <FaPhone className="text-[16px]" /> {info["phone"] ? info["phone"] : "Không xác định"}
                 </div>
               </div>
             </div>
@@ -71,7 +67,7 @@ export default function CompanyDetailPage() {
                   Mô hình công ty:
                 </div>
                 <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info.model}
+                  {info["model"] ? translation[info["model"]] : "Không xác định"}
                 </div>
               </div>
               <div className="flex items-center gap-[5px]">
@@ -79,7 +75,7 @@ export default function CompanyDetailPage() {
                   Quy mô công ty:
                 </div>
                 <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info.size}
+                  {info["scale"] ? translation[info["scale"]] : "Không xác định"}
                 </div>
               </div>
               <div className="flex items-center gap-[5px]">
@@ -87,7 +83,7 @@ export default function CompanyDetailPage() {
                   Thời gian làm việc:
                 </div>
                 <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info.workHours}
+                  {info["startWork"] && info["endWork"] ? `Thứ ${info["startWork"]} - Thứ ${info["endWork"]}` : "Không xác định"}
                 </div>
               </div>
               <div className="flex items-center gap-[5px]">
@@ -95,23 +91,36 @@ export default function CompanyDetailPage() {
                   Làm việc ngoài giờ:
                 </div>
                 <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info.overtime ? "Có" : "Không"}
+                  {info["hasOvertime"] != null ? (info["hasOvertime"] ? "Có OT" : "Không có OT") : "Không xác định"}
                 </div>
               </div>
             </div>
           </div>
           {/* Mo ta chi tiet  */}
           <div className="rounded-[8px] border border-[#DEDEDE] p-[20px] mt-[20px]">
-            Mô tả chi tiết: {info.description}
+            Mô tả chi tiết: <br></br>{info["description"] ? info["description"] : "Không có mô tả"}
           </div>
           {/* Viec lam  */}
           <div className="mt-[30px]">
             <h2 className="font-bold text-[28px] text-[#121212] mb-[20px]">
-            Công ty có {info.jobs.length} việc làm
+            Công ty có {jobList.length} việc làm
             </h2>
             <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
-                {info.jobs}
+                {
+                jobList.slice((page-1)*6, page*6).map((item, index) => (
+                  <CardJobItem key={index} jobInfo={item}/>
+                ))
+              }
             </div>
+                  <div className="mt-[30px]">
+        <select onChange={e=>setPage(parseInt(e.target.value))} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
+          {
+            Array(Math.ceil(jobList.length/6)).fill(0).map((_, index) => (
+              <option value={index+1}>{`Trang ${index+1}`}</option>
+            ))
+          }
+        </select>
+      </div>
           </div>
         </div>
       </div>
