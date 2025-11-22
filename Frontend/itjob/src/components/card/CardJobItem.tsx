@@ -27,7 +27,7 @@ export const CardJobItem = ({jobInfo}: {jobInfo: any}) => {
             }}
           >
             <img
-              src={jobInfo.logo}
+              src={jobInfo.companyAvatar}
               className="w-full h-full object-contain p-[10px]"
               alt=""
             />
