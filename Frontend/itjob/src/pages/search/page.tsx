@@ -7,72 +7,12 @@ import { useEffect, useState } from "react";
 import type {JobFilterParams} from '../../types'
 import { useSearchParams } from "react-router";
 import axios from "axios";
-// const MOCK_JOBS = [
-//   {
-//     id: 1,
-//     name: "Frontend Engineer (ReactJS)",
-//     companyName: "LG CNS Việt Nam",
-//     companyAvatar: "/assets/images/demo-company-1.png",
-//     minSalary: 1000,
-//     maxSalary: 1500,
-//     position: "fresher",
-//     workstyle: "onsite",
-//     location: { abbreviation: "HN", name: "Hà Nội" },
-//     tags: ["React", "NextJS", "Javascript"]
-//   },
-//   {
-//     id: 2,
-//     name: "Backend Developer (NodeJS)",
-//     companyName: "FPT Software",
-//     companyAvatar: "/assets/images/demo-company-fpt.png",
-//     minSalary: 2000,
-//     maxSalary: 3000,
-//     position: "junior",
-//     workstyle: "remote",
-//     location: { abbreviation: "SG", name: "Hồ Chí Minh" },
-//     tags: ["NodeJS", "TypeScript", "AWS"]
-//   },
-//   {
-//     id: 3,
-//     name: "Fullstack Developer (React/Java)",
-//     companyName: "MB Bank",
-//     companyAvatar: "/assets/images/demo-company-mb.png",
-//     minSalary: 1500,
-//     maxSalary: 2500,
-//     position: "middle",
-//     workstyle: "hybrid",
-//     location: { abbreviation: "HN", name: "Hà Nội" },
-//     tags: ["React", "Java", "Spring Boot"]
-//   },
-//   {
-//     id: 4,
-//     name: "Senior React Developer",
-//     companyName: "LG CNS Việt Nam",
-//     companyAvatar: "/assets/images/demo-company-1.png",
-//     minSalary: 3000,
-//     maxSalary: 5000,
-//     position: "senior",
-//     workstyle: "onsite",
-//     location: { abbreviation: "ĐNa", name: "Đà Nẵng" },
-//     tags: ["React", "TypeScript", "Redux"]
-//   }
-// ];
+
 
 export default function SearchPage() {
   
   const [searchParams, setSearchParams] = useSearchParams();
-  // const jobInfo = {
-  //   id: 0,
-  //   name: "Frontend Engineer (ReactJS)",
-  //   company: "LG CNS Việt Nam",
-  //   logo: "/assets/images/demo-company-1.png",
-  //   minSalary: 1000,
-  //   maxSalary: 1500,
-  //   position: "Fresher",
-  //   workstyle: "Tại văn phòng",
-  //   location: "Hà Nội",
-  //   tags: ["ReactJS", "NextJS", "Javascript"]
-  // }
+  const [page, setPage] = useState(1);
 const getFiltersFromURL = (): JobFilterParams => {
   
   // Helper to handle simple strings (converts null to undefined)
@@ -138,7 +78,7 @@ const getFiltersFromURL = (): JobFilterParams => {
     document.title = "Kết quả tìm kiếm";
     const currentFilters = getFiltersFromURL();
     fetchJobs(currentFilters);
-    console.log(jobList);
+    
   }, [searchParams]); // <-- Dependency: Tự động gọi lại API mỗi khi `filters` thay đổi
 
   
@@ -191,14 +131,22 @@ const getFiltersFromURL = (): JobFilterParams => {
           {/* Danh sách công việc */}
           <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
             {
-              jobList.map((jobInfo, index) => (
+              jobList.slice((page-1)*6, page*6).map((jobInfo, index) => (
                 <CardJobItem key={index} jobInfo={jobInfo} />
               ))
             }
           </div>
           
           {/* Phân trang  */}
-          <Pagination/>
+      <div className="mt-[30px]">
+        <select onChange={e=>setPage(e.target.value)} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
+          {
+            Array(Math.ceil(jobList.length/6)).fill(0).map((_, index) => (
+              <option value={index+1}>{`Trang ${index+1}`}</option>
+            ))
+          }
+        </select>
+      </div>
         </div>
       </div>
       {/* Kết quả tìm kiếm */}

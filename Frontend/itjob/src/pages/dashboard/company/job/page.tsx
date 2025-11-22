@@ -9,6 +9,7 @@ import translation from "../../../../utils/translation";
 export default function CompanyJobList() {
   const {user} = useAuth();
   const [jobList, setJobList] = useState([]);
+  const [page, setPage] = useState(1);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(()=>{
     const init = async () => {
@@ -18,7 +19,7 @@ export default function CompanyJobList() {
             companyID: user?.id,
           }
         })
-        setJobList(response.data);
+        setJobList(response.data)
         document.title = "Quản lý công việc"
       } catch (error) {
         console.error(error);
@@ -27,9 +28,10 @@ export default function CompanyJobList() {
 
     init();
   },[])
+
   return (
     <>
-      <div className="w-auto mx-8 py-[60px]">
+      <div className="w-auto mx-8 py-[60px] h-screen">
         <div className="flex gap-[20px] flex-wrap items-center justify-between
             mb-[20px]">
           <h1 className="font-bold text-[#121212] text-[28px]">Quản lý công việc</h1>
@@ -38,7 +40,7 @@ export default function CompanyJobList() {
         {/* Danh sach cong viec  */}
         <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-[20px]">
           {
-            jobList.map((value, index) => (
+            jobList.slice((page-1)*6, page*6).map((value, index) => (
           <div
             key={index}
             className="border border-[#DEDEDE] rounded-[8px] flex flex-col relative truncate "
@@ -93,7 +95,15 @@ export default function CompanyJobList() {
 
 }
         </div>
-        <Pagination />
+      <div className="mt-[30px]">
+        <select onChange={e=>setPage(e.target.value)} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
+          {
+            Array(Math.ceil(jobList.length/6)).fill(0).map((_, index) => (
+              <option value={index+1}>{`Trang ${index+1}`}</option>
+            ))
+          }
+        </select>
+      </div>
       </div>
     </>
   )
