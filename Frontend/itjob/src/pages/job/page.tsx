@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import {
     FaArrowRightLong,
     FaBriefcase,
+    FaGlobe,
     FaLocationDot,
     FaUserTie,
 } from 'react-icons/fa6'
@@ -21,6 +22,7 @@ export default function JobDetailPage() {
         position: '',
         workstyle: '',
         address: "",
+        location: {},
         tags: Array<string>(),
         images: Array<string>(),
         description: ""
@@ -43,27 +45,6 @@ export default function JobDetailPage() {
             const companyRes = await axios.get(`${BACKEND_URL}/company/${jobRes.data.companyID}`)
             setInfoCompany(companyRes.data);
         }
-        // setInfoJob({
-        //     name: "Front End Developer ( Javascript, ReactJS)",
-        //     minSalary: 1000,
-        //     maxSalary: 1500,
-        //     position: "Fresher",
-        //     workstyle: "Tại văn phòng",
-        //     address: 'Tầng 15, tòa Keangnam Landmark 72, Mễ Trì, Nam Tu Liem, Ha Noi',
-        //     tags: ['ReactJS', 'NextJS', 'Javascript'],
-        //     images: ["/assets/images/demo-banner-1.jpg", "/assets/images/demo-banner-2.jpg", "/assets/images/demo-banner-3.jpg"],
-        //     description: `Job ID: ${id}\nLorem ipsum dolor sit amet consectetur adipisicing elit. Saepe voluptas necessitatibus non quod velit dolor nulla minima dolorem! Culpa soluta nihil nobis ea qui quidem saepe nostrum laboriosam aspernatur similique.`
-        // })
-
-        // setInfoCompany({
-        //     id: 1,
-        //     name: "LG CNS Việt Nam",
-        //     avatar: "/assets/images/demo-logo-company-1.jpg",
-        //     model: "Sản phẩm",
-        //     size: "151 - 300 nhân viên",
-        //     workHours: "Thứ 2 - Thứ 6",
-        //     overtime: false
-        // })
         init();
         document.title = 'Chi tiết công việc'
     }, [])
@@ -166,6 +147,10 @@ export default function JobDetailPage() {
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaLocationDot className="text-[16px]" />{' '}
                                     {infoJob.address}
+                                </div>
+                                <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
+                                    <FaGlobe className="text-[16px]" />{' '}
+                                    {infoJob.location.name}
                                 </div>
                                 <div className="flex flex-wrap gap-[8px]">
                                     {infoJob.tags.map((item, index) => (
