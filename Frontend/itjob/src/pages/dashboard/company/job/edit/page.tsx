@@ -71,7 +71,7 @@ export default function CompanyManageJobEditPage() {
         if (id) { // Chỉ chạy nếu có id
           document.title = "Sửa đổi công việc";
 
-          const jobRes = await api.get(`/job/${id}`); 
+          const jobRes = await api.get(`/job/get/${id}`); 
           const jobData = jobRes.data;
           
           dispatch({ type: 'CHANGE_FIELD', field: 'name', value: jobData.name  });
