@@ -9,56 +9,18 @@ import type { HomePageData } from "../types";
 
 export default function SearchHome() {
   
-   const companyList=[
-    {
-      id: 1,
-      logoURL:"/assets/images/demo-company-1.png",
-      title:"LG Electronics Development Vietnam (LGEDV)",
-      location:"Ho Chi Minh",
-      jobCount:5,
-      link:"/companies/lg-electronics",
-    },
-    {
-      id: 2,
-      logoURL:"/assets/images/demo-company-2.png",
-      title:"MB Bank",
-      location: "Ha Noi",
-      jobCount:15,
-      link:"/companies/mb-bank"
-    },
-    {
-      id: 3,
-      logoURL:"/assets/images/demo-company-3.png",
-      title: "FPT Software",
-      location:"Da Nang",
-      jobCount:20,
-      link:"/companies/fpt-software"
-    },
-    {
-      id: 4,
-      logoURL:"/assets/images/demo-company-1.png",
-      title:"LG Electronics Development Campuchia (LGEDC)",
-      location:"Campuchia",
-      jobCount:25,
-      link:"/companies/lg-electronics",
-    },
-    {
-      id: 5,
-      logoURL:"/assets/images/demo-company-2.png",
-      title:"MM Bank",
-      location: "Ha Noi",
-      jobCount:30,
-      link:"/companies/mb-bank"
-    },
-    {
-      id: 6,
-      logoURL:"/assets/images/demo-company-3.png",
-      title: "FPT Softcore",
-      location:"Da Nang",
-      jobCount:35,
-      link:"/companies/fpt-software"
+  const [companyList, setCompanyList] = useState([]);
+  const [page, setPage] = useState(1);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  useEffect(() => {
+    const init = async () => {
+      const companyRes = await axios.get(`${BACKEND_URL}/company/list`)
+      setCompanyList(companyRes.data)
     }
-  ]
+
+    init()
+  }, [])
+
 
   return (
     <div>
@@ -73,10 +35,19 @@ export default function SearchHome() {
           {/* Wrap  */}
           <div className="grid lg:grid-cols-3 grid-cols-2 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
             {/* Item  */}
-            {companyList.map(companyInfo => (
-              <CardCompanyItem companyInfo={companyInfo} key={companyInfo.id} />
+            {companyList.slice((page-1)*6, page*6).map(companyInfo => (
+              <CardCompanyItem companyInfo={companyInfo} key={companyInfo["id"]} />
             ))}
           </div>
+                <div className="mt-[30px]">
+        <select onChange={e=>setPage(e.target.value)} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
+          {
+            Array(Math.ceil(companyList.length/6)).fill(0).map((_, index) => (
+              <option value={index+1}>{`Trang ${index+1}`}</option>
+            ))
+          }
+        </select>
+      </div>
         </div>
       </div>
       {/*End Section 2 */}
