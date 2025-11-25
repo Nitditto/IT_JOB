@@ -5,12 +5,14 @@ import {
     FaCircleCheck,
     FaEnvelope,
     FaEye,
+    FaGlobe,
     FaPhone,
     FaUserTie,
 } from 'react-icons/fa6'
 import { useEffect, useState } from 'react'
 import axios from 'axios';
-import translation from '../../../../utils/translation';
+import translation from '@/utils/translation';
+import api from '@/utils/api';
 
 interface CVData {
     id: {
@@ -53,7 +55,7 @@ export default function CompanyManageCVListPage() {
             if (!id) return;
             try {
                 // Lấy thông tin Job
-                const jobRes = await axios.get(`${BACKEND_URL}/job/${id}`);
+                const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`);
                 setJobInfo(jobRes.data);
 
                 // Lấy danh sách CV (Cần Token)
@@ -185,9 +187,9 @@ export default function CompanyManageCVListPage() {
                                 </h3>
                                 
                                 <div className="text-center space-y-1 mb-4">
-                                    <div className="flex items-center justify-center gap-2 text-[14px] text-gray-600">
+                                    {/* <div className="flex items-center justify-center gap-2 text-[14px] text-gray-600">
                                         <FaEnvelope className="text-gray-400" /> <span className="truncate max-w-[200px]">{cv.account.email}</span>
-                                    </div>
+                                    </div> */}
                                     <div className="flex items-center justify-center gap-2 text-[14px] text-gray-600">
                                         <FaPhone className="text-gray-400" /> {cv.phone}
                                     </div>
@@ -197,7 +199,7 @@ export default function CompanyManageCVListPage() {
 
                                 <div className="mt-auto pt-6 flex flex-wrap items-center justify-center gap-3">
                                     <Link
-                                        to={`/dashboard/company/cv/detail/${cv.id.jobID}/${cv.id.accountID}`}
+                                        to={`./${cv.id.accountID}`}
                                         className="rounded-[4px] bg-[#0088FF] px-4 py-2 text-[14px] font-medium text-white hover:bg-blue-600 transition-colors"
                                     >
                                         Xem chi tiết
