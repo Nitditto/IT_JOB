@@ -118,7 +118,7 @@ export default function JobDetailPage() {
                                     {infoJob.minSalary.toLocaleString() + "$ - " + infoJob.maxSalary.toLocaleString() + "$"}
                                 </div>
                                 <Link
-                                    to={'#'}
+                                    to={`/job/${id}/apply`}
                                     className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
                                 >
                                     Ứng tuyển

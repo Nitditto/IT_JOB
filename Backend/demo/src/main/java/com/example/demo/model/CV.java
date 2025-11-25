@@ -1,7 +1,11 @@
 package com.example.demo.model;
 
+import com.example.demo.enums.CVStatus;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -40,4 +44,7 @@ public class CV {
 
     @Lob
     private String referral;
+
+    @Enumerated(EnumType.STRING)
+    private CVStatus status = CVStatus.PENDING;
 }
