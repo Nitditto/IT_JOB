@@ -61,16 +61,16 @@ export default [
 
       {
         path:"company/job/:id/view",
-        file:"./pages/company/cv/list/page.tsx"
+        file:"./pages/dashboard/company/cv/list/page.tsx"
       },
       {
         path:"cv",
         file:"./pages/dashboard/cv/page.tsx"
       },
       {
-        path: "company/cv/detail/:jobId/:accountId",
-        file: "./pages/company/cv/detail/page.tsx"
-      }
+        path: "company/job/:jobId/view/:accountId",
+        file: "./pages/dashboard/company/cv/detail/page.tsx"
+      },
 
       // ,
       // {

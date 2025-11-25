@@ -12,12 +12,6 @@ interface CVDetail {
   cvFile: string; // Base64 string
   referral: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
-  job: {
-      name: string; // Tên job để hiển thị breadcrumb
-  };
-  account: {
-      email: string;
-  }
 }
 export default function CompanyManageCVDetailPage(){
   const { jobId, accountId } = useParams(); 
@@ -26,7 +20,7 @@ export default function CompanyManageCVDetailPage(){
   
   const [cvData, setCvData] = useState<CVDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   useEffect(() => {
     const fetchCV = async () => {
       try {
@@ -112,7 +106,7 @@ export default function CompanyManageCVDetailPage(){
                             <User size={40} />
                         </div>
                         <h2 className="text-xl font-bold text-gray-900">{cvData.name}</h2>
-                        <p className="text-sm text-gray-500">Ứng tuyển: {cvData.job?.name || "Developer"}</p>
+                        {/* <p className="text-sm text-gray-500">Ứng tuyển: {cvData.job?.name || "Developer"}</p> */}
                     </div>
                     
                     <div className="space-y-3 text-sm">
@@ -121,12 +115,12 @@ export default function CompanyManageCVDetailPage(){
                             <span>{cvData.phone}</span>
                         </div>
                         {/* Nếu có email */}
-                        {cvData.account?.email && (
+                        {/* {cvData.account?.email && (
                             <div className="flex items-center gap-3 text-gray-700 truncate" title={cvData.account.email}>
                                 <span className="text-gray-400">@</span>
                                 <span>{cvData.account.email}</span>
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
 
@@ -144,7 +138,7 @@ export default function CompanyManageCVDetailPage(){
 
                     <Button 
                         variant="destructive"
-                        className="w-full"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white"
                         disabled={isLoading || cvData.status === 'REJECTED'}
                         onClick={() => handleUpdateStatus('REJECTED')}
                     >
@@ -157,14 +151,31 @@ export default function CompanyManageCVDetailPage(){
             <div className="md:col-span-2 space-y-6">
                 
                 {/* Phần Thư giới thiệu */}
-                {cvData.referral && (
-                    <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
-                        <h3 className="font-bold text-lg mb-3 text-gray-800">Thư giới thiệu</h3>
-                        <div className="p-4 bg-gray-50 rounded-md text-gray-700 whitespace-pre-wrap text-sm leading-relaxed border">
-                            {cvData.referral}
+                <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
+                    <h3 className="font-bold text-lg mb-4 text-gray-800 flex items-center justify-between">
+                        <span>Thư giới thiệu</span>
+                        <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">PDF Document</span>
+                    </h3>
+                    
+                    <div className="flex flex-col items-center justify-center p-10 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50">
+                        <FileText size={48} className="text-gray-400 mb-3" />
+                        <p className="text-gray-600 font-medium mb-4">referral.pdf</p>
+                        
+                        <div className="flex gap-3">
+                            {/* NÚT MỞ FILE (THAY IFRAME) */}
+                            <Button onClick={handleOpenFile} className="bg-[#0088FF] hover:bg-blue-700 text-white">
+                                <Eye className="mr-2 h-4 w-4" /> Xem thư giới thiệu
+                            </Button>
+                            
+                            {/* Nút Tải xuống (Nếu muốn) */}
+                            <a href={cvData.referral} download={`referral.pdf`}>
+                                <Button variant="outline" className="border-gray-300">
+                                    <DownloadCloud className="mr-2 h-4 w-4" /> Tải xuống
+                                </Button>
+                            </a>
                         </div>
                     </div>
-                )}
+                </div>
 
                 {/* Phần File CV */}
                 <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
