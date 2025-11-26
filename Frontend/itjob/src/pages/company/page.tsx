@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaLocationDot, FaPhone } from "react-icons/fa6";
+import { FaBuilding, FaBusinessTime, FaClock, FaLocationDot, FaPhone, FaUsers } from "react-icons/fa6";
 import { CardJobItem } from "../../components/card/CardJobItem";
 import { useParams } from 'react-router';
 import axios from "axios";
@@ -27,100 +27,137 @@ export default function CompanyDetailPage() {
   
   useEffect(()=>{
     const init = async () => {
-      const companyRes = await axios.get(`${BACKEND_URL}/company/${id}`)
-      setInfo(companyRes.data)
-      const jobListRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${id}`)
-      setJobList(jobListRes.data)
-    }
-    
-    init()
-    document.title="Chi tiết công ty";
+      try {
+        const companyRes = await axios.get(`${BACKEND_URL}/company/${id}`);
+        setInfo(companyRes.data);
+        const jobListRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${id}`);
+        setJobList(jobListRes.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  },[])
+    init();
+    document.title = "Chi tiết công ty";
+
+  },[id])
+
+  const InfoItem = ({ icon, label, value }: { icon: any, label: string, value: string }) => (
+    <div className="flex items-start gap-4 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+      <div className="text-blue-600 text-xl mt-1">{icon}</div>
+      <div>
+        <div className="text-sm text-gray-500 mb-1">{label}</div>
+        <div className="text-base font-medium text-gray-900">{value}</div>
+      </div>
+    </div>
+  );
+  
   return (
     <>
-      <div className="pt-[30px] pb-[60px]">
-        <div className="container">
-          {/* Thong tin cong ty  */}
-          <div className="border border-[#DEDEDE] rounded-[8px] p-[20px]">
-            <div className="flex flex-wrap gap-[16px] items-center">
-              <div className="w-[100px] aspect-square rounded-[4px] truncate">
-                <img
-                  src={info["avatar"]}
-                  alt={info["name"]}
-                  className="w-full h-full object-cover"
+      <div className="bg-gray-50 min-h-screen pt-[30px] pb-[60px]">
+        <div className="container mx-auto px-4">
+          {/* Card Thông tin chung */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            {/* Header Cover - Có thể thêm ảnh bìa nếu muốn, hiện tại để dải màu */}
+            <div className="h-24 bg-gradient-to-r from-blue-800 to-cyan-500"></div>
+            
+            <div className="px-8 pb-8">
+              <div className="flex flex-col md:flex-row gap-6 items-start -mt-12">
+                {/* Avatar */}
+                <div className="w-[120px] h-[120px] rounded-xl border-4 border-white shadow-md bg-white overflow-hidden shrink-0 flex items-center justify-center">
+                  <img
+                    src={info["avatar"] || "https://via.placeholder.com/150"}
+                    alt={info["name"]}
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
+
+                {/* Tên & Liên hệ */}
+                <div className="flex-1 mt-4 md:mt-14">
+                  <h1 className="font-bold text-3xl text-gray-900 mb-3">
+                    {info["name"]}
+                  </h1>
+                  
+                  <div className="flex flex-wrap gap-y-2 gap-x-6 text-gray-600 text-sm">
+                    <div className="flex items-center gap-2">
+                      <FaLocationDot className="text-blue-500" />
+                      <span>{info["address"] ? info["address"] : "Địa chỉ chưa cập nhật"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaPhone className="text-blue-500" />
+                      <span>{info["phone"] ? info["phone"] : "SĐT chưa cập nhật"}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr className="my-6 border-gray-100" />
+
+              {/* Grid Thông tin chi tiết */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <InfoItem 
+                  icon={<FaBuilding />} 
+                  label="Mô hình công ty" 
+                  value={info["model"] ? translation[info["model"]] : "Chưa cập nhật"} 
+                />
+                <InfoItem 
+                  icon={<FaUsers />} 
+                  label="Quy mô nhân sự" 
+                  value={info["scale"] ? translation[info["scale"]] : "Chưa cập nhật"} 
+                />
+                <InfoItem 
+                  icon={<FaClock />} 
+                  label="Thời gian làm việc" 
+                  value={info["startWork"] && info["endWork"] ? `Thứ ${info["startWork"]} - Thứ ${info["endWork"]}` : "Chưa cập nhật"} 
+                />
+                <InfoItem 
+                  icon={<FaBusinessTime />} 
+                  label="Làm việc ngoài giờ" 
+                  value={info["hasOvertime"] != null ? (info["hasOvertime"] ? "Có OT" : "Không có OT") : "Chưa cập nhật"} 
                 />
               </div>
-              <div className="sm:flex-1 w-full">
-                <div className="font-bold text-[28px] text-[#121212] mb-[10px]">
-                  {info["name"]}
-                </div>
-                <div className="flex flex-row items-center  gap-[8px] font-[400] text-[14px] text-[#121212]">
-                  <FaLocationDot className="text-[16px]" /> {info["address"] ? info["address"] : "Không xác định"}
-                  <FaPhone className="text-[16px]" /> {info["phone"] ? info["phone"] : "Không xác định"}
-                </div>
-              </div>
-            </div>
-            <div className="mt-[20px] flex flex-col gap-[10px]">
-              <div className="flex items-center gap-[5px]">
-                <div className="font-[400] text-[16px] text-[#A6A6A6]">
-                  Mô hình công ty:
-                </div>
-                <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info["model"] ? translation[info["model"]] : "Không xác định"}
-                </div>
-              </div>
-              <div className="flex items-center gap-[5px]">
-                <div className="font-[400] text-[16px] text-[#A6A6A6]">
-                  Quy mô công ty:
-                </div>
-                <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info["scale"] ? translation[info["scale"]] : "Không xác định"}
-                </div>
-              </div>
-              <div className="flex items-center gap-[5px]">
-                <div className="font-[400] text-[16px] text-[#A6A6A6]">
-                  Thời gian làm việc:
-                </div>
-                <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info["startWork"] && info["endWork"] ? `Thứ ${info["startWork"]} - Thứ ${info["endWork"]}` : "Không xác định"}
-                </div>
-              </div>
-              <div className="flex items-center gap-[5px]">
-                <div className="font-[400] text-[16px] text-[#A6A6A6]">
-                  Làm việc ngoài giờ:
-                </div>
-                <div className="font-[400] text-[16px] text-[#121212] text-right">
-                  {info["hasOvertime"] != null ? (info["hasOvertime"] ? "Có OT" : "Không có OT") : "Không xác định"}
-                </div>
-              </div>
             </div>
           </div>
-          {/* Mo ta chi tiet  */}
-          <div className="rounded-[8px] border border-[#DEDEDE] p-[20px] mt-[20px]">
-            Mô tả chi tiết: <br></br>{info["description"] ? info["description"] : "Không có mô tả"}
+
+          {/* Card Mô tả chi tiết */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+            <h3 className="font-bold text-xl text-gray-900 mb-4 border-l-4 border-blue-500 pl-3">
+              Giới thiệu công ty
+            </h3>
+            <div className="text-gray-700 leading-relaxed whitespace-pre-line text-[15px]">
+              {info["description"] ? info["description"] : "Chưa có thông tin mô tả chi tiết về công ty này."}
+            </div>
           </div>
-          {/* Viec lam  */}
+
+          {/* --- KẾT THÚC PHẦN SỬA GIAO DIỆN --- */}
+
+          {/* Viec lam */}
           <div className="mt-[30px]">
             <h2 className="font-bold text-[28px] text-[#121212] mb-[20px]">
             Công ty có {jobList.length} việc làm
             </h2>
+            
             <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px]">
-                {
-                jobList.slice((page-1)*6, page*6).map((item, index) => (
-                  <CardJobItem key={index} jobInfo={item}/>
-                ))
-              }
+              {jobList.slice((page - 1) * 6, page * 6).map((item, index) => (
+                <CardJobItem key={index} jobInfo={item} />
+              ))}
             </div>
-                  <div className="mt-[30px]">
-        <select onChange={e=>setPage(parseInt(e.target.value))} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
-          {
-            Array(Math.ceil(jobList.length/6)).fill(0).map((_, index) => (
-              <option value={index+1}>{`Trang ${index+1}`}</option>
-            ))
-          }
-        </select>
-      </div>
+            
+            {/* Pagination */}
+            {jobList.length > 6 && (
+              <div className="mt-[30px] flex justify-center">
+                <select
+                  onChange={(e) => setPage(parseInt(e.target.value))}
+                  className="border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:border-blue-500 bg-white"
+                >
+                  {Array(Math.ceil(jobList.length / 6))
+                    .fill(0)
+                    .map((_, index) => (
+                      <option key={index} value={index + 1}>{`Trang ${index + 1}`}</option>
+                    ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
       </div>
