@@ -70,7 +70,7 @@ export default [
       {
         path: "company/job/:jobId/view/:accountId",
         file: "./pages/dashboard/company/cv/detail/page.tsx"
-      }
+      },
 
       // ,
       // {
