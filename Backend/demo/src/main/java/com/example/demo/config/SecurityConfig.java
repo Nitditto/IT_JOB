@@ -100,7 +100,7 @@ public class SecurityConfig {
                     "/location", 
                     "/job/count", 
                     "/job/tags",
-                    "job/get/**",
+                    "/job/get/*",
                     "/user/*",
                     "/company/*").permitAll()
                 // Yêu cầu xác thực cho các endpoint còn lại

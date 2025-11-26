@@ -1,29 +1,49 @@
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
-import { ChevronLeft, UploadCloud } from 'lucide-react';
+import { ChevronLeft, Eye, FileText, UploadCloud, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router';
+import { useFilePicker } from 'use-file-picker';
 
 interface FormErrors {
   cvFile?: string;
-  fullName?: string;
+  name?: string;
   phone?: string;
-  location?: string;
 }
 const JobApplication = () => {
-  const { jobId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     phone: '',
-    location: '',
-    coverLetter: '',
   });
 
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const { 
+    openFilePicker: openCVPicker, 
+    filesContent: cvFiles, 
+    loading: cvLoading, 
+    clear: clearCV 
+  } = useFilePicker({
+    readAs: 'DataURL',
+    accept: '.pdf,.doc,.docx',
+    multiple: false,
+  });
+
+  const { 
+    openFilePicker: openRefPicker, 
+    filesContent: refFiles, 
+    loading: refLoading, 
+    clear: clearRef 
+  } = useFilePicker({
+    readAs: 'DataURL',
+    accept: '.pdf,.doc,.docx', // Có thể thêm .png, .jpg nếu muốn
+    multiple: false,
+  });
+
   useEffect(() => {
     // Nếu chưa kiểm tra xong, không làm gì cả
     if (isAuthLoading) {
@@ -36,6 +56,7 @@ const JobApplication = () => {
       navigate('/login'); // Chuyển về trang login
     }
   }, [isAuthenticated, isAuthLoading, navigate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -54,172 +75,188 @@ const JobApplication = () => {
   };
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!cvFile) newErrors.cvFile = "Vui lòng tải lên CV của bạn.";
-    if (!formData.fullName.trim()) newErrors.fullName = "Vui lòng nhập họ và tên.";
+    
+    // Kiểm tra file từ hook
+    if (cvFiles.length === 0) {
+        newErrors.cvFile = "Vui lòng tải lên CV của bạn.";
+    }
+    
+    if (!formData.name.trim()) newErrors.name = "Vui lòng nhập họ và tên.";
     if (!formData.phone.trim()) newErrors.phone = "Vui lòng nhập số điện thoại.";
-    // (Thêm validate cho SĐT nếu cần)
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Trả về true nếu không có lỗi
+    return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return; 
     
     setIsLoading(true);
 
-    // Tạo FormData để gửi file
-    const submissionData = new FormData();
-    submissionData.append('jobId', jobId as string);
-    submissionData.append('fullName', formData.fullName);
-    submissionData.append('phone', formData.phone);
-    submissionData.append('location', formData.location);
-    submissionData.append('coverLetter', formData.coverLetter);
-    submissionData.append('cv', cvFile as File); 
-
     try {
+      const cvContent = cvFiles[0]?.content;
+      const referralContent = refFiles.length > 0 ? refFiles[0].content : null; // Referral là tùy chọn
+
+      const payload = {
+          jobID: id,
+          name: formData.name,
+          phone: formData.phone,
+          cvFile: cvContent,     // Base64 của CV
+          referral: referralContent // Base64 của Referral (hoặc null)
+      };
+
      // MỞ LẠI LỆNH GỌI API THẬT (BỎ setTimeout)
       // Vì đã bảo vệ backend, lệnh này sẽ thành công nếu có token
       // và thất bại (vào catch) nếu không có token
-      await api.post(`/cv/${jobId}/apply`, submissionData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await api.post(`/cv/${id}/apply`, payload);
       await new Promise(resolve => setTimeout(resolve, 1500));
-      navigate('/apply/success');
-    } catch (error) {
+      navigate('./success');
+    } catch (error: any) {
       console.error("Lỗi khi nộp CV:", error);
-      alert('Đã có lỗi xảy ra. Vui lòng thử lại.');
+      const message = error.response?.data || 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+      alert(typeof message === 'string' ? message : JSON.stringify(message));
     } finally {
       setIsLoading(false);
     }
   };
   if (isAuthLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Đang kiểm tra đăng nhập...
-      </div>
-    );
+    return <div className="flex h-screen items-center justify-center">Đang kiểm tra...</div>;
   }
+  const FilePreview = ({ file, onClear, label }: { file: any, onClear: () => void, label: string }) => (
+    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center justify-between">
+        <div className="flex items-center gap-3 overflow-hidden">
+            <FileText className="text-blue-600 w-6 h-6 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                <p className="text-xs text-gray-500">{label}</p>
+            </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+            <a 
+                href={file.content} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
+                title="Xem trước file"
+            >
+                <Eye size={18} />
+            </a>
+            <button 
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onClear();
+                }}
+                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-full transition-colors"
+                title="Xóa file"
+            >
+                <X size={18} />
+            </button>
+        </div>
+    </div>
+  );
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4" 
          style={{ background: "linear-gradient(to bottom right, #1a0000 50%, #f3f4f6 50%)" }}
     >
       <div className="max-w-3xl mx-auto">
-        
-        <Link to={`/job/${jobId}`} className="inline-flex items-center text-white hover:text-gray-300 mb-4">
+        <Link to={`/job/${id}`} className="inline-flex items-center text-white hover:text-gray-300 mb-4">
           <ChevronLeft size={20} /> Quay lại
         </Link>
         
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl p-8 space-y-6">
           <h1 className="text-2xl font-bold text-gray-800">
-            Front End Developer ( Javascript, ReactJS)
+            Ứng tuyển công việc
           </h1>
 
-          {/* CV Upload */}
+          {/* --- 1. KHỐI UPLOAD CV --- */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">CV ứng tuyển *</label>
-            <div className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 
-                 ${errors.cvFile ? 'border-red-500' : 'border-gray-300'} 
-                 border-dashed rounded-md bg-red-50`}
-            >
-              <div className="space-y-1 text-center">
-                <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="flex text-sm text-gray-600">
-                  <label 
-                    htmlFor="file-upload" 
-                    className="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none"
-                  >
-                    <span>Chọn file</span>
-                    <input id="file-upload" name="cvFile" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf,.doc,.docx" />
-                  </label>
-                  <p className="pl-1">để tải lên</p>
+            
+            {/* Nếu CHƯA có file thì hiện vùng drop */}
+            {cvFiles.length === 0 && (
+                <div 
+                    onClick={() => openCVPicker()}
+                    className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md 
+                        ${errors.cvFile ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400 bg-gray-50'}
+                        cursor-pointer transition-colors relative`}
+                >
+                    <div className="space-y-1 text-center">
+                        <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="text-sm text-gray-600">
+                        <span className="font-medium text-red-600 hover:text-red-500">
+                            {cvLoading ? "Đang tải..." : "Tải lên CV"}
+                        </span>
+                        <p className="pl-1">hoặc kéo thả vào đây</p>
+                        </div>
+                        <p className="text-xs text-gray-500">PDF, DOC, DOCX (Max 5MB)</p>
+                    </div>
                 </div>
-                {/* Hiển thị tên file hoặc thông báo */}
-                {cvFile ? (
-                  <p className="text-sm text-green-600 font-semibold">{cvFile.name}</p>
-                ) : (
-                  <p className="text-xs text-gray-500">DOC, DOCX, PDF. Tối đa 5MB</p>
-                )}
-              </div>
-            </div>
+            )}
+
+            {/* Nếu ĐÃ có file thì hiện Preview */}
+            {cvFiles.length > 0 && (
+                <FilePreview file={cvFiles[0]} onClear={clearCV} label="Hồ sơ chính" />
+            )}
+
             {errors.cvFile && <p className="text-red-600 text-sm mt-1">{errors.cvFile}</p>}
           </div>
 
           <h2 className="text-lg font-semibold text-gray-800 border-t pt-4">Thông tin cơ bản</h2>
 
-          {/* Họ và tên */}
           <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Họ và tên *</label>
+            <label className="block text-sm font-medium text-gray-700">Họ và tên *</label>
             <input
-              type="text"
-              name="fullName"
-              id="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
+              type="text" name="name"
+              value={formData.name} onChange={handleChange}
               className={`mt-1 block w-full shadow-sm sm:text-sm rounded-md h-11 px-3 border 
-                 ${errors.fullName ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
             />
-            {errors.fullName && <p className="text-red-600 text-sm mt-1">{errors.fullName}</p>}
+            {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name}</p>}
           </div>
 
-          {/* Số điện thoại */}
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Số điện thoại *</label>
+            <label className="block text-sm font-medium text-gray-700">Số điện thoại *</label>
             <input
-              type="tel"
-              name="phone"
-              id="phone"
-              value={formData.phone}
-              onChange={handleChange}
+              type="tel" name="phone"
+              value={formData.phone} onChange={handleChange}
               className={`mt-1 block w-full shadow-sm sm:text-sm rounded-md h-11 px-3 border 
-                 ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
+                 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
             />
             {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone}</p>}
           </div>
-          
-          {/* Nơi làm việc */}
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700">Nơi làm việc mong muốn *</label>
-            <select
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              className="mt-1 block w-full shadow-sm sm:text-sm rounded-md h-11 px-3 border border-gray-300"
-            >
-              <option value="">Chọn nơi làm việc</option>
-              <option value="ho-chi-minh">Hồ Chí Minh</option>
-              <option value="ha-noi">Hà Nội</option>
-              <option value="da-nang">Đà Nẵng</option>
-              <option value="remote">Làm từ xa (Remote)</option>
-            </select>
-          </div>
 
-          {/* Thư xin việc */}
+          {/* --- 2. KHỐI UPLOAD REFERRAL (THAY THẾ TEXTAREA) --- */}
           <div>
-            <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-700">
-              Thư xin việc (Không bắt buộc)
-            </label>
-            <textarea
-              id="coverLetter"
-              name="coverLetter"
-              rows={6}
-              value={formData.coverLetter}
-              onChange={handleChange}
-              className="mt-1 block w-full shadow-sm sm:text-sm rounded-md p-3 border border-gray-300"
-              placeholder="Nếu nhiều vị trí cụ thể, để làm hồ sơ ứng tuyển của bạn thuyết phục hơn..."
-            />
-            <p className="text-xs text-gray-500 mt-1">Còn lại {500 - formData.coverLetter.length} trong tổng số 500 ký tự</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Thư giới thiệu / Cover Letter (Không bắt buộc)</label>
+            
+            {refFiles.length === 0 && (
+                <div 
+                    onClick={() => openRefPicker()}
+                    className="mt-1 flex justify-center px-6 pt-4 pb-4 border-2 border-dashed border-gray-300 hover:border-gray-400 bg-gray-50 rounded-md cursor-pointer transition-colors"
+                >
+                    <div className="space-y-1 text-center">
+                        <div className="text-sm text-gray-600">
+                            <span className="font-medium text-blue-600 hover:text-blue-500">
+                                {refLoading ? "Đang tải..." : "Tải lên Thư giới thiệu"}
+                            </span>
+                        </div>
+                        <p className="text-xs text-gray-500">PDF, DOC, DOCX (Max 5MB)</p>
+                    </div>
+                </div>
+            )}
+
+            {refFiles.length > 0 && (
+                <FilePreview file={refFiles[0]} onClear={clearRef} label="Thư giới thiệu" />
+            )}
           </div>
           
-          {/* Nút Submit */}
-          <div>
+          <div className="pt-4">
             <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
+              type="submit" disabled={isLoading}
+              className="cursor-pointer w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-400 transition-colors"
             >
               {isLoading ? 'Đang gửi...' : 'Gửi CV của tôi'}
             </button>
