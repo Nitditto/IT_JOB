@@ -1,10 +1,11 @@
-import { FaBriefcase, FaLocationDot, FaUserTie } from "react-icons/fa6";
+import { FaBriefcase, FaGlobe, FaLocationDot, FaUserTie } from "react-icons/fa6";
 import { Pagination } from "../../../../components/pagination/Pagination";
 import { Link } from "react-router"
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import translation from "../../../../utils/translation";
+import { Globe } from "lucide-react";
 
 export default function CompanyJobList() {
   const {user} = useAuth();
@@ -67,7 +68,7 @@ export default function CompanyJobList() {
               <FaBriefcase className="text-[16px]" /> {translation[value.workstyle]}
             </div>
             <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
-              <FaLocationDot className="text-[16px]" /> {value.location.name}
+              <FaGlobe className="text-[16px]" /> {value.location.name}
             </div>
             <div className="mt-[12px] mb-[20px] mx-[16px] flex flex-wrap justify-center gap-[8px]">
               {value.tags.map((v, i) => (
@@ -77,6 +78,11 @@ export default function CompanyJobList() {
               ))}
             </div>
             <div className="flex items-center justify-center gap-[12px] mb-[20px]">
+              <Link 
+              to={`./${value.id}/view`} 
+              className="cursor-pointer inline-block rounded-[4px] bg-[#6cb442] px-[20px] py-[8px] text-[14px] font-[400] text-white">
+                Xem CV
+              </Link>
               <Link
                 to={`/dashboard/company/job/${value.id}/edit`}
                 className="bg-[#FFB200] rounded-[4px] font-[400] text-[14px] text-black inline-block py-[8px] px-[20px]"

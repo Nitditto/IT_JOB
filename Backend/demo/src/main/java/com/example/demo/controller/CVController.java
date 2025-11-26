@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.CVCreationRequest;
 import com.example.demo.dto.CVDTO;
 import com.example.demo.dto.CVEditRequest;
+import com.example.demo.enums.CVStatus;
 import com.example.demo.model.Account;
 import com.example.demo.model.CV;
 import com.example.demo.model.CVId;
@@ -36,7 +38,7 @@ public class CVController {
     private final CVRepository cvRepository;
     private final CVServices cvServices;
 
-    @GetMapping("/{jobId}")
+    @GetMapping("/{jobID}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getCVFromJob(@PathVariable Long jobID, @AuthenticationPrincipal Account user){
         try {
@@ -47,7 +49,7 @@ public class CVController {
         }
     }
     
-    @PostMapping("/{id}/apply")
+    @PostMapping("/{jobID}/apply")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> apply(@PathVariable Long jobID, @RequestBody CVCreationRequest request, @AuthenticationPrincipal Account account) {
         try {
@@ -58,7 +60,7 @@ public class CVController {
         }
     }
 
-    @PutMapping("/{id}/edit")
+    @PutMapping("/{jobID}/edit")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> edit(@PathVariable Long jobID, @RequestBody CVEditRequest request, @AuthenticationPrincipal Account account) {
         try {
@@ -71,14 +73,43 @@ public class CVController {
     
     @GetMapping("/{id}/list")
     @PreAuthorize("hasRole('COMPANY')")
-    public List<CV> getJobCV(@PathVariable("id") Long jobID) {
-        return cvServices.getCVByJobID(jobID);
+    public ResponseEntity<List<CV>> getJobCV(@PathVariable("id") Long jobID) {
+        return ResponseEntity.ok(cvServices.getCVByJobID(jobID));
     }
     
     @GetMapping("/list")
     @PreAuthorize("hasRole('USER')")
-    public List<CV> getUserCV(@PathVariable Long jobID, @AuthenticationPrincipal Account account) {
+    public List<CV> getUserCV(@AuthenticationPrincipal Account account) {
         return cvServices.getCVByUserID(account.getId());
     }
     
+
+    @GetMapping("/company/detail/{jobId}/{accountId}")
+    @PreAuthorize("hasRole('COMPANY')") 
+    public ResponseEntity<?> getCVDetailForCompany(
+            @PathVariable Long jobId,      
+            @PathVariable Long accountId   
+    ) {
+        try {
+            return ResponseEntity.ok(cvServices.getCVDetail(jobId, accountId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/company/status/{jobId}/{accountId}")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable Long jobId, 
+            @PathVariable Long accountId,
+            @RequestParam("status") String statusStr
+    ) {
+        try {
+             CVStatus status = CVStatus.valueOf(statusStr);
+             cvServices.updateCVStatus(jobId, accountId, status);
+             return ResponseEntity.ok("Cập nhật thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

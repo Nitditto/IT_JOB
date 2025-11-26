@@ -73,11 +73,11 @@ export default function DashboardLayout() {
                             to="/dashboard/company/job"
                         />
                     )}
-                    {(isAdmin || isUser) && (
+                    {(isUser) && (
                         <SidebarItem
                             icon={<UserCircle size={20} />}
-                            text="Quản lý CV"
-                            to="/dashboard/company/cv/list" // (Có thể bạn cần sửa link này cho User)
+                            text="Xem CV đã nộp"
+                            to="/dashboard/cv" // (Có thể bạn cần sửa link này cho User)
                         />
                     )}
                     {isAdmin && (

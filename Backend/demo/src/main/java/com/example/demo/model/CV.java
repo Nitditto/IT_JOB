@@ -1,7 +1,12 @@
 package com.example.demo.model;
 
+import com.example.demo.enums.CVStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
@@ -24,11 +29,13 @@ public class CV {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("accountID")
     @JoinColumn(name = "accounts_id")
+    @JsonIgnore
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("jobID")
     @JoinColumn(name = "jobs_id")
+    @JsonIgnore
     private Job job;
 
     private String name;
@@ -40,4 +47,7 @@ public class CV {
 
     @Lob
     private String referral;
+
+    @Enumerated(EnumType.STRING)
+    private CVStatus status = CVStatus.PENDING;
 }

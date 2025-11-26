@@ -58,7 +58,7 @@ export const Header = () => {
             <div className="font-[600] text-[16px] text-white inline-flex gap-x-[5px] relative">
               {
                 isAuthenticated && !!user ? 
-              <HeaderHoverItem toHref='/profile' linkText={user.name}>
+              <HeaderHoverItem toHref='#' linkText={user.name}>
                 <HeaderMenu>
                   {
                     user.role == "ROLE_COMPANY" ? ( <>
