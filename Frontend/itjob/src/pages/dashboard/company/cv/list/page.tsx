@@ -1,4 +1,4 @@
-//Frontend\itjob\src\pages\company\cv\list\page.tsx
+//Frontend\itjob\src\pages\dashboard\company\cv\list\page.tsx
 import { Link, useParams } from 'react-router'
 import {
     FaBriefcase,
@@ -10,7 +10,8 @@ import {
 } from 'react-icons/fa6'
 import { useEffect, useState } from 'react'
 import axios from 'axios';
-import translation from '../../../../utils/translation';
+import translation from '../../../../../utils/translation';
+import api from '@/utils/api';
 
 interface CVData {
     id: {
@@ -52,8 +53,8 @@ export default function CompanyManageCVListPage() {
         const fetchData = async () => {
             if (!id) return;
             try {
-                const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`);
-                // const jobRes = await api.get(`/job/get/${id}`);
+                // const jobRes = await axios.get(`${BACKEND_URL}/job/${id}`);
+                const jobRes = await api.get(`/job/${id}`); 
                 setJobInfo(jobRes.data);
 
                 // Lấy danh sách CV (Cần Token)
@@ -66,7 +67,7 @@ export default function CompanyManageCVListPage() {
             }
         }
         fetchData();
-    }, [id, BACKEND_URL]);
+    }, [id]);
 
     const handleQuickUpdate = async (cv: CVData, newStatus: "APPROVED" | "REJECTED") => {
         if (!confirm(`Bạn muốn ${newStatus === 'APPROVED' ? 'DUYỆT' : 'TỪ CHỐI'} hồ sơ của ${cv.name}?`)) return;
