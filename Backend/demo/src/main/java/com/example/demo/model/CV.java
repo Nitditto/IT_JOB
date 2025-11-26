@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.example.demo.enums.CVStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -28,11 +29,13 @@ public class CV {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("accountID")
     @JoinColumn(name = "accounts_id")
+    @JsonIgnore
     private Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("jobID")
     @JoinColumn(name = "jobs_id")
+    @JsonIgnore
     private Job job;
 
     private String name;
