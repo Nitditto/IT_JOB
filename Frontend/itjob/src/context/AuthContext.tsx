@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null; // Define a proper User interface here
   isLoading: boolean;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const verifyUserSession = async () => {
       try {
         // Get our csrf token
-        await axios.get(`${BACKEND_URL}/csrf`);
+        await axios.get(`${BACKEND_URL}/csrf`, { withCredentials: true });
         console.log("CSRF token received");
 
         // Make a request to a backend endpoint that verifies the session
@@ -34,16 +35,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('No active user session found.');
       }
       finally {
-        // ✅ 3. Dừng loading dù thành công hay thất bại
         setIsLoading(false);
       }
     };
     verifyUserSession();
   }, []);
 
+  const logout = async () => {
+    try {
+      // Gọi API logout để server xóa HTTP-only Cookie
+      // Giả sử endpoint backend của bạn là /auth/logout (Method POST)
+      await api.post(`${BACKEND_URL}/auth/logout`);
+    } catch (error) {
+      console.error("Logout failed on server:", error);
+      // Dù API lỗi thì ở client vẫn phải xóa user để thoát ra
+    } finally {
+      // Xóa thông tin user ở client -> Trigger rerender giao diện về trạng thái chưa đăng nhập
+      setUser(null);
+      // Nếu bạn dùng localStorage để lưu tạm biến loggedIn (optional), hãy xóa nó ở đây
+      // localStorage.removeItem('isLoggedIn');
+    }
+  };
+
   const value = {
     isAuthenticated: !!user, // True if user object is not null
-    user, isLoading
+    user, isLoading, logout 
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
