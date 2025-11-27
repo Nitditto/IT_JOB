@@ -1,5 +1,5 @@
 
-import {Link} from "react-router"
+import {Link, useNavigate} from "react-router"
 import { FaBriefcase, FaCircle, FaCircleCheck, FaCircleDot, FaCircleQuestion, FaCircleXmark, FaUserTie } from "react-icons/fa6"
 import { useEffect, useState } from "react"
 import { Pagination } from "../../../../components/pagination/Pagination"
@@ -12,6 +12,7 @@ export default function UserManageCVListPage() {
 
   const [cvList, setCVList] = useState([]);
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
   useEffect(()=>{
 
     const init = async () => {
@@ -30,6 +31,27 @@ export default function UserManageCVListPage() {
         default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Xem</span>;
     }
   };
+
+    const handleDeleteCV = async (id: number) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa CV không? Hành động này không thể hoàn tác.")) {
+      return;
+    }
+
+    try {
+      // Gọi API xóa (dùng axios instance có kèm token/cookie để backend check role)
+      await api.delete(`/cv/${id}/delete`);
+
+      // Thông báo thành công
+      alert("Đã xóa thành công!"); // Hoặc dùng toast.success("Đã xóa!")
+
+      // Load lại danh sách để mất job vừa xóa
+      navigate("/");
+      
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
+    }
+  }
   return (
     <>
       <div className="py-[60px]">
@@ -77,7 +99,7 @@ export default function UserManageCVListPage() {
                 <Link to={`/job/${data["jobID"]}/mycv`} className="bg-[#0088FF] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px]">
                   Xem
                 </Link>
-                <Link to="#" className="bg-[#FF0000] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px]">
+                <Link to="#" onClick={() => handleDeleteCV(data["jobID"])}className="bg-[#FF0000] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px]">
                   Xóa
                 </Link>
               </div>
