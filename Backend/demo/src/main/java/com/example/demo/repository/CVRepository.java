@@ -12,4 +12,5 @@ import com.example.demo.model.Job;
 public interface CVRepository extends JpaRepository<CV, CVId>{
     List<CV> findByAccount(Account account);
     List<CV> findByJob(Job job);
+    void deleteAllByJobId(Long jobId); 
 }

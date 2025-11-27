@@ -6,29 +6,50 @@ import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import translation from "../../../../utils/translation";
 import { Globe } from "lucide-react";
+import api from "@/utils/api";
 
 export default function CompanyJobList() {
   const {user} = useAuth();
   const [jobList, setJobList] = useState([]);
   const [page, setPage] = useState(1);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  useEffect(()=>{
-    const init = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/job/search`, {
-          params: {
-            companyID: user?.id,
-          }
-        })
-        setJobList(response.data)
-        document.title = "Quản lý công việc"
-      } catch (error) {
-        console.error(error);
-      }
+  const fetchJobs = async () => {
+    try {
+      const response = await api.get(`/job/search`, {
+        params: { companyID: user?.id },
+      });
+      setJobList(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    document.title = "Quản lý công việc";
+    if (user?.id) fetchJobs(); // Gọi hàm load
+  }, [user]);
+
+  // 2. Hàm xử lý Xóa
+  const handleDelete = async (jobId: number) => {
+    // Hỏi xác nhận
+    if (!window.confirm("Bạn có chắc chắn muốn xóa công việc này không? Hành động này không thể hoàn tác.")) {
+      return;
     }
 
-    init();
-  },[])
+    try {
+      // Gọi API xóa (dùng axios instance có kèm token/cookie để backend check role)
+      await api.delete(`/job/${jobId}`);
+
+      // Thông báo thành công
+      alert("Đã xóa thành công!"); // Hoặc dùng toast.success("Đã xóa!")
+
+      // Load lại danh sách để mất job vừa xóa
+      fetchJobs();
+      
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
+    }
+  };
 
   return (
     <>
@@ -89,12 +110,12 @@ export default function CompanyJobList() {
               >
                 Sửa
               </Link>
-              <Link
-                to={"#"}
-                className="bg-[#FF0000] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px]"
-              >
-                Xóa
-              </Link>
+              <button
+                  onClick={() => handleDelete(value.id)} // Gọi hàm xóa
+                  className="bg-[#FF0000] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px] hover:bg-red-700 transition-colors"
+                >
+                  Xóa
+              </button>
             </div>
           </div>
             ))

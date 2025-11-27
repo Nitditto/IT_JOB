@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -87,4 +89,22 @@ public class JobController {
         return jobServices.editJob(jobEditRequest);
     }
     
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<?> deleteJob(@PathVariable Long id, Principal principal) {
+        try {
+            // Lấy thông tin user hiện tại để check quyền
+            Long currentCompanyId = userServices.getCurrentUser(principal).getId();
+            
+            // Gọi service xóa
+            jobServices.deleteJob(id, currentCompanyId);
+            
+            return ResponseEntity.ok("Xóa công việc thành công!");
+        } catch (RuntimeException e) {
+            // Trả về lỗi nếu không tìm thấy hoặc không có quyền
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi hệ thống!");
+        }
+    }
 }
