@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.CVCreationRequest;
 import com.example.demo.dto.CVDTO;
+import com.example.demo.dto.CVEditRequest;
 import com.example.demo.enums.CVStatus;
 import com.example.demo.model.Account;
 import com.example.demo.model.CV;
@@ -22,10 +24,10 @@ public class CVServices {
     private final UserServices userServices;
     private final JobServices jobServices;
 
-    public CV addCV(CVDTO request) {
-        CVId id = new CVId(request.getAccountID(), request.getJobID());
-        Account account = userServices.getUserById(request.getAccountID());
-        Job job = jobServices.getJobByID(request.getJobID()).get();
+    public CV addCV(CVCreationRequest request, Long accountID, Long jobID) {
+        CVId id = new CVId(accountID, jobID);
+        Account account = userServices.getUserById(accountID);
+        Job job = jobServices.getJobByID(jobID).get();
         // CV cv = new CV(id, account, job, request.getName(), request.getPhone(), request.getCvFile(), request.getReferral());
 
         CV cv = new CV();
@@ -34,21 +36,23 @@ public class CVServices {
         cv.setJob(job);
         cv.setName(request.getName());
         cv.setPhone(request.getPhone());
+        cv.setEmail(request.getEmail());
         cv.setCvFile(request.getCvFile());
         cv.setReferral(request.getReferral());
         cv.setStatus(CVStatus.PENDING);
         return cvRepository.save(cv);
     }
 
-    public CV editCV(CVDTO request) {
-        CVId id = new CVId(request.getAccountID(), request.getJobID());
+    public CV editCV(CVEditRequest request, Long accountID, Long jobID) {
+        CVId id = new CVId(accountID, jobID);
         CV cv = cvRepository.findById(id).get();
 
         cv.setName(request.getName());
         cv.setPhone(request.getPhone());
+        cv.setEmail(request.getEmail());
         cv.setCvFile(request.getCvFile());
         cv.setReferral(request.getReferral());
-
+        cv.setStatus(request.getStatus());
         return cvRepository.save(cv);
     }
 
@@ -70,7 +74,6 @@ public class CVServices {
         return cvRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy CV!"));
     }
-
     public CV updateCVStatus(Long jobId, Long accountId, CVStatus newStatus) {
         CVId id = new CVId(accountId, jobId); // Chú ý thứ tự tham số của CVId constructor
         CV cv = cvRepository.findById(id)
@@ -78,5 +81,25 @@ public class CVServices {
 
         cv.setStatus(newStatus);
         return cvRepository.save(cv);
+    }
+    
+    public CVDTO toDTO(CV cv) {
+        Account company = userServices.getUserById(cv.getJob().getCompanyID());
+        return new CVDTO(
+            cv.getAccount().getId(),
+            cv.getJob().getId(),
+            cv.getName(),
+            cv.getPhone(),
+            cv.getEmail(),
+            cv.getCvFile(),
+            cv.getReferral(),
+            cv.getStatus(),
+            cv.getJob().getName(),
+            company.getName(),
+            cv.getJob().getMinSalary(),
+            cv.getJob().getMaxSalary(),
+            cv.getJob().getPosition(),
+            cv.getJob().getWorkstyle()
+            );
     }
 }
