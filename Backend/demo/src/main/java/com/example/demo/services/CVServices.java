@@ -56,6 +56,13 @@ public class CVServices {
         return cvRepository.save(cv);
     }
 
+    public void deleteCV(Long jobID, Long accountID) {
+        CVId id = new CVId(accountID, jobID);
+        CV cv = cvRepository.findById(id).orElseThrow();
+
+        cvRepository.delete(cv);
+    }
+
     public List<CV> getCVByUserID(Long userID) {
         Account user = userServices.getUserById(userID);
 

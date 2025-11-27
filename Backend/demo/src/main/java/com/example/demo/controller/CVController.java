@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,6 +72,17 @@ public class CVController {
         }
     }
     
+    @DeleteMapping("/{jobID}/delete")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> delete(@PathVariable Long jobID, @AuthenticationPrincipal Account account) {
+        try {
+            cvServices.deleteCV(jobID, account.getId());
+            return ResponseEntity.ok("Đã xóa CV thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/{id}/list")
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<List<CVDTO>> getJobCV(@PathVariable("id") Long jobID) {
