@@ -42,6 +42,8 @@ public class CV {
 
     private String phone;
 
+    private String email;
+
     @Lob
     private String cvFile;
 

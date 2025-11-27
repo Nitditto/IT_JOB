@@ -11,6 +11,8 @@ public class CVCreationRequest {
     private String name;
     @NotBlank(message = "Vui lòng điền số điện thoại của bạn!")
     private String phone;
+    @NotBlank(message = "Vui lòng điền email của bạn!")
+    private String email;
     @NotBlank(message = "Vui lòng nộp file CV của bạn!")
     private String cvFile;
 
