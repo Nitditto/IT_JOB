@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +45,7 @@ public class CVController {
     public ResponseEntity<?> getCVFromJob(@PathVariable Long jobID, @AuthenticationPrincipal Account user){
         try {
             CV cv = cvRepository.findById(new CVId(user.getId(), jobID)).orElseThrow(() -> new Exception("CV not found"));
-            return ResponseEntity.ok(cv);
+            return ResponseEntity.ok(cvServices.toDTO(cv));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
@@ -53,8 +55,7 @@ public class CVController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> apply(@PathVariable Long jobID, @RequestBody CVCreationRequest request, @AuthenticationPrincipal Account account) {
         try {
-            CVDTO cvdto = new CVDTO(account.getId(), jobID, request.getName(), request.getPhone(), request.getCvFile(), request.getReferral());
-            return ResponseEntity.ok(cvServices.addCV(cvdto));
+            return ResponseEntity.ok(cvServices.toDTO(cvServices.addCV(request, account.getId(), jobID)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -64,8 +65,7 @@ public class CVController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> edit(@PathVariable Long jobID, @RequestBody CVEditRequest request, @AuthenticationPrincipal Account account) {
         try {
-            CVDTO cvdto = new CVDTO(account.getId(), jobID, request.getName(), request.getPhone(), request.getCvFile(), request.getReferral());
-            return ResponseEntity.ok(cvServices.editCV(cvdto));
+            return ResponseEntity.ok(cvServices.toDTO(cvServices.editCV(request, account.getId(), jobID)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -73,14 +73,20 @@ public class CVController {
     
     @GetMapping("/{id}/list")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<List<CV>> getJobCV(@PathVariable("id") Long jobID) {
-        return ResponseEntity.ok(cvServices.getCVByJobID(jobID));
+    public ResponseEntity<List<CVDTO>> getJobCV(@PathVariable("id") Long jobID) {
+        return ResponseEntity.ok(
+            cvServices.getCVByJobID(jobID).stream()
+            .map(cvServices::toDTO)
+            .collect(Collectors.toList())
+        );
     }
     
     @GetMapping("/list")
     @PreAuthorize("hasRole('USER')")
-    public List<CV> getUserCV(@AuthenticationPrincipal Account account) {
-        return cvServices.getCVByUserID(account.getId());
+    public List<CVDTO> getUserCV(@AuthenticationPrincipal Account account) {
+        return cvServices.getCVByUserID(account.getId()).stream()
+        .map(cvServices::toDTO)
+        .collect(Collectors.toList());
     }
     
 
@@ -91,7 +97,7 @@ public class CVController {
             @PathVariable Long accountId   
     ) {
         try {
-            return ResponseEntity.ok(cvServices.getCVDetail(jobId, accountId));
+            return ResponseEntity.ok(cvServices.toDTO(cvServices.getCVDetail(jobId, accountId)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
