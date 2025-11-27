@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import api from "@/utils/api";
-import { Check, DownloadCloud, Eye, FileText, Phone, User, X } from "lucide-react";
+import {DownloadCloud, Eye, FileText, Phone, User, X, XIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { FaUserTie } from "react-icons/fa6";
 
@@ -53,6 +53,26 @@ export default function CompanyManageCVDetailPage(){
       }
   };
 
+  const handleDeleteCV = async () => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa CV không? Hành động này không thể hoàn tác.")) {
+      return;
+    }
+
+    try {
+      // Gọi API xóa (dùng axios instance có kèm token/cookie để backend check role)
+      await api.delete(`/cv/${id}/delete`);
+
+      // Thông báo thành công
+      alert("Đã xóa thành công!"); // Hoặc dùng toast.success("Đã xóa!")
+
+      // Load lại danh sách để mất job vừa xóa
+      navigate("/");
+      
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
+    }
+  }
  
   if (!cvData) return <div className="p-20 text-center">Đang tải dữ liệu...</div>;
 
@@ -108,8 +128,17 @@ export default function CompanyManageCVDetailPage(){
                             </div>
                     </div>
                 </div>
+                                       {/* ACTION BUTTONS */}
+                <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm space-y-3">
+                    
+                    <Button 
+                        className="w-full bg-red-600 hover:bg-red-700 text-white"
 
-
+                        onClick={() => handleDeleteCV()}
+                    >
+                        <XIcon className="mr-2 h-4 w-4" /> Xóa CV của bạn
+                    </Button>     
+                        </div>
             </div>
 
             {/* CỘT PHẢI: CHI TIẾT CV & FILE */}
@@ -168,7 +197,7 @@ export default function CompanyManageCVDetailPage(){
                         </div>
                     </div>
                 </div>
-
+                
             </div>
         </div>
       </div>
