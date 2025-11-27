@@ -14,10 +14,11 @@ export default [
   
   route("/job/:id", "./pages/job/page.tsx"),
 
+  route("/job/:id/mycv", "./pages/user/cv/detail/page.tsx"),
   route("/job/:id/apply","./pages/job/jobApply/page.tsx"),
   route("job/:id/apply/success","./pages/job/jobApplySuccess/page.tsx"),
 
-  route("/user/cv", "./pages/user/cv/list/page.tsx"),
+
   route("/user/:id","./pages/user/profile/page.tsx"),
 
   route("/login", "./pages/login/page.tsx"),
@@ -66,7 +67,7 @@ export default [
       },
       {
         path:"cv",
-        file:"./pages/dashboard/cv/page.tsx"
+        file:"./pages/dashboard/cv/list/page.tsx"
       },
       {
         path: "company/job/:jobId/view/:accountId",
