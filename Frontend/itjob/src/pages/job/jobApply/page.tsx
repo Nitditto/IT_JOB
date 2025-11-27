@@ -9,14 +9,16 @@ interface FormErrors {
   cvFile?: string;
   name?: string;
   phone?: string;
+  email?: string;
 }
 const JobApplication = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
+    name: user ? user.name : "",
+    phone: user && user.phone != null ? user.phone : "",
+    email: user ? user.email : "",
   });
 
   const [cvFile, setCvFile] = useState<File | null>(null);
@@ -83,7 +85,7 @@ const JobApplication = () => {
     
     if (!formData.name.trim()) newErrors.name = "Vui lòng nhập họ và tên.";
     if (!formData.phone.trim()) newErrors.phone = "Vui lòng nhập số điện thoại.";
-    
+    if (!formData.email.trim()) newErrors.email = "Vui lòng nhập email.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -102,6 +104,7 @@ const JobApplication = () => {
           jobID: id,
           name: formData.name,
           phone: formData.phone,
+          email: formData.email,
           cvFile: cvContent,     // Base64 của CV
           referral: referralContent // Base64 của Referral (hoặc null)
       };
@@ -207,7 +210,7 @@ const JobApplication = () => {
           <h2 className="text-lg font-semibold text-gray-800 border-t pt-4">Thông tin cơ bản</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Họ và tên *</label>
+            <label className="required block text-sm font-medium text-gray-700">Họ và tên</label>
             <input
               type="text" name="name"
               value={formData.name} onChange={handleChange}
@@ -218,7 +221,18 @@ const JobApplication = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Số điện thoại *</label>
+            <label className="required block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="text" name="email"
+              value={formData.email} onChange={handleChange}
+              className={`mt-1 block w-full shadow-sm sm:text-sm rounded-md h-11 px-3 border 
+                 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+            />
+            {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email}</p>}
+          </div>
+
+          <div>
+            <label className="required block text-sm font-medium text-gray-700">Số điện thoại</label>
             <input
               type="tel" name="phone"
               value={formData.phone} onChange={handleChange}
