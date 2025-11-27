@@ -122,7 +122,6 @@ export default function CompanyManageCVListPage() {
                             </div>
                             <Link
                                 to={`/job/${id}`}
-                                target="_blank"
                                 className="text-[14px] font-[400] text-[#0088FF] underline mt-2"
                             >
                                 Xem bài đăng tuyển dụng

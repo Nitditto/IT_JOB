@@ -134,6 +134,13 @@ export default function JobDetailPage() {
                                 >
                                     Xem CV của bạn
                                 </Link>
+                                    ) : user?.role == "ROLE_COMPANY" ? (
+                                                                        <Link
+                                    to={`/dashboard/company/job/${id}/view`}
+                                    className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
+                                >
+                                    Xem CV đã nộp
+                                </Link>
                                     ) : (
                                                                         <Link
                                     to={`/job/${id}/apply`}
