@@ -9,9 +9,11 @@ import { Check, DownloadCloud, Eye, FileText, Phone, User, X } from "lucide-reac
 interface CVDetail {
   name: string;
   phone: string;
+  email: string;
   cvFile: string; // Base64 string
   referral: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
+  jobName: string;
 }
 export default function CompanyManageCVDetailPage(){
   const { jobId, accountId } = useParams(); 
@@ -106,7 +108,7 @@ export default function CompanyManageCVDetailPage(){
                             <User size={40} />
                         </div>
                         <h2 className="text-xl font-bold text-gray-900">{cvData.name}</h2>
-                        {/* <p className="text-sm text-gray-500">Ứng tuyển: {cvData.job?.name || "Developer"}</p> */}
+                        <p className="text-sm text-gray-500">Ứng tuyển: {cvData.jobName || "Developer"}</p>
                     </div>
                     
                     <div className="space-y-3 text-sm">
@@ -115,12 +117,10 @@ export default function CompanyManageCVDetailPage(){
                             <span>{cvData.phone}</span>
                         </div>
                         {/* Nếu có email */}
-                        {/* {cvData.account?.email && (
-                            <div className="flex items-center gap-3 text-gray-700 truncate" title={cvData.account.email}>
+                            <div className="flex items-center gap-3 text-gray-700 truncate" title={cvData.email}>
                                 <span className="text-gray-400">@</span>
-                                <span>{cvData.account.email}</span>
+                                <span>{cvData.email}</span>
                             </div>
-                        )} */}
                     </div>
                 </div>
 

@@ -15,19 +15,15 @@ import translation from '@/utils/translation';
 import api from '@/utils/api';
 
 interface CVData {
-    id: {
         accountID: number;
         jobID: number;
-    };
     name: string; 
     phone: string;
+    email: string;
     cvFile: string;
     referral: string;
     status: "PENDING" | "APPROVED" | "REJECTED";
-    account: {
-        email: string;
-        avatar?: string;
-    };
+
 }
 
 interface JobData {
@@ -75,14 +71,14 @@ export default function CompanyManageCVListPage() {
 
         try {
             await api.put(
-                `/cv/company/status/${cv.id.jobID}/${cv.id.accountID}`,
+                `/cv/company/status/${cv.jobID}/${cv.accountID}`,
                 null,
                 { params: { status: newStatus } }
             );
             
             setCvList(prevList => 
                 prevList.map(item => 
-                    (item.id.accountID === cv.id.accountID && item.id.jobID === cv.id.jobID)
+                    (item.accountID === cv.accountID && item.jobID === cv.jobID)
                     ? { ...item, status: newStatus }
                     : item
                 )
@@ -111,44 +107,12 @@ export default function CompanyManageCVListPage() {
                     <h1 className="text-[28px] font-bold text-[#121212]">
                         Quản lý CV
                     </h1>
-                    {/* <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px] bg-white">
-                        <div className="mb-[20px] text-[20px] font-bold">
-                            Thông tin công việc
-                        </div>
-                        <div className="mb-[10px] text-[16px] font-[400]">
-                            Tên công việc: <span className="font-bold">{jobInfo.name}</span>
-                        </div>
-                        <div className="mb-[10px] text-[16px] font-[400]">
-                            Mức lương: <span className="font-bold">
-                                {jobInfo.minSalary.toLocaleString()}$ - {jobInfo.maxSalary.toLocaleString()}$
-                            </span>
-                        </div>
-                        <div className="mb-[10px] text-[16px] font-[400]">
-                            Cấp bậc: <span className="font-bold">{translation[jobInfo.position] || jobInfo.position}</span>
-                        </div>
-                        <div className="mb-[10px] text-[16px] font-[400]">
-                            Hình thức: <span className="font-bold">{translation[jobInfo.workstyle] || jobInfo.workstyle}</span>
-                        </div>
-                        <div className="mb-[10px] text-[16px] font-[400]">
-                            Địa điểm: <span className="font-bold">{jobInfo.location?.name}</span>
-                        </div>
-                        <div className="mb-[10px] text-[16px] font-[400]">
-                            Công nghệ: <span className="font-bold">{jobInfo.tags.join(', ')}</span>
-                        </div>
-                        <Link
-                            to={`/job/${id}`}
-                            target="_blank"
-                            className="text-[14px] font-[400] text-[#0088FF] underline"
-                        >
-                            Xem bài đăng tuyển dụng
-                        </Link>
-                    </div> */}
                     <div className="rounded-[8px] border border-[#DEDEDE] p-[20px] bg-white shadow-sm">
                         <h2 className="mb-4 text-[20px] font-bold border-b pb-2">Thông tin tuyển dụng</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-[15px]">
                             <div className="font-bold text-lg text-blue-600 col-span-2">{jobInfo.name}</div>
-                            <div className="flex items-center gap-2"><FaUserTie/> {translation[jobInfo.position] || jobInfo.position}</div>
-                            <div className="flex items-center gap-2"><FaBriefcase/> {translation[jobInfo.workstyle] || jobInfo.workstyle}</div>
+                            <div className="flex items-center gap-2"><FaUserTie/> {translation[jobInfo["position"]]}</div>
+                            <div className="flex items-center gap-2"><FaBriefcase/> {translation[jobInfo["workstyle"]]}</div>
                             <div className="flex items-center gap-2"><span className="font-semibold">Lương:</span> {jobInfo.minSalary.toLocaleString()}$ - {jobInfo.maxSalary.toLocaleString()}$</div>
                             <div className="flex items-center gap-2"><FaGlobe/> {jobInfo.location?.name}</div>
                             <div className="col-span-2 mt-2">
@@ -187,9 +151,9 @@ export default function CompanyManageCVListPage() {
                                 </h3>
                                 
                                 <div className="text-center space-y-1 mb-4">
-                                    {/* <div className="flex items-center justify-center gap-2 text-[14px] text-gray-600">
-                                        <FaEnvelope className="text-gray-400" /> <span className="truncate max-w-[200px]">{cv.account.email}</span>
-                                    </div> */}
+                                    <div className="flex items-center justify-center gap-2 text-[14px] text-gray-600">
+                                        <FaEnvelope className="text-gray-400" /> <span className="truncate max-w-[200px]">{cv.email}</span>
+                                    </div>
                                     <div className="flex items-center justify-center gap-2 text-[14px] text-gray-600">
                                         <FaPhone className="text-gray-400" /> {cv.phone}
                                     </div>
@@ -199,7 +163,7 @@ export default function CompanyManageCVListPage() {
 
                                 <div className="mt-auto pt-6 flex flex-wrap items-center justify-center gap-3">
                                     <Link
-                                        to={`./${cv.id.accountID}`}
+                                        to={`./${cv["accountID"]}`}
                                         className="rounded-[4px] bg-[#0088FF] px-4 py-2 text-[14px] font-medium text-white hover:bg-blue-600 transition-colors"
                                     >
                                         Xem chi tiết
