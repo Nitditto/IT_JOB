@@ -5,6 +5,8 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import api from "@/utils/api";
 import { Check, DownloadCloud, Eye, FileText, Phone, User, X } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { FaUserTie } from "react-icons/fa6";
 
 interface CVDetail {
   name: string;
@@ -16,8 +18,9 @@ interface CVDetail {
   jobName: string;
 }
 export default function CompanyManageCVDetailPage(){
-  const { jobId, accountId } = useParams(); 
+  const { id } = useParams(); 
   const navigate = useNavigate();
+  const { user } = useAuth();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   
   const [cvData, setCvData] = useState<CVDetail | null>(null);
@@ -26,7 +29,7 @@ export default function CompanyManageCVDetailPage(){
   useEffect(() => {
     const fetchCV = async () => {
       try {
-        const res = await api.get(`/cv/company/detail/${jobId}/${accountId}`);
+        const res = await api.get(`/cv/${id}`);
         setCvData(res.data);
         document.title = `CV - ${res.data.name}`;
       } catch (error) {
@@ -35,8 +38,8 @@ export default function CompanyManageCVDetailPage(){
         navigate(-1);
       }
     };
-    if (jobId && accountId) fetchCV();
-  }, [jobId, accountId, BACKEND_URL, navigate]);
+    if (id) fetchCV();
+  }, [id, BACKEND_URL, navigate]);
   const handleOpenFile = () => {
       if (!cvData?.cvFile) return;
       
@@ -50,29 +53,7 @@ export default function CompanyManageCVDetailPage(){
       }
   };
 
-  const handleUpdateStatus = async (newStatus: "APPROVED" | "REJECTED") => {
-    const actionName = newStatus === "APPROVED" ? "DUYỆT" : "TỪ CHỐI";
-    if (!confirm(`Bạn chắc chắn muốn ${actionName} hồ sơ này?`)) return;
-    
-    setIsLoading(true);
-    try {
-        await api.put(
-            `/cv/company/status/${jobId}/${accountId}`, 
-            null, 
-            { params: { status: newStatus } } 
-        );
-        
-        // Cập nhật UI local
-        setCvData(prev => prev ? { ...prev, status: newStatus } : null);
-        alert(`Đã ${actionName} hồ sơ thành công!`);
-
-    } catch (error) {
-        console.error(error);
-        alert("Lỗi khi cập nhật trạng thái.");
-    } finally {
-        setIsLoading(false);
-    }
-  };
+ 
   if (!cvData) return <div className="p-20 text-center">Đang tải dữ liệu...</div>;
 
   const renderStatusLabel = () => {
@@ -90,10 +71,10 @@ export default function CompanyManageCVDetailPage(){
         {/* Breadcrumb / Header */}
         <div className="flex items-center justify-between mb-6">
             <div>
-                <Link to={`/dashboard/company/job/${jobId}/view`} className="text-sm text-gray-500 hover:text-[#0088FF] hover:underline mb-1 block">
-                    &larr; Quay lại danh sách CV
+                <Link to={`/job/${id}`} className="text-sm text-gray-500 hover:text-[#0088FF] hover:underline mb-1 block">
+                    &larr; Thông tin công việc
                 </Link>
-                <h1 className="text-2xl font-bold text-gray-800">Chi tiết hồ sơ ứng viên</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Chi tiết hồ sơ của bạn</h1>
             </div>
             <div>{renderStatusLabel()}</div>
         </div>
@@ -105,9 +86,13 @@ export default function CompanyManageCVDetailPage(){
                 <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
                     <div className="flex flex-col items-center text-center mb-6">
                         <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3">
-                            <User size={40} />
+                        {user?.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                            <FaUserTie className="text-gray-400 text-5xl" />
+                        )}
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900">{cvData.name}</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{user?.name}</h2>
                         <p className="text-sm text-gray-500">Ứng tuyển: {cvData.jobName || "Developer"}</p>
                     </div>
                     
@@ -124,27 +109,7 @@ export default function CompanyManageCVDetailPage(){
                     </div>
                 </div>
 
-                {/* ACTION BUTTONS */}
-                <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm space-y-3">
-                    <h3 className="font-semibold text-gray-700 mb-2">Hành động</h3>
-                    
-                    <Button 
-                        className="w-full bg-green-600 hover:bg-green-700 text-white"
-                        disabled={isLoading || cvData.status === 'APPROVED'}
-                        onClick={() => handleUpdateStatus('APPROVED')}
-                    >
-                        <Check className="mr-2 h-4 w-4" /> Duyệt Hồ Sơ
-                    </Button>
 
-                    <Button 
-                        variant="destructive"
-                        className="w-full bg-red-600 hover:bg-red-700 text-white"
-                        disabled={isLoading || cvData.status === 'REJECTED'}
-                        onClick={() => handleUpdateStatus('REJECTED')}
-                    >
-                        <X className="mr-2 h-4 w-4" /> Từ Chối Hồ Sơ
-                    </Button>
-                </div>
             </div>
 
             {/* CỘT PHẢI: CHI TIẾT CV & FILE */}

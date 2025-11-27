@@ -10,10 +10,13 @@ import {
 import { handleFieldChange } from '../../utils/formUtils';
 import axios from 'axios';
 import translation from '@/utils/translation';
+import { useAuth } from '@/context/AuthContext';
+import api from '@/utils/api';
 
 export default function JobDetailPage() {
 
     const { id } = useParams();
+    const { user } = useAuth();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [infoJob, setInfoJob] = useState({
         name: '',
@@ -38,12 +41,18 @@ export default function JobDetailPage() {
         endWork: 0,
         overtime: false
     })
+
+    const [hasCV, setHasCV] = useState(false);
     useEffect(() => {
         const init = async () => {
             const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`)
             setInfoJob(jobRes.data);
             const companyRes = await axios.get(`${BACKEND_URL}/company/${jobRes.data.companyID}`)
             setInfoCompany(companyRes.data);
+            if (!!user) {
+                const cvRes = await api.get(`/cv/${id}`);
+                if (cvRes.status == 200) setHasCV(true);
+            }
         }
         init();
         document.title = 'Chi tiết công việc'
@@ -117,12 +126,30 @@ export default function JobDetailPage() {
                                 <div className="mb-[10px] text-[20px] font-[700] text-[#0088FF] sm:mb-[20px]">
                                     {infoJob.minSalary.toLocaleString() + "$ - " + infoJob.maxSalary.toLocaleString() + "$"}
                                 </div>
-                                <Link
+                                {
+                                    hasCV ? (
+                                                                        <Link
+                                    to={`/job/${id}/mycv`}
+                                    className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
+                                >
+                                    Xem CV của bạn
+                                </Link>
+                                    ) : user?.role == "ROLE_COMPANY" ? (
+                                                                        <Link
+                                    to={`/dashboard/company/job/${id}/view`}
+                                    className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
+                                >
+                                    Xem CV đã nộp
+                                </Link>
+                                    ) : (
+                                                                        <Link
                                     to={`/job/${id}/apply`}
                                     className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
                                 >
                                     Ứng tuyển
                                 </Link>
+                                    )
+                                }
                                 <div className="mb-[20px] grid grid-cols-3 gap-[8px] sm:gap-[16px]">
                                     {
                                         infoJob.images.map((value, index) => (

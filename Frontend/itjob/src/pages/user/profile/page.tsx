@@ -62,7 +62,7 @@ export default function UserDetailPage() {
       if (status === "FREELANCER") colorClass = "bg-blue-100 text-blue-700 border-blue-200";
       
       // Dùng translation để dịch EN -> VN
-      const label = translation[status.toLowerCase()] || status;
+      const label = status ? translation[status.toLowerCase()] : "Không rõ";
       
       return (
         <span className={`px-3 py-1 rounded-full text-xs font-bold border ${colorClass}`}>
