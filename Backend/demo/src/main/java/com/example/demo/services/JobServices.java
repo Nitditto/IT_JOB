@@ -12,9 +12,11 @@ import com.example.demo.dto.JobEditRequest;
 import com.example.demo.dto.JobFilterDTO;
 import com.example.demo.dto.TagDTO;
 import com.example.demo.model.Job;
+import com.example.demo.repository.CVRepository;
 import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.LocationRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service @RequiredArgsConstructor
@@ -22,6 +24,9 @@ public class JobServices {
     private final JobRepository jobRepository;
     private final LocationRepository locationRepository;
     private final UserServices userServices;
+
+    private final CVRepository cvRepository; 
+
     public Job createJob(JobCreationRequest request, CompanyDTO company) {
         Job job = new Job();
         job.setCompanyID(company.getId());
@@ -97,5 +102,24 @@ public class JobServices {
     public List<Job> searchJobsByFilters(JobFilterDTO filters) {
         // Gọi thẳng xuống Repository, nơi sẽ xử lý logic Criteria (Bước 4)
         return jobRepository.findJobsByFilters(filters);
+    }
+
+     @Transactional // <--- 3. Thêm Annotation này để đảm bảo xóa cả 2 thành công hoặc rollback
+    public void deleteJob(Long jobId, Long companyId) {
+        // Tìm job
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Công việc không tồn tại!"));
+
+        // Check quyền
+        if (!job.getCompanyID().equals(companyId)) {
+            throw new RuntimeException("Bạn không có quyền xóa công việc này!");
+        }
+
+        // --- BƯỚC QUAN TRỌNG: Xóa CV trước ---
+        // Bạn cần viết hàm deleteByJobId trong CvRepository nếu chưa có
+        cvRepository.deleteAllByJobId(jobId); 
+
+        // Sau đó mới xóa Job
+        jobRepository.delete(job);
     }
 }
