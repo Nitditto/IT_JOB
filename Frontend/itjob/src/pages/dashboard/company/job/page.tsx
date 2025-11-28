@@ -1,6 +1,6 @@
 import { FaBriefcase, FaGlobe, FaLocationDot, FaUserTie } from "react-icons/fa6";
 import { Pagination } from "../../../../components/pagination/Pagination";
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
@@ -9,6 +9,7 @@ import { Globe } from "lucide-react";
 import api from "@/utils/api";
 
 export default function CompanyJobList() {
+  const navigate = useNavigate();
   const {user} = useAuth();
   const [jobList, setJobList] = useState([]);
   const [page, setPage] = useState(1);
@@ -40,9 +41,8 @@ export default function CompanyJobList() {
       await api.delete(`/job/${jobId}`);
 
       // Thông báo thành công
-      alert("Đã xóa thành công!"); // Hoặc dùng toast.success("Đã xóa!")
-
-      // Load lại danh sách để mất job vừa xóa
+      alert("Đã xóa thành công!");
+      navigate("/");
       fetchJobs();
       
     } catch (error: any) {
@@ -53,7 +53,7 @@ export default function CompanyJobList() {
 
   return (
     <>
-      <div className="w-auto mx-8 py-[60px] h-screen">
+      <div className="w-auto mx-8 py-[60px] h-full">
         <div className="flex gap-[20px] flex-wrap items-center justify-between
             mb-[20px]">
           <h1 className="font-bold text-[#121212] text-[28px]">Quản lý công việc</h1>
