@@ -161,8 +161,8 @@ const JobApplication = () => {
     </div>
   );
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4" 
-         style={{ background: "linear-gradient(to bottom right, #1a0000 50%, #f3f4f6 50%)" }}
+    <div className="min-h-screen bg-gray-100 py-12 px-4 bg-linear-to-bl from-gray-400 via-purple-300 to-blue-500" 
+         
     >
       <div className="max-w-3xl mx-auto">
         <Link to={`/job/${id}`} className="inline-flex items-center text-white hover:text-gray-300 mb-4">
