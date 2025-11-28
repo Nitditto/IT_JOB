@@ -31,7 +31,7 @@ const JobApplication = () => {
     clear: clearCV 
   } = useFilePicker({
     readAs: 'DataURL',
-    accept: '.pdf,.doc,.docx',
+    accept: '.pdf',
     multiple: false,
   });
 
@@ -42,7 +42,7 @@ const JobApplication = () => {
     clear: clearRef 
   } = useFilePicker({
     readAs: 'DataURL',
-    accept: '.pdf,.doc,.docx', // Có thể thêm .png, .jpg nếu muốn
+    accept: '.pdf', // Có thể thêm .png, .jpg nếu muốn
     multiple: false,
   });
 
@@ -194,7 +194,7 @@ const JobApplication = () => {
                         </span>
                         <p className="pl-1">hoặc kéo thả vào đây</p>
                         </div>
-                        <p className="text-xs text-gray-500">PDF, DOC, DOCX (Max 5MB)</p>
+                        <p className="text-xs text-gray-500">PDF(Max 5MB)</p>
                     </div>
                 </div>
             )}
@@ -257,7 +257,7 @@ const JobApplication = () => {
                                 {refLoading ? "Đang tải..." : "Tải lên Thư giới thiệu"}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-500">PDF, DOC, DOCX (Max 5MB)</p>
+                        <p className="text-xs text-gray-500">PDF</p>
                     </div>
                 </div>
             )}

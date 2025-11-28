@@ -51,7 +51,7 @@ export default function CompanyManageCVDetailPage(){
   };
 
   const handleUpdateStatus = async (newStatus: "APPROVED" | "REJECTED") => {
-    const actionName = newStatus === "APPROVED" ? "DUYỆT" : "TỪ CHỐI";
+    const actionName = newStatus === "APPROVED" ? "NHẬN" : "TỪ CHỐI";
     if (!confirm(`Bạn chắc chắn muốn ${actionName} hồ sơ này?`)) return;
     
     setIsLoading(true);
@@ -77,9 +77,9 @@ export default function CompanyManageCVDetailPage(){
 
   const renderStatusLabel = () => {
     switch(cvData.status) {
-        case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Duyệt</span>;
+        case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Nhận</span>;
         case "REJECTED": return <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold text-sm border border-red-200">Đã Từ Chối</span>;
-        default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Xem</span>;
+        default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Duyệt</span>;
     }
   };
 
@@ -133,7 +133,7 @@ export default function CompanyManageCVDetailPage(){
                         disabled={isLoading || cvData.status === 'APPROVED'}
                         onClick={() => handleUpdateStatus('APPROVED')}
                     >
-                        <Check className="mr-2 h-4 w-4" /> Duyệt Hồ Sơ
+                        <Check className="mr-2 h-4 w-4" /> Nhận Hồ Sơ
                     </Button>
 
                     <Button 
@@ -151,6 +151,7 @@ export default function CompanyManageCVDetailPage(){
             <div className="md:col-span-2 space-y-6">
                 
                 {/* Phần Thư giới thiệu */}
+                {cvData.referral && 
                 <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
                     <h3 className="font-bold text-lg mb-4 text-gray-800 flex items-center justify-between">
                         <span>Thư giới thiệu</span>
@@ -176,6 +177,8 @@ export default function CompanyManageCVDetailPage(){
                         </div>
                     </div>
                 </div>
+                }
+                
 
                 {/* Phần File CV */}
                 <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">

@@ -25,7 +25,6 @@ export default function CompanyManageCVDetailPage(){
   
   const [cvData, setCvData] = useState<CVDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
   useEffect(() => {
     const fetchCV = async () => {
       try {
@@ -78,7 +77,7 @@ export default function CompanyManageCVDetailPage(){
 
   const renderStatusLabel = () => {
     switch(cvData.status) {
-        case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Duyệt</span>;
+        case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Nhận</span>;
         case "REJECTED": return <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold text-sm border border-red-200">Đã Từ Chối</span>;
         default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Xem</span>;
     }
@@ -145,7 +144,8 @@ export default function CompanyManageCVDetailPage(){
             <div className="md:col-span-2 space-y-6">
                 
                 {/* Phần Thư giới thiệu */}
-                <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
+                {cvData.referral && 
+                    <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
                     <h3 className="font-bold text-lg mb-4 text-gray-800 flex items-center justify-between">
                         <span>Thư giới thiệu</span>
                         <span className="text-xs font-normal text-gray-500 bg-gray-100 px-2 py-1 rounded">PDF Document</span>
@@ -170,6 +170,8 @@ export default function CompanyManageCVDetailPage(){
                         </div>
                     </div>
                 </div>
+                }
+                
 
                 {/* Phần File CV */}
                 <div className="bg-white p-6 rounded-lg border border-[#DEDEDE] shadow-sm">
