@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import {
+    FaAngleLeft,
+    FaAngleRight,
     FaArrowRightLong,
     FaBriefcase,
     FaGlobe,
@@ -13,11 +15,59 @@ import translation from '@/utils/translation';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+const customSwiperStyles = `
+  .job-detail-swiper .swiper-button-next,
+  .job-detail-swiper .swiper-button-prev {
+    background-color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #121212;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    font-size:10px;
+  }
+  .job-detail-swiper .swiper-button-next:after,
+  .job-detail-swiper .swiper-button-prev:after {
+    display:none;
+  }
+.job-detail-swiper .swiper-button-next:after {
+  content: '›'; 
+  font-size: 14px;
+}
+
+.job-detail-swiper .swiper-button-prev:after {
+  content: '‹'; 
+  font-size: 14px;
+}
+
+  .job-detail-swiper .swiper-button-next:hover,
+  .job-detail-swiper .swiper-button-prev:hover {
+    background-color: #0088FF;
+    color: white;
+    transform: scale(1.1);
+  }
+  .job-detail-swiper {
+    padding-bottom: 30px !important; /* Để chỗ cho pagination nếu cần */
+  }
+  .swiper-pagination-bullet-active {
+    background-color: #0088FF !important;
+  }\
+`;
 export default function JobDetailPage() {
 
     const { id } = useParams();
     const { user } = useAuth();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const [openLightbox, setOpenLightbox] = useState(false);
+    const [photoIndex, setPhotoIndex] = useState(0);
     const [infoJob, setInfoJob] = useState({
         name: '',
         minSalary: 0,
@@ -56,58 +106,12 @@ export default function JobDetailPage() {
         }
         init();
         document.title = 'Chi tiết công việc'
-    }, [])
+    }, [id, user])
 
-    // Đây là hàm 'formSubmission' của bạn
-    const formSubmission = async (e) => {
-        e.preventDefault() // Ngăn form reload lại trang
 
-        // // 1. Kiểm tra xem người dùng đã chọn file chưa
-        // if (!cvFile) {
-        //     alert('Vui lòng chọn file CV của bạn.')
-        //     return // Dừng hàm nếu chưa có file
-        // }
-
-        // // 2. Tạo một đối tượng FormData
-        // const formData = new FormData()
-
-        // // 3. Thêm các trường thông tin text từ state 'infoJob'
-        // // LƯU Ý: Tên key ('fullName', 'email') phải khớp với tên mà server của bạn mong đợi
-        // formData.append('fullName', infoJob.nameEmployee)
-        // formData.append('email', infoJob.email)
-        // formData.append('phone', infoJob.phone)
-
-        // // 4. Thêm file CV vào FormData
-        // // Key 'cvFile' là tên mà server sẽ dùng để nhận file.
-        // // Bạn có thể đổi tên này ('cvFile') miễn là server biết.
-        // formData.append('cvFile', cvFile)
-
-        // // 5. Gửi FormData lên server bằng fetch (hoặc axios)
-        // try {
-        //     const response = await fetch('URL_API_UPLOAD_CUA_BAN', {
-        //         method: 'POST',
-        //         body: formData,
-        //         // Khi dùng FormData, bạn KHÔNG CẦN set header 'Content-Type'.
-        //         // Trình duyệt sẽ tự động set nó thành 'multipart/form-data'.
-        //     })
-
-        //     if (response.ok) {
-        //         alert('Gửi CV thành công!')
-        //         // Xóa form hoặc chuyển hướng
-        //     } else {
-        //         const errorData = await response.json()
-        //         alert(
-        //             'Gửi CV thất bại: ' +
-        //                 (errorData.message || response.statusText)
-        //         )
-        //     }
-        // } catch (error) {
-        //     console.error('Lỗi khi gửi form:', error)
-        //     alert('Lỗi kết nối, không thể gửi CV.')
-        // }
-    }
     return (
         <>
+            <style>{customSwiperStyles}</style>
             {/* Chi tiet cong viec  */}
             <div className="pt-[30px] pb-[60px]">
                 <div className="container">
@@ -128,40 +132,81 @@ export default function JobDetailPage() {
                                 </div>
                                 {
                                     hasCV ? (
-                                                                        <Link
-                                    to={`/job/${id}/mycv`}
-                                    className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
-                                >
-                                    Xem CV của bạn
-                                </Link>
+                                        <Link
+                                            to={`/job/${id}/mycv`}
+                                            className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
+                                        >
+                                            Xem CV của bạn
+                                        </Link>
                                     ) : user?.role == "ROLE_COMPANY" ? (
-                                                                        <Link
-                                    to={`/dashboard/company/job/${id}/view`}
-                                    className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
-                                >
-                                    Xem CV đã nộp
-                                </Link>
+                                        <Link
+                                            to={`/dashboard/company/job/${id}/view`}
+                                            className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
+                                        >
+                                            Xem CV đã nộp
+                                        </Link>
                                     ) : (
-                                                                        <Link
-                                    to={`/job/${id}/apply`}
-                                    className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
-                                >
-                                    Ứng tuyển
-                                </Link>
+                                        <Link
+                                            to={`/job/${id}/apply`}
+                                            className="mb-[20px] block rounded-[4px] bg-[#0088FF] p-[14px] text-center text-[16px] font-bold text-white"
+                                        >
+                                            Ứng tuyển
+                                        </Link>
                                     )
                                 }
-                                <div className="mb-[20px] grid grid-cols-3 gap-[8px] sm:gap-[16px]">
-                                    {
-                                        infoJob.images.map((value, index) => (
-                                        <img
-                                        key={index}
-                                        src={value}
-                                        alt=""
-                                        className="aspect-[232/145] w-full rounded-[4px] object-cover"
-                                        />
-                                        ))
-                                    }
+                                <div className="mb-[20px]">
+                                    {infoJob.images && infoJob.images.length > 0 ? (
+                                        <div className="relative group">
 
+                                            <Swiper
+                                                modules={[Navigation, Pagination, Autoplay]}
+                                                navigation={{
+                                                    nextEl: '.custom-next',
+                                                    prevEl: '.custom-prev',
+                                                }}
+                                                spaceBetween={15}
+                                                slidesPerView={1}
+                                                pagination={{ clickable: true }}
+                                                autoplay={{
+                                                    delay: 3000,
+                                                    disableOnInteraction: false,
+                                                }}
+                                                breakpoints={{
+                                                    640: { slidesPerView: 2 },
+                                                    1024: { slidesPerView: 2.5 },
+                                                }}
+                                                className="w-full rounded-[8px] job-detail-swiper"
+                                            >
+                                                {infoJob.images.map((value, index) => (
+                                                    <SwiperSlide key={index}>
+                                                        <div
+                                                            className="overflow-hidden rounded-[8px] cursor-pointer group/item relative"
+                                                            onClick={() => {
+                                                                setPhotoIndex(index);
+                                                                setOpenLightbox(true);
+                                                            }}
+                                                        >
+                                                            <div className="absolute inset-0 bg-black/0 group-hover/item:bg-black/10 transition-colors z-10" />
+                                                            <img
+                                                                src={value}
+                                                                alt={`Job image ${index + 1}`}
+                                                                className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover/item:scale-110"
+                                                            />
+                                                        </div>
+                                                    </SwiperSlide>
+                                                ))}
+                                            </Swiper>
+                                            <div className="custom-prev absolute top-1/2 -translate-y-1/2 left-2 z-20 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg cursor-pointer text-gray-800 hover:text-[#0088FF] transition-all duration-300 opacity-0 group-hover:opacity-100 disabled:opacity-50">
+                                                <FaAngleLeft size={18} />
+                                            </div>
+                                            <div className="custom-next absolute top-1/2 -translate-y-1/2 right-2 z-20 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-lg cursor-pointer text-gray-800 hover:text-[#0088FF] transition-all duration-300 opacity-0 group-hover:opacity-100 disabled:opacity-50">
+                                                <FaAngleRight size={18} />
+                                            </div>
+
+                                        </div>
+                                    ) : (
+                                        <div className="text-gray-400 text-sm italic">Không có hình ảnh mô tả.</div>
+                                    )}
                                 </div>
                                 <div className="mb-[10px] flex items-center gap-[8px] text-[14px]">
                                     <FaUserTie className="text-[16px]" />{' '}
@@ -194,85 +239,6 @@ export default function JobDetailPage() {
                             <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px] whitespace-pre-line">
                                 {infoJob.description}
                             </div>
-                            {/* Form ung tuyen  */}
-                            {/* <div className="mt-[20px] rounded-[8px] border border-[#DEDEDE] p-[20px]">
-                                <h2 className="mb-[20px] text-[20px] font-bold text-black">
-                                    Ứng tuyển ngay
-                                </h2>
-                                <form
-                                    onSubmit={formSubmission}
-                                    action=""
-                                    className="flex flex-col gap-[15px]"
-                                >
-                                    <div className="">
-                                        <label
-                                            htmlFor="fullName"
-                                            className="mb-[5px] text-[14px] font-[500] text-black"
-                                        >
-                                            Họ tên *
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="fullName"
-                                            onChange={handleFieldChange()}
-                                            value={infoJob.nameEmployee}
-                                            id="fullName"
-                                            className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
-                                        />
-                                    </div>
-                                    <div className="">
-                                        <label
-                                            htmlFor="email"
-                                            className="mb-[5px] text-[14px] font-[500] text-black"
-                                        >
-                                            Email *
-                                        </label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            onChange={handleChange}
-                                            value={infoJob.email}
-                                            id="email"
-                                            className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
-                                        />
-                                    </div>
-                                    <div className="">
-                                        <label
-                                            htmlFor="phone"
-                                            className="mb-[5px] text-[14px] font-[500] text-black"
-                                        >
-                                            Số điện thoại *
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="phone"
-                                            onChange={handleChange}
-                                            value={infoJob.phone}
-                                            id="phone"
-                                            className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
-                                        />
-                                    </div>
-                                    <div className="">
-                                        <label
-                                            htmlFor="fildCV"
-                                            className="mb-[5px] text-[14px] font-[500] text-black"
-                                        >
-                                            File CV dạng PDF *
-                                        </label>
-                                        <input
-                                            type="file"
-                                            name="images"
-                                            onChange={handleFileChange}
-                                            accept=".pdf"
-                                            id="fildCV"
-                                            className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black file:py-[12px]"
-                                        />
-                                    </div>
-                                    <button className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] text-[16px] font-bold text-white" type='submit'>
-                                        Gửi CV ứng tuyển
-                                    </button>
-                                </form>
-                            </div> */}
                         </div>
                         {/* Right  */}
                         <div className="flex-1">
@@ -338,6 +304,19 @@ export default function JobDetailPage() {
                     </div>
                 </div>
             </div>
+            <Lightbox
+                open={openLightbox}
+                close={() => setOpenLightbox(false)}
+                index={photoIndex}
+                slides={infoJob.images.map(src => ({ src: src }))}
+                styles={{
+                    container: {
+                        backgroundColor: "rgba(0, 0, 0, 0.8)",
+                        backdropFilter: "blur(10px)"
+                    }
+                }}
+                controller={{ closeOnBackdropClick: true }}
+            />
         </>
     )
 }

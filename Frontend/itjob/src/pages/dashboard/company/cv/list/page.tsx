@@ -47,7 +47,6 @@ export default function CompanyManageCVListPage() {
     const [cvList, setCvList] = useState<CVData[]>([]);
     const [jobInfo, setJobInfo] = useState<JobData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [page, setPage] = useState(1);
     useEffect(() => {
         document.title = 'Quản lý CV';
         const fetchData = async () => {
