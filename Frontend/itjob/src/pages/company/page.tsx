@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { FaBuilding, FaBusinessTime, FaClock, FaLocationDot, FaPhone, FaUsers } from "react-icons/fa6";
 import { CardJobItem } from "../../components/card/CardJobItem";
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import axios from "axios";
 import translation from "@/utils/translation";
+import { Pagination } from "@/components/pagination/Pagination";
 export default function CompanyDetailPage() {
 
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [info, setInfo] = useState({
     name: "",
     avatar: "",
@@ -32,6 +34,7 @@ export default function CompanyDetailPage() {
         setInfo(companyRes.data);
         const jobListRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${id}`);
         setJobList(jobListRes.data);
+        setPage(parseInt(searchParams.get("page") ?? "1"));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -143,21 +146,7 @@ export default function CompanyDetailPage() {
               ))}
             </div>
             
-            {/* Pagination */}
-            {jobList.length > 6 && (
-              <div className="mt-[30px] flex justify-center">
-                <select
-                  onChange={(e) => setPage(parseInt(e.target.value))}
-                  className="border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:border-blue-500 bg-white"
-                >
-                  {Array(Math.ceil(jobList.length / 6))
-                    .fill(0)
-                    .map((_, index) => (
-                      <option key={index} value={index + 1}>{`Trang ${index + 1}`}</option>
-                    ))}
-                </select>
-              </div>
-            )}
+<Pagination list={jobList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams}/>
           </div>
         </div>
       </div>

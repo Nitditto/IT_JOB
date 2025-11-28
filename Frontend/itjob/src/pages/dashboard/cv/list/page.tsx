@@ -1,5 +1,5 @@
 
-import {Link, useNavigate} from "react-router"
+import {Link, useNavigate, useSearchParams} from "react-router"
 import { FaBriefcase, FaCircle, FaCircleCheck, FaCircleDot, FaCircleQuestion, FaCircleXmark, FaUserTie } from "react-icons/fa6"
 import { useEffect, useState } from "react"
 import { Pagination } from "../../../../components/pagination/Pagination"
@@ -11,6 +11,7 @@ import translation from "@/utils/translation"
 export default function UserManageCVListPage() {
 
   const [cvList, setCVList] = useState([]);
+  const [ searchParams, setSearchParams ] = useSearchParams();
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
   useEffect(()=>{
@@ -22,6 +23,7 @@ export default function UserManageCVListPage() {
 
     document.title="Quản lý CV đã gửi";
     init();
+    setPage(parseInt(searchParams.get("page") ?? "1"));
   },[])
 
     const renderStatusLabel = (status) => {
@@ -110,21 +112,7 @@ export default function UserManageCVListPage() {
       
           </div>
 
-            {/* Pagination */}
-            {cvList.length > 6 && (
-              <div className="mt-[30px] flex justify-center">
-                <select
-                  onChange={(e) => setPage(parseInt(e.target.value))}
-                  className="border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:border-blue-500 bg-white"
-                >
-                  {Array(Math.ceil(cvList.length / 6))
-                    .fill(0)
-                    .map((_, index) => (
-                      <option key={index} value={index + 1}>{`Trang ${index + 1}`}</option>
-                    ))}
-                </select>
-              </div>
-            )}
+<Pagination list={cvList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
         </div>
       </div>
     </>
