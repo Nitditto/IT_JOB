@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router';
 import { HeaderMenu } from './HeaderMenu';
 import HeaderHoverItem from './HeaderHoverItem';
@@ -8,6 +8,23 @@ import { useAuth } from '../../context/AuthContext';
 export const Header = () => {
 
   const { isAuthenticated, user } = useAuth();
+  const [topCompanies, setTopCompanies] = useState([]);
+  const fetchTopCompanies = async () => {
+    try {
+      // Gọi đúng đường dẫn api/public
+      const response = await fetch('http://localhost:8080/api/public/top-companies');
+      if (response.ok) {
+        const data = await response.json();
+        setTopCompanies(data);
+      }
+    } catch (error) {
+      console.error("Lỗi:", error);
+    }
+  };
+  useEffect(() => {
+    fetchTopCompanies();
+  }, []);
+
   const logoutFunction = () => {
     localStorage.removeItem('token');
     window.location.reload();
@@ -46,11 +63,21 @@ export const Header = () => {
                 </HeaderHoverItem>
                 
                 <HeaderHoverItem toHref='/top' linkText='Top Công Ty IT'>
-                <HeaderMenu>
-                  <HeaderItem to='/company?id=1' linkText='FPT Software' />
-                  <HeaderItem to='/company?id=2' linkText='Techcombank' />
-                  <HeaderItem to='/company?id=3' linkText='MB Bank' />
-                </HeaderMenu>
+                  <HeaderMenu>
+                    {/* Nếu có dữ liệu thì map ra, nếu không thì hiện text loading */}
+                    {topCompanies.length > 0 ? (
+                      topCompanies.map((company) => (
+                        <HeaderItem 
+                          key={company.id} 
+                          to={`/company/${company.id}`} // Link đến trang chi tiết
+                          linkText={company.name}        // Tên công ty từ API
+                        />
+                      ))
+                    ) : (
+                      // Hardcode tạm 1 cái hoặc loading nếu chưa tải xong
+                      <span className="block px-4 py-2 text-white text-sm">Đang tải...</span>
+                    )}
+                  </HeaderMenu>
                 </HeaderHoverItem>
                 
               </ul>
