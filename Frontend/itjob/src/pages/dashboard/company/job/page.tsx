@@ -1,6 +1,6 @@
 import { FaBriefcase, FaGlobe, FaLocationDot, FaUserTie } from "react-icons/fa6";
 import { Pagination } from "../../../../components/pagination/Pagination";
-import { Link } from "react-router"
+import { Link, useSearchParams } from "react-router"
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
@@ -10,6 +10,7 @@ import api from "@/utils/api";
 
 export default function CompanyJobList() {
   const {user} = useAuth();
+  const [ searchParams, setSearchParams ] = useSearchParams();
   const [jobList, setJobList] = useState([]);
   const [page, setPage] = useState(1);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -26,7 +27,12 @@ export default function CompanyJobList() {
   useEffect(() => {
     document.title = "Quản lý công việc";
     if (user?.id) fetchJobs(); // Gọi hàm load
+
   }, [user]);
+
+  useEffect(()=>{
+    setPage(parseInt(searchParams.get("page") ?? "1"));
+  }, [])
 
   // 2. Hàm xử lý Xóa
   const handleDelete = async (jobId: number) => {
@@ -122,15 +128,7 @@ export default function CompanyJobList() {
 
 }
         </div>
-      <div className="mt-[30px]">
-        <select onChange={e=>setPage(e.target.value)} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
-          {
-            Array(Math.ceil(jobList.length/6)).fill(0).map((_, index) => (
-              <option value={index+1}>{`Trang ${index+1}`}</option>
-            ))
-          }
-        </select>
-      </div>
+  <Pagination list={jobList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
       </div>
     </>
   )

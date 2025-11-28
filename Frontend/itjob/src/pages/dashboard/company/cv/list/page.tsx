@@ -1,5 +1,5 @@
 //Frontend\itjob\src\pages\company\cv\list\page.tsx
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useSearchParams } from 'react-router'
 import {
     FaBriefcase,
     FaCircleCheck,
@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios';
 import translation from '@/utils/translation';
 import api from '@/utils/api';
+import { Pagination } from '@/components/pagination/Pagination';
 
 interface CVData {
         accountID: number;
@@ -40,11 +41,13 @@ interface JobData {
 
 export default function CompanyManageCVListPage() {
     const { id } = useParams();
+    const { searchParams, setSearchParams } = useSearchParams();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [cvList, setCvList] = useState<CVData[]>([]);
     const [jobInfo, setJobInfo] = useState<JobData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [page, setPage] = useState(1);
     useEffect(() => {
         document.title = 'Quản lý CV';
         const fetchData = async () => {
@@ -57,6 +60,7 @@ export default function CompanyManageCVListPage() {
                 // Lấy danh sách CV (Cần Token)
                 const cvRes = await api.get(`/cv/${id}/list`);
                 setCvList(cvRes.data);
+                setPage(parseInt(searchParams.get("page") ?? "1"));
             } catch (error) {
                 console.error("Lỗi tải dữ liệu:", error);
             } finally {
@@ -135,8 +139,9 @@ export default function CompanyManageCVListPage() {
                     Chưa có ứng viên nào nộp hồ sơ cho vị trí này.
                 </div>
             ) : (
+                <>
                 <div className="grid grid-cols-1 gap-[30px] sm:grid-cols-2 lg:grid-cols-3">
-                    {cvList.map((cv, index) => (
+                    {cvList.slice((page-1)*6, page*6).map((cv, index) => (
                         <div key={index} className="relative flex flex-col rounded-[8px] border border-[#DEDEDE] bg-white shadow-sm hover:shadow-md transition-all overflow-hidden">
                             {/* Màu trạng thái */}
                             <div className={`h-2 w-full ${
@@ -190,6 +195,8 @@ export default function CompanyManageCVListPage() {
                         </div>
                     ))}
                 </div>
+                <Pagination list={cvList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
+                </>
             )}
             </div>
         </>
