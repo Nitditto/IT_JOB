@@ -16,8 +16,8 @@ import api from '@/utils/api';
 import { Pagination } from '@/components/pagination/Pagination';
 
 interface CVData {
-        accountID: number;
-        jobID: number;
+    accountID: number;
+    jobID: number;
     name: string; 
     phone: string;
     email: string;
@@ -43,7 +43,7 @@ export default function CompanyManageCVListPage() {
     const { id } = useParams();
     const { searchParams, setSearchParams } = useSearchParams();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+    const [page, setPage] = useState(1);
     const [cvList, setCvList] = useState<CVData[]>([]);
     const [jobInfo, setJobInfo] = useState<JobData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +71,7 @@ export default function CompanyManageCVListPage() {
     }, [id, BACKEND_URL]);
 
     const handleQuickUpdate = async (cv: CVData, newStatus: "APPROVED" | "REJECTED") => {
-        if (!confirm(`Bạn muốn ${newStatus === 'APPROVED' ? 'DUYỆT' : 'TỪ CHỐI'} hồ sơ của ${cv.name}?`)) return;
+        if (!confirm(`Bạn muốn ${newStatus === 'APPROVED' ? 'NHẬN' : 'TỪ CHỐI'} hồ sơ của ${cv.name}?`)) return;
 
         try {
             await api.put(
@@ -95,11 +95,11 @@ export default function CompanyManageCVListPage() {
     const renderStatus = (status: string) => {
         switch (status) {
             case "APPROVED":
-                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-[#47BE02]"><FaCircleCheck /> Đã duyệt</div>;
+                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-[#47BE02]"><FaCircleCheck /> Đã nhận</div>;
             case "REJECTED":
                 return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-[#FF0000]"><FaCircleCheck /> Đã từ chối</div>;
             default:
-                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-gray-500"><FaEye /> Chưa xem</div>;
+                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-gray-500"><FaEye /> Chưa Duyệt</div>;
         }
     }
     if (isLoading) return <div className="text-center py-20">Đang tải danh sách...</div>;
@@ -180,7 +180,7 @@ export default function CompanyManageCVListPage() {
                                                 onClick={() => handleQuickUpdate(cv, 'APPROVED')}
                                                 className="rounded-[4px] bg-[#9FDB7C] px-4 py-2 text-[14px] font-medium text-black hover:bg-green-400 transition-colors"
                                             >
-                                                Duyệt
+                                                Nhận
                                             </button>
                                             <button 
                                                 onClick={() => handleQuickUpdate(cv, 'REJECTED')}
