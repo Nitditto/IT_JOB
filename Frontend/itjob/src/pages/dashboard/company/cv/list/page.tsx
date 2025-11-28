@@ -15,8 +15,8 @@ import translation from '@/utils/translation';
 import api from '@/utils/api';
 
 interface CVData {
-        accountID: number;
-        jobID: number;
+    accountID: number;
+    jobID: number;
     name: string; 
     phone: string;
     email: string;
@@ -41,7 +41,7 @@ interface JobData {
 export default function CompanyManageCVListPage() {
     const { id } = useParams();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+    const [page, setPage] = useState(1);
     const [cvList, setCvList] = useState<CVData[]>([]);
     const [jobInfo, setJobInfo] = useState<JobData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -136,7 +136,8 @@ export default function CompanyManageCVListPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-[30px] sm:grid-cols-2 lg:grid-cols-3">
-                    {cvList.map((cv, index) => (
+                    {
+                    cvList.slice((page-1)*6, page*6).map((cv, index) => (
                         <div key={index} className="relative flex flex-col rounded-[8px] border border-[#DEDEDE] bg-white shadow-sm hover:shadow-md transition-all overflow-hidden">
                             {/* Màu trạng thái */}
                             <div className={`h-2 w-full ${
@@ -191,6 +192,15 @@ export default function CompanyManageCVListPage() {
                     ))}
                 </div>
             )}
+            <div className="mt-[30px]">
+                <select onChange={e=>setPage(e.target.value)} name="" id="" className="border border-[#DEDEDE] rounded-[8px] py-[12px] px-[18px]">
+                {
+                    Array(Math.ceil(cvList.length/6)).fill(0).map((_, index) => (
+                    <option value={index+1}>{`Trang ${index+1}`}</option>
+                    ))
+                }
+                </select>
+            </div>
             </div>
         </>
     )
