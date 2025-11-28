@@ -28,7 +28,7 @@ export default function UserManageCVListPage() {
     switch(status) {
         case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Duyệt</span>;
         case "REJECTED": return <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold text-sm border border-red-200">Đã Từ Chối</span>;
-        default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Xem</span>;
+        default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Duyệt</span>;
     }
   };
 
