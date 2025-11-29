@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,13 +46,20 @@ public class UserController {
     }
 
     @GetMapping("/company/list")
-    public List<CompanyDTO> getCompanyList(@RequestBody(required=false) Long limit) {
+    public List<CompanyDTO> getCompanyList(@RequestBody(required=false) Integer limit) {
         List<Account> companies = userServices.getUsersByRole(UserRole.ROLE_COMPANY);
-        Collections
+        Collections.sort(companies, new Comparator<>(){
+            @Override
+            public int compare(Account a1, Account a2) {
+                List<Job> a1Jobs = jobServices.getJobByCompanyID(a1.getId());
+                List<Job> a2Jobs = jobServices.getJobByCompanyID(a2.getId());
+                return a2Jobs.size() - a1Jobs.size();
+            }
+        });
         if (limit != null) {
-
+            companies = companies.subList(0, limit > companies.size() ? companies.size() : limit);
         }
-        return userServices.getUsersByRole(UserRole.ROLE_COMPANY).stream()
+        return companies.stream()
         .map(userServices::convertToCompany)
         .collect(Collectors.toList());
     }
