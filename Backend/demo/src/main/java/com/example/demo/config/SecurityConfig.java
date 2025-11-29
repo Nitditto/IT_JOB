@@ -102,8 +102,8 @@ public class SecurityConfig {
                     "/job/tags",
                     "/job/get/*",
                     "/user/*",
-                    "/company/*",
-                    "/api/public/**").permitAll()
+                    "/company/*"
+                    ).permitAll()
                 // Yêu cầu xác thực cho các endpoint còn lại
                 .anyRequest().authenticated()
             )
