@@ -1,18 +1,6 @@
 package com.example.demo.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.demo.dto.CVDTO;
-import com.example.demo.dto.CompanyDTO;
-import com.example.demo.dto.CompanyEditRequest;
-import com.example.demo.dto.UserDTO;
-import com.example.demo.dto.UserEditRequest;
-import com.example.demo.enums.UserRole;
-import com.example.demo.model.Account;
-import com.example.demo.services.UserServices;
-
-import lombok.RequiredArgsConstructor;
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +12,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.dto.CompanyDTO;
+import com.example.demo.dto.CompanyEditRequest;
+import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.UserEditRequest;
+import com.example.demo.enums.UserRole;
+import com.example.demo.model.Account;
+import com.example.demo.model.Job;
+import com.example.demo.services.JobServices;
+import com.example.demo.services.UserServices;
+
+import lombok.RequiredArgsConstructor;
 
 
 
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class UserController {
     
     private final UserServices userServices;
-
+    private final JobServices jobServices;
     @GetMapping("/user/{id}")
     public UserDTO getUser(@PathVariable Long id) {
         return userServices.convertToUser(userServices.getUserById(id));
@@ -45,7 +45,12 @@ public class UserController {
     }
 
     @GetMapping("/company/list")
-    public List<CompanyDTO> getCompanyList() {
+    public List<CompanyDTO> getCompanyList(@RequestBody(required=false) Long limit) {
+        List<Account> companies = userServices.getUsersByRole(UserRole.ROLE_COMPANY);
+        Collections
+        if (limit != null) {
+
+        }
         return userServices.getUsersByRole(UserRole.ROLE_COMPANY).stream()
         .map(userServices::convertToCompany)
         .collect(Collectors.toList());

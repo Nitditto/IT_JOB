@@ -15,6 +15,5 @@ public interface AccountRepository extends CrudRepository<Account, Long>{
     Optional<Account> findByEmail(String email);
     Optional<Account> findByName(String name);
     List<Account> findByRole(UserRole role);
-    List<Account> findTop5ByRole(UserRole role);
 }
 
