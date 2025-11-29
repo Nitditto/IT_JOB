@@ -5,7 +5,7 @@ const HeaderHoverItem = (
         toHref,
         linkText,
         item,
-        children,
+        children
     }: {
         toHref: string,
         linkText: string,

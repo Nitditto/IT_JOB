@@ -35,6 +35,7 @@ export interface JobFilterParams {
   minSalary?: number;
   maxSalary?: number;
   tags?: string[];
+  companyID?: number;
 }
 
 export interface Tag {

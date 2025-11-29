@@ -11,6 +11,7 @@ export const Section1 = () => {
     const [jobCount, setJobCount] = useState(0);
     const [location, setLocation] = useState<Location[]>([]);
     const [tags, setTags] = useState([]);
+    const [companyList, setCompanyList] = useState([]);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     useEffect(() => {
       const init = async () => {
@@ -18,9 +19,11 @@ export const Section1 = () => {
           const jobCountRes = await axios.get(`${BACKEND_URL}/job/count`);
           const locationRes = await axios.get(`${BACKEND_URL}/location`);
           const tagRes = await axios.get(`${BACKEND_URL}/job/tags`);
+          const companyRes = await axios.get(`${BACKEND_URL}/company/list`);
           setJobCount(jobCountRes.data);
           setLocation(locationRes.data);
           setTags(tagRes.data);
+          setCompanyList(companyRes.data);
         } catch (error) {
           console.error("An error occured:\n", error);
         }
@@ -37,7 +40,8 @@ export const Section1 = () => {
           </h1>
           <SearchBar 
             locations={location}
-            tags={tags}/>
+            tags={tags}
+            companyList={companyList}/>
           <div className="flex items-center gap-x-3 flex-wrap gap-y-[15px]">
             <div className="font-medium text-[16px] text-[#DEDEDE]">
               Mọi người đang tìm kiếm:
