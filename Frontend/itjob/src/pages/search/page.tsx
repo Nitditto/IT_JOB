@@ -42,6 +42,7 @@ const getFiltersFromURL = (): JobFilterParams => {
     ...(getNumber('minSalary') && { minSalary: getNumber('minSalary') }),
     ...(getNumber('maxSalary') && { maxSalary: getNumber('maxSalary') }),
     ...(getArray('tags') && { tags: getArray('tags') }),
+    ...(getNumber('companyID') && {companyID: getNumber('companyID')})
   };
 };
   const [jobList, setJobList] = useState([]);

@@ -31,19 +31,21 @@ const FilterDialogContent = ({
   setDialogOpen,
   onApplyFilters,
   currentFilters,
-  tags
+  tags, 
+  companyList
 }: {
   setDialogOpen: (open: boolean) =>void,
   onApplyFilters: (newFilters: Partial<JobFilterParams>) => void,
   currentFilters: Partial<JobFilterParams>,
-  tags: Array<Tag>
+  tags: Array<Tag>,
+  companyList: Array<any>
 }) =>{
   // State này chỉ dùng bên trong Modal
   const [tempSalaryRange, setTempSalaryRange] = useState([currentFilters.minSalary || 100, currentFilters.maxSalary || 10000]);
   const [tempPosition, setTempPosition] = useState<string[]>(currentFilters.position || []);
   const [tempWorkstyle, setTempWorkstyle] = useState<string[]>(currentFilters.workstyle || []);
   const [tempTags, setTempTags] = useState<string[]>(currentFilters.tags || []);
-
+  const [selectedCompany, setSelectedCompany] = useState(0);
   // const [salaryRange,setSalaryRange]=useState([10,10000])
 
   const handleApplyFilter=()=>{
@@ -52,7 +54,8 @@ const FilterDialogContent = ({
       workstyle: tempWorkstyle,
       minSalary: tempSalaryRange[0],
       maxSalary: tempSalaryRange[1],
-      tags: tempTags
+      tags: tempTags,
+      companyID: selectedCompany
     });
     // console.log(salaryRange);
     setDialogOpen(false)
@@ -265,6 +268,27 @@ const FilterDialogContent = ({
               </div>
             </ScrollArea>
           </div>
+
+          <div>
+            <label className="font-semibold text-lg mb-3 block">Công ty</label>
+            <Input placeholder="Tìm kiếm công ty..." className="h-[46px]" />
+            <ScrollArea className="h-[200px] mt-3 border rounded-md p-4">
+              <div className="space-y-3">
+                {
+                  companyList.map((company, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox id={company.id} 
+                    checked={company.id == selectedCompany}
+                    onCheckedChange={(checked) => {
+                      checked && setSelectedCompany(company.id);
+                    }} />
+                  <label htmlFor={company.id} className="text-sm">{company.name}</label>
+                </div>
+                  ))
+                }
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       </ScrollArea>
       
@@ -281,10 +305,12 @@ const FilterDialogContent = ({
 
 const SearchBar = ({ 
   locations,
-  tags
+  tags,
+  companyList
 }: { 
   locations: Array<Location>,
-  tags: Array<Tag>
+  tags: Array<Tag>,
+  companyList: Array<any>
 }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();  
@@ -299,6 +325,7 @@ const SearchBar = ({
     minSalary: Number(searchParams.get('minSalary')) || 10,
     maxSalary: Number(searchParams.get('maxSalary')) || 10000,
     tags: searchParams.getAll('tags') || [],
+    companyID: Number(searchParams.get('companyID')) || 0
   });
   useEffect(() => {
     setQuery(searchParams.get('query') || "");
@@ -309,6 +336,7 @@ const SearchBar = ({
       minSalary: Number(searchParams.get('minSalary')) || 10,
       maxSalary: Number(searchParams.get('maxSalary')) || 10000,
       tags: searchParams.getAll('tags') || [],
+      companyID: Number(searchParams.get('companyID')) || 0
     });
   }, [searchParams]);
 
@@ -332,9 +360,7 @@ const SearchBar = ({
     allFilters.position?.forEach(level => params.append('position', level));
     allFilters.workstyle?.forEach(style => params.append('workstyle', style));
     allFilters.tags?.forEach(skill => params.append('tags', skill));
-    
-    // ĐIỀU HƯỚNG!
-    // Thao tác này sẽ tự động tải lại trang /search
+    if (allFilters.companyID && allFilters.companyID !== 0) params.set('companyID', allFilters.companyID.toString());
     navigate(`/search?${params.toString()}`);
   }
 
@@ -393,7 +419,8 @@ const SearchBar = ({
             setFilters(prev=>({...prev,...newFilters}))
             navigateToSearch(newFilters)
           }}
-          tags={tags}/>
+          tags={tags}
+          companyList={companyList}/>
         </DialogContent>
       </Dialog>
     </form>

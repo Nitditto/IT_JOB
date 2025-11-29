@@ -10,13 +10,16 @@ export const Header = () => {
 
   const { isAuthenticated, user } = useAuth();
   const [topCompanies, setTopCompanies] = useState([]);
+  const [tagList, setTagList] = useState([]);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const fetchTopCompanies = async () => {
     try {
       // Gọi đúng đường dẫn api/public
       const response = await axios.get(`${BACKEND_URL}/company/list?limit=3`);
       setTopCompanies(response.data);
-
+      const tagRes = await axios.get(`${BACKEND_URL}/job/tags`)
+      setTagList(tagRes.data);
+      console.log(tagList);
     }
     catch (error) {
       console.error("Lỗi:", error);
@@ -24,6 +27,7 @@ export const Header = () => {
   };
   useEffect(() => {
     fetchTopCompanies();
+
   }, []);
 
   const logoutFunction = () => {
@@ -51,19 +55,32 @@ export const Header = () => {
                   <HeaderMenu>
                     <HeaderHoverItem item toHref='/search' linkText='Việc làm IT theo kỹ năng'>
                       <HeaderMenu item>
-                        <HeaderItem to='/search?query=reactjs' linkText='ReactJS' />
-                        <HeaderItem to='/search?query=nodejs' linkText='NodeJS' />
-                        <HeaderItem to='/search?query=js' linkText='Javascript' />
-                        <HeaderItem to='/search?query=html' linkText='HTML5' />
-                        <HeaderItem to='/search?query=css' linkText='CSS3' />
+                        {tagList.slice(0,5).sort((a, b) => b.jobCount - a.jobCount).map((value, index) => (
+                          <HeaderItem to={`/search?tags=${value["tag"]}`} linkText={value["tag"]} />
+                        ))
+                        }
                       </HeaderMenu>
                     </HeaderHoverItem>
-                    <HeaderItem to='/search?company=LG' linkText='Việc làm IT theo công ty' />
-                    <HeaderItem to='/search?city=HN' linkText='Việc làm IT theo thành phố' />
+                    <HeaderHoverItem item toHref='/search' linkText='Việc làm IT theo công ty'>
+                      <HeaderMenu item>
+                          {
+                            topCompanies.map((value,index)=>(
+                            <HeaderItem to={`/search?companyID=${value.id}`} linkText={value.name} />
+                            ))
+                          }
+                      </HeaderMenu>
+                    </HeaderHoverItem>  
+                    <HeaderHoverItem item toHref='/search' linkText='Việc làm IT theo thành phố'>
+                    <HeaderMenu item>
+                          <HeaderItem to="/search?location=HN" linkText='Hà Nội' />
+                          <HeaderItem to="/search?location=ĐNa" linkText='Đà Nẵng' />
+                          <HeaderItem to="/search?location=SG" linkText='Thành phố Hồ Chí Minh' />
+                    </HeaderMenu>
+                    </HeaderHoverItem>
                   </HeaderMenu>
                 </HeaderHoverItem>
 
-                <HeaderHoverItem toHref='/top' linkText='Top Công Ty IT'>
+                <HeaderHoverItem toHref='#' linkText='Top Công Ty IT'>
                   <HeaderMenu>
                     {/* Nếu có dữ liệu thì map ra, nếu không thì hiện text loading */}
                     {topCompanies.length > 0 ? (

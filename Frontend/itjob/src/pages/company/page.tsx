@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaBuilding, FaBusinessTime, FaClock, FaLocationDot, FaPhone, FaUsers } from "react-icons/fa6";
+import { FaBuilding, FaBusinessTime, FaClock, FaGlobe, FaLocationDot, FaPhone, FaUsers } from "react-icons/fa6";
 import { CardJobItem } from "../../components/card/CardJobItem";
 import { useParams, useSearchParams } from 'react-router';
 import axios from "axios";
@@ -31,7 +31,7 @@ export default function CompanyDetailPage() {
     const init = async () => {
       try {
         const companyRes = await axios.get(`${BACKEND_URL}/company/${id}`);
-        setInfo(companyRes.data);
+        setInfo({...companyRes.data, location: companyRes.data["location"]["name"]});
         const jobListRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${id}`);
         setJobList(jobListRes.data);
         setPage(parseInt(searchParams.get("page") ?? "1"));
@@ -85,6 +85,10 @@ export default function CompanyDetailPage() {
                     <div className="flex items-center gap-2">
                       <FaLocationDot className="text-blue-500" />
                       <span>{info["address"] ? info["address"] : "Địa chỉ chưa cập nhật"}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaGlobe className="text-blue-500" />
+                      <span>{info["location"] ? info["location"] : "Vị trí chưa cập nhật"}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <FaPhone className="text-blue-500" />
