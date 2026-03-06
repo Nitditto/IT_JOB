@@ -19,44 +19,39 @@ export const CardCompanyItem=({companyInfo}: {companyInfo: any})=>{
   }, [])
   return (
     <>
-              <Link
-              to={`/company/${companyInfo["id"]}`}
-              className="rounded-[8px] border-[1px] border-[#DEDEDE] relative"
-              style={{
-              background: "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)"
-              }}
-              >
-                <img 
-                src="/assets/images/card-bg.svg" 
-                alt="" 
-                className="absolute top-0 left-0 w-full h-auto" 
-                />
-                <div className="relative flex flex-col h-full">
-                  <div 
-                  className="sm:w-[160px] aspect-square w-[125px] sm:mt-[32px] mt-[20px] sm:mb-[24px] mb-[16px] mx-auto rounded-[8px] bg-white"
-                  style={{
-                    boxShadow:"0px 4px 24px 0px #0000001F"
-                  }}
-                  >
-                    <img 
-                    src={companyInfo["avatar"]}
-                    alt={companyInfo["name"]} 
-                    className="w-full h-full object-contain p-[10px]" 
-                    />
-                  </div>
-                  <div 
-                  className="font-bold sm:text-[18px] text-[14px] text-[#121212] sm:mb-[24px] mb-[16px] mx-[16px] flex justify-center text-center grow line-clamp-2 "
-                  >{companyInfo["name"]} </div>
-                  <div className="bg-[#F7F7F7] py-[12px] px-[16px] flex items-center sm:justify-between justify-center flex-wrap gap-[12px]">
-                    <div className="font-[400] text-[14px] text-[#414042]">
-                      {companyInfo["location"] ? companyInfo["location"]["name"] : "Không xác định"}
-                    </div>
-                    <div className="inline-flex items-center gap-[6px] font-[400] text-[14px] text-[#121212]">
-                      <FaUserTie className="text-[16px] text-[#000096]"/> {jobCount} Việc làm
-                    </div>
-                  </div>
-                </div>
-              </Link>
+      <Link
+        to={`/company/${companyInfo["id"]}`}
+        className="group rounded-[16px] bg-white dark:bg-slate-900 border border-black/5 dark:border-white/10 relative overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)] dark:hover:shadow-[0_20px_40px_-15px_rgba(129,140,248,0.2)]"
+      >
+        <div className="absolute top-0 left-0 w-full h-[60px] bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/50 dark:to-violet-950/50 rounded-t-[16px]" />
+        
+        <div className="relative flex flex-col h-full pt-6">
+          <div 
+            className="w-[90px] h-[90px] mx-auto rounded-[12px] bg-white border border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-300 group-hover:scale-105 z-10 p-2"
+          >
+            <img 
+              src={companyInfo["avatar"]}
+              alt={companyInfo["name"]} 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+          
+          <div className="flex-1 px-4 pt-4 pb-0 flex flex-col items-center">
+            <h3 className="font-bold text-[16px] xl:text-[18px] text-foreground text-center line-clamp-2 leading-tight">
+              {companyInfo["name"]} 
+            </h3>
+          </div>
+          
+          <div className="mt-5 bg-slate-50 dark:bg-slate-800/50 py-[12px] px-[16px] flex items-center justify-between gap-[8px] border-t border-slate-100 dark:border-slate-800/50 text-sm">
+            <div className="font-medium text-slate-500 dark:text-slate-400 truncate max-w-[50%]">
+              {companyInfo["location"] ? companyInfo["location"]["name"] : "Không xác định"}
+            </div>
+            <div className="inline-flex items-center gap-[6px] font-semibold text-primary">
+              <FaUserTie className="text-[14px]"/> {jobCount} Việc làm
+            </div>
+          </div>
+        </div>
+      </Link>
               
     </>
   )

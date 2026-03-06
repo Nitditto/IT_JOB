@@ -13,70 +13,73 @@ const Settings = () => {
     document.title = "Cài đặt chung";
   }, [])
 
-  // Component Card nhỏ để tái sử dụng
-  const SettingCard = ({ to, icon: Icon, title, desc, colorClass, onClick }: any) => {
+  const SettingCard = ({ to, icon: Icon, title, desc, colorClass, borderClass, onClick }: any) => {
     const Wrapper = to ? Link : 'div';
     return (
       <Wrapper
         to={to}
         onClick={onClick}
-        className="group relative flex items-center gap-4 p-5 bg-white border border-gray-200 rounded-xl hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer"
+        className="group relative flex items-start gap-4 p-5 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100 last:border-0"
       >
-        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${colorClass} bg-opacity-10`}>
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center ${colorClass}`}>
-            <Icon size={24} className="text-white" />
-          </div>
+        <div className={`w-11 h-11 rounded-[10px] flex items-center justify-center border ${borderClass} flex-shrink-0`}>
+             <Icon size={20} className={`${colorClass}`} />
         </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-800 text-lg">{title}</h3>
-          <p className="text-sm text-gray-500">{desc}</p>
+        <div className="flex-1 mt-0.5">
+          <h3 className="font-semibold text-slate-800 text-[15px]">{title}</h3>
+          <p className="text-[13px] text-slate-500 mt-1">{desc}</p>
         </div>
-        <ChevronRight className="text-gray-300 group-hover:text-indigo-500 transition-colors" size={20} />
+        <ChevronRight className="text-slate-300 group-hover:text-indigo-500 transition-colors mt-2" size={18} />
       </Wrapper>
     )
   }
 
   return (
     <>
-      <div className="pt-[30px] pb-[60px] min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <h2 className="font-bold text-3xl text-gray-900 mb-2">
-            Cài đặt tài khoản
-          </h2>
-          <p className="text-gray-500 mb-8">Quản lý thông tin cá nhân và bảo mật</p>
+      <div className="p-4 md:p-8 min-h-full">
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-6">
+            <h2 className="font-bold text-2xl text-slate-900">Cài đặt</h2>
+            <p className="text-slate-500 text-sm mt-1">Quản lý tùy chọn và bảo mật tài khoản cá nhân tại đây.</p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <SettingCard
-              to={isCompany ? "/dashboard/settings/company-profile" : "/dashboard/settings/user-profile"}
-              icon={Pen}
-              title={isCompany ? "Thông tin công ty" : "Thông tin cá nhân"}
-              desc={isCompany ? "Cập nhật logo, địa chỉ và mô tả công ty" : "Cập nhật tên, avatar và thông tin cơ bản"}
-              colorClass="bg-blue-500 text-blue-600"
-            />
-            <SettingCard
-              to="/dashboard/settings/change-password"
-              icon={KeyRound}
-              title="Đổi mật khẩu"
-              desc="Bảo vệ tài khoản với mật khẩu mạnh hơn"
-              colorClass="bg-indigo-500 text-indigo-600"
-            />
-            <div className="md:col-span-2 mt-4 pt-6 border-t border-gray-200">
-              <h3 className="text-red-600 font-semibold mb-3">Vùng nguy hiểm</h3>
+          <div className="bg-white rounded-[16px] shadow-sm border border-slate-200 overflow-hidden mb-6">
+            <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+              <h3 className="font-semibold text-slate-800 text-sm">Hồ sơ & Bảo Mật</h3>
+            </div>
+            <div className="flex flex-col">
+              <SettingCard
+                to={isCompany ? "/dashboard/settings/company-profile" : "/dashboard/settings/user-profile"}
+                icon={Pen}
+                title={isCompany ? "Thông tin công ty" : "Thông tin hồ sơ"}
+                desc={isCompany ? "Cập nhật logo, địa chỉ và mô tả công ty" : "Cập nhật tên hiển thị, ảnh đại diện và thông tin cơ bản"}
+                colorClass="text-indigo-600"
+                borderClass="border-indigo-100 bg-indigo-50/50"
+              />
+              <SettingCard
+                to="/dashboard/settings/change-password"
+                icon={KeyRound}
+                title="Đổi mật khẩu"
+                desc="Bảo vệ tài khoản bằng việc thay đổi mật khẩu định kỳ"
+                colorClass="text-emerald-600"
+                borderClass="border-emerald-100 bg-emerald-50/50"
+              />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-[16px] shadow-sm border border-red-100 overflow-hidden">
+            <div className="px-5 py-4 border-b border-red-50 bg-red-50/30">
+              <h3 className="font-semibold text-red-600 text-sm">Vùng Nguy Hiểm</h3>
+            </div>
+            <div className="flex flex-col">
               <SettingCard
                 onClick={() => setIsDeleteDialogOpen(true)}
                 icon={UserRoundX}
                 title="Xóa tài khoản"
-                desc="Hành động này không thể hoàn tác. Mọi dữ liệu sẽ bị mất."
-                colorClass="bg-red-500 text-red-600"
+                desc="Xóa toàn bộ dữ liệu vĩnh viễn và không thể khôi phục"
+                colorClass="text-red-600"
+                borderClass="border-red-100 bg-red-50/50"
               />
             </div>
-            {/* <div 
-                onClick={() => setIsDeleteDialogOpen(true)} // Bấm vào thì mở Dialog
-                className="font-medium rounded-md cursor-pointer bg-gradient-to-tr from-indigo-200 to-indigo-100 text-gray-600 flex items-center justify-between gap-2 px-6 py-5 text-2xl hover:bg-red-50 hover:text-red-600 transition-colors"
-              >
-                <UserRoundX className='' size={30}/>
-                <span className="">Xóa tài khoản</span>
-              </div> */}
           </div>
         </div>
       </div>

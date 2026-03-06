@@ -1,9 +1,7 @@
-import { useEffect, useReducer, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useEffect, useReducer } from 'react'
 import { validate, validateEmail, validateEmpty, validatePassword } from '../../../../utils/validateForms';
 import { formReducer, handleFieldChange } from '../../../../utils/formUtils';
 import api from '../../../../utils/api';
-import axios from 'axios';
 export default function RegisterPage() {
 
     const initialState = {
@@ -76,81 +74,91 @@ export default function RegisterPage() {
             }
 
     useEffect(() => {
-        document.title = 'Đăng ký'
+        document.title = 'Cấp tài khoản công ty'
     }, [])
+
     return (
-        <>
-            <div className="py-[60px]">
-                <div className="container">
-                    <div className="mx-auto max-w-[602px] rounded-[8px] border border-[#DEDEDE] px-[20px] py-[50px]">
-                        <h1 className="mb-[20px] text-center text-[20px] font-bold text-black">
-                            Đăng ký 
-                        </h1>
-                        <form
-                            onSubmit={formSubmission}
-                            className="grid grid-cols-1 gap-x-[20px] gap-y-[15px]"
+        <div className="p-4 md:p-8 h-full bg-slate-50 min-h-screen flex flex-col items-center justify-start pt-12">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-200 overflow-hidden">
+                <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
+                    <h1 className="text-xl font-bold text-slate-900 text-center">
+                        Cấp Tài Khoản Công Ty
+                    </h1>
+                    <p className="text-sm text-slate-500 text-center mt-1">Tạo quyền truy cập hệ thống tuyển dụng cho đối tác mới</p>
+                </div>
+                <div className="p-8">
+                    <form
+                        onSubmit={formSubmission}
+                        className="flex flex-col gap-5"
+                    >
+                        <div>
+                            <label
+                                htmlFor="name"
+                                className="block mb-1.5 text-sm font-semibold text-slate-700 required"
+                            >
+                                Tên công ty
+                            </label>
+                            <input
+                                type="text"
+                                name="name"
+                                value={data.name}
+                                onChange={handleFieldChange(dispatch)}
+                                className="w-full h-11 rounded-lg border border-slate-200 bg-slate-50/50 px-4 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+                                placeholder="Nhập tên đối tác công ty..."
+                            />
+                            {error.name && <div className="text-red-500 text-xs font-medium mt-1.5">{error.name}</div>}
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="email"
+                                className="block mb-1.5 text-sm font-semibold text-slate-700 required"
+                            >
+                                Địa chỉ Email
+                            </label>
+                            <input
+                                type="text"
+                                name="email"
+                                value={data.email}
+                                onChange={handleFieldChange(dispatch)}
+                                className="w-full h-11 rounded-lg border border-slate-200 bg-slate-50/50 px-4 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+                                placeholder="name@company.com"
+                            />
+                            {error.email && <div className="text-red-500 text-xs font-medium mt-1.5">{error.email}</div>}
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="password"
+                                className="block mb-1.5 text-sm font-semibold text-slate-700 required"
+                            >
+                                Mật khẩu cấp phát
+                            </label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={data.password}
+                                onChange={handleFieldChange(dispatch)}
+                                className="w-full h-11 rounded-lg border border-slate-200 bg-slate-50/50 px-4 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
+                                placeholder="••••••••"
+                            />
+                            {error.password && <div className="text-red-500 text-xs font-medium mt-1.5">{error.password}</div>}
+                        </div>
+
+                        {status.reason && (
+                           <div className={`text-sm font-medium p-3 rounded-lg ${status.isError ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"}`}>
+                             {status.reason}
+                           </div>
+                        )}
+
+                        <button 
+                            type="submit" 
+                            disabled={isLoading} 
+                            className="mt-2 h-11 w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[15px] shadow-sm transition-colors disabled:opacity-70 flex justify-center items-center"
                         >
-                            <div className="">
-                                <label
-                                    htmlFor="name"
-                                    aria-required
-                                    className="mb-[5px] text-[14px] font-[500] text-black required"
-                                >
-                                    Tên công ty
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={data.name}
-                                    onChange={handleFieldChange(dispatch)}
-                                    className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
-                                />
-                                {error.name && <div className="text-red-400">{error.name}</div>}
-                            </div>
-                            <div className="">
-                                <label
-                                    htmlFor="email"
-                                    aria-required
-                                    className="mb-[5px] text-[14px] font-[500] text-black required"
-                                >
-                                    Email
-                                </label>
-                                <input
-                                    type="text"
-                                    name="email"
-                                    value={data.email}
-                                    onChange={handleFieldChange(dispatch)}
-                                    className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
-                                />
-                                {error.email && <div className="text-red-400">{error.email}</div>}
-                            </div>
-                            <div className="">
-                                <label
-                                    htmlFor="password"
-                                    aria-required
-                                    className="mb-[5px] text-[14px] font-[500] text-black required"
-                                >
-                                    Mật khẩu
-                                </label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    value={data.password}
-                                    onChange={handleFieldChange(dispatch)}
-                                    className="h-[46px] w-full rounded-[4px] border border-[#DEDEDE] px-[20px] text-[14px] font-[500] text-black"
-                                />
-                                {error.password && <div className="text-red-400">{error.password}</div>}
-                            </div>
-                            <div className="">
-                                <button type="submit" disabled={isLoading} className="h-[48px] w-full cursor-pointer rounded-[4px] bg-[#0088FF] px-[20px] text-[16px] font-bold text-white">
-                                    {isLoading ? "Đang xử lý..." : "Đăng ký"}
-                                </button>
-                                <div className={status.isError ? "text-red-400" : "text-green-400"}>{status.reason}</div>
-                            </div>
-                        </form>
-                    </div>
+                            {isLoading ? "Đang xử lý..." : "Xác nhận tạo tài khoản"}
+                        </button>
+                    </form>
                 </div>
             </div>
-        </>
+        </div>
     )
 }

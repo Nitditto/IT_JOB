@@ -1,10 +1,9 @@
 
 import {Link, useNavigate, useSearchParams} from "react-router"
-import { FaBriefcase, FaCircle, FaCircleCheck, FaCircleDot, FaCircleQuestion, FaCircleXmark, FaUserTie } from "react-icons/fa6"
+import { FaBriefcase, FaCircleCheck, FaCircleDot, FaCircleXmark, FaUserTie } from "react-icons/fa6"
 import { useEffect, useState } from "react"
 import { Pagination } from "../../../../components/pagination/Pagination"
 import api from "@/utils/api"
-import translation from "@/utils/translation"
 
 
 
@@ -26,11 +25,11 @@ export default function UserManageCVListPage() {
     setPage(parseInt(searchParams.get("page") ?? "1"));
   },[])
 
-    const renderStatusLabel = (status) => {
+    const renderStatusLabel = (status: string) => {
     switch(status) {
-        case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Duyệt</span>;
-        case "REJECTED": return <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold text-sm border border-red-200">Đã Từ Chối</span>;
-        default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Duyệt</span>;
+        case "APPROVED": return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium text-xs border border-emerald-200"><FaCircleCheck size={10} /> Đã Duyệt</span>;
+        case "REJECTED": return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-medium text-xs border border-red-200"><FaCircleXmark size={10} /> Từ Chối</span>;
+        default: return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-medium text-xs border border-amber-200"><FaCircleDot size={10} /> Chưa Duyệt</span>;
     }
   };
 
@@ -40,79 +39,82 @@ export default function UserManageCVListPage() {
     }
 
     try {
-      // Gọi API xóa (dùng axios instance có kèm token/cookie để backend check role)
       await api.delete(`/cv/${id}/delete`);
-
-      // Thông báo thành công
-      alert("Đã xóa thành công!"); // Hoặc dùng toast.success("Đã xóa!")
-
-      // Load lại danh sách để mất job vừa xóa
+      alert("Đã xóa thành công!"); 
       navigate("/");
-      
     } catch (error: any) {
       console.error(error);
       alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
     }
   }
+
   return (
     <>
-      <div className="py-[60px]">
-        <div className="container mx-auto px-[16px]">
-          <h2 className="font-[700] sm:text-[28px] text-[24px] sm:w-auto w-[100%] text-[#121212] mb-[20px]">
-            Quản lý CV đã gửi
-          </h2>
-
-          <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-[20px]">
-            {
-              cvList.slice((page-1)*6, page*6).map((data, index) => (
-<div 
-              key={index}
-              className="border border-[#DEDEDE] rounded-[8px] flex flex-col relative truncate"
-              style={{
-                background: "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)"
-              }}
-            >
-              <img 
-                src="/assets/images/card-bg.svg" 
-                alt="" 
-                className="absolute top-[0px] left-[0px] w-[100%] h-auto"
-              />
-              <h3 className="mt-[20px] mx-[16px] font-[700] text-[18px] text-[#121212] text-center flex-1 whitespace-normal line-clamp-2">
-                {data["jobName"]}
-              </h3>
-              <div className="mt-[12px] text-center font-[400] text-[14px] text-black">
-                Công ty: <span className="font-[700]">{data["companyName"]}</span>
-              </div>
-              <div className="mt-[6px] text-center font-[600] text-[16px] text-[#0088FF]">
-                {data["minSalary"].toLocaleString()}$ - {data["maxSalary"].toLocaleString()}$
-              </div>
-              <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
-                <FaUserTie className="text-[16px]" /> {data["position"]}
-              </div>
-              <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
-                <FaBriefcase className="text-[16px]" /> {data["workstyle"]}
-              </div>
-              <div className="mt-[6px] flex justify-center items-center gap-[8px] font-[400] text-[14px] text-[#121212]">
-                {
-                renderStatusLabel(data["status"])
-                }
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-[8px] mt-[12px] mb-[20px] mx-[10px]">
-                <Link to={`/job/${data["jobID"]}/mycv`} className="bg-[#0088FF] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px]">
-                  Xem
-                </Link>
-                <Link to="#" onClick={() => handleDeleteCV(data["jobID"])}className="bg-[#FF0000] rounded-[4px] font-[400] text-[14px] text-white inline-block py-[8px] px-[20px]">
-                  Xóa
-                </Link>
-              </div>
-            </div>
-              ))
-            }
-            
-      
+      <div className="p-4 md:p-8 h-full bg-slate-50 min-h-screen">
+        <div className="max-w-6xl mx-auto">
+          {/* Header Area */}
+          <div className="mb-8">
+            <h1 className="font-bold text-slate-900 text-2xl">Quản lý CV đã gửi</h1>
+            <p className="text-slate-500 text-sm mt-1">Theo dõi trạng thái các hồ sơ ứng tuyển của bạn tại đây.</p>
           </div>
 
-<Pagination list={cvList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
+          <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-5">
+            {
+              cvList.slice((page-1)*6, page*6).map((data: any, index: number) => (
+              <div 
+                key={index}
+                className="bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden hover:shadow-md hover:border-indigo-200 transition-all group relative"
+              >
+                  <div className="p-5 flex-1 flex flex-col">
+                    <div className="flex justify-between items-start mb-3">
+                      <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider bg-slate-100 px-2 py-1 rounded-md">
+                        {data.companyName}
+                      </span>
+                      {renderStatusLabel(data.status)}
+                    </div>
+                    
+                    <h3 className="font-bold text-lg text-slate-900 line-clamp-2 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">
+                      {data.jobName}
+                    </h3>
+
+                    <div className="font-semibold text-[15px] text-emerald-600 mb-4">
+                      {data.minSalary.toLocaleString()}$ - {data.maxSalary.toLocaleString()}$
+                    </div>
+
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 mt-auto">
+                        <div className="inline-flex items-center gap-1.5 text-sm text-slate-600">
+                          <FaUserTie className="text-slate-400" /> {data.position}
+                        </div>
+                        <div className="inline-flex items-center gap-1.5 text-sm text-slate-600">
+                           <FaBriefcase className="text-slate-400" /> {data.workstyle}
+                        </div>
+                    </div>
+                  </div>
+
+                  {/* Actions Bar */}
+                  <div className="border-t border-slate-100 p-3 bg-slate-50/50 flex items-center justify-end gap-2">
+                    <Link 
+                      to={`/job/${data.jobID}/mycv`} 
+                      className="text-sm font-medium px-4 py-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                    >
+                      Chi tiết CV
+                    </Link>
+                    <button 
+                      onClick={() => handleDeleteCV(data.jobID)}
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Xóa ứng tuyển"
+                    >
+                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                  </div>
+              </div>
+              ))
+            }
+          </div>
+
+          <div className="mt-8">
+             <Pagination list={cvList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
+          </div>
         </div>
       </div>
     </>

@@ -56,7 +56,7 @@ export default function DashboardLayout() {
     const isUser = role === "ROLE_USER";
     return isAuthenticated ? (
         <>
-            <div className="ml-0 flex flex-1 justify-center">
+            <div className="flex h-screen overflow-hidden bg-slate-50 w-full">
                 <Sidebar>
                     {(isAdmin ) && (
                         <SidebarItem
@@ -96,7 +96,7 @@ export default function DashboardLayout() {
                             />
                         </>
                     )}
-                    <hr className="my-3" />
+                    <hr className="my-3 border-slate-200" />
 
                     <SidebarItem
                         icon={<Settings size={20} />}
@@ -112,9 +112,11 @@ export default function DashboardLayout() {
                         }}
                     />
                 </Sidebar>
-                <div className="flex-2">
+                
+                {/* Main Content Area - Scolls Independently */}
+                <main className="flex-1 overflow-y-auto relative w-full h-full">
                     <Outlet />
-                </div>
+                </main>
             </div>
         </>
     ) : (
