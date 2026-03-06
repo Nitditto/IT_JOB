@@ -23,6 +23,8 @@ export default [
 
   route("/login", "./pages/login/page.tsx"),
   route("/register", "./pages/register/page.tsx"),
+  route("/company-register", "./pages/company-register/page.tsx"),
+  
   route("/dashboard", "./pages/dashboard/page.tsx", [
       {
       path: "list",
