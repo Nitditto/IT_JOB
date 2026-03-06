@@ -1,16 +1,8 @@
 import { useEffect, useState } from 'react' 
 import { IoMdSearch } from 'react-icons/io'
 import type { Location, Tag } from '../../types'
-import { Calendar as CalendarIcon, X, Funnel, Plus, Check } from 'lucide-react' 
-import { format } from 'date-fns'
-import type { DateRange } from 'react-day-picker' 
+import { Funnel, Plus, Check, MapPin } from 'lucide-react' 
 import { Button } from '../ui/button'
-import { Calendar } from '../ui/calendar' 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '../ui/popover'
 import {
   Dialog,
   DialogContent,
@@ -23,7 +15,6 @@ import { Badge } from '../ui/badge'
 import { Input } from '../ui/input'
 import { Checkbox } from '../ui/checkbox'
 import { ScrollArea } from '../ui/scroll-area'
-import { Fa0 } from 'react-icons/fa6'
 import type { JobFilterParams } from '../../types'
 import { useNavigate, useSearchParams } from 'react-router';
 
@@ -366,47 +357,65 @@ const SearchBar = ({
 
   return (
     <form
-      onSubmit={(e)=>{
+      onSubmit={(e) => {
         e.preventDefault();
         navigateToSearch();
       }}
-      className="flex flex-col gap-x-[15px] gap-y-[12px] mb-[30px] flex-wrap"
+      className="flex flex-col gap-y-[12px] mb-[30px] w-full max-w-5xl mx-auto"
     >
-      <div className="flex gap-x-[15px] gap-y-[12px] md:flex-nowrap flex-wrap">
-        <select
-          name="location"
-          value={location}
-          onChange={(e)=>setLocation(e.target.value)}
-          className="md:w-[240px] w-full h-[56px] rounded-[4px] bg-white font-[500] text-[16px] text-[#121212] px-[20px]"
-        >
-          <option value="">Tất cả thành phố</option>
-          {locations.map((obj) => (
-            <option key={obj.abbreviation} value={obj.abbreviation}>{obj.name}</option>
-          ))}
-        </select>
+      <div className="flex flex-col md:flex-row bg-white dark:bg-slate-800 rounded-[30px] p-2 shadow-lg border border-black/5 dark:border-white/10 relative z-20">
         
-        <div className="md:flex-1 w-full h-[56px] rounded-[4px] bg-white font-[500] flex justify-between items-center text-[16px] text-[#121212] px-[20px]">
+        {/* Location Dropdown - Left side of the pill */}
+        <div className="flex items-center sm:w-auto md:w-[260px] md:border-r border-slate-200 dark:border-slate-700 px-3 py-2 md:py-0">
+          <MapPin size={20} className="text-slate-400 mr-2 flex-shrink-0" />
+          <select
+            name="location"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full h-full bg-transparent font-medium text-[15px] text-slate-800 dark:text-slate-100 outline-none cursor-pointer appearance-none pr-8 relative"
+            style={{ 
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 0.5rem center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '1.5em 1.5em'
+            }}
+          >
+            <option value="" className="dark:bg-slate-800">Tất cả địa điểm</option>
+            {locations.map((obj) => (
+              <option key={obj.abbreviation} value={obj.abbreviation} className="dark:bg-slate-800">{obj.name}</option>
+            ))}
+          </select>
+        </div>
+        
+        {/* Keyword Search & Filter - Middle of the pill */}
+        <div className="flex-1 flex items-center px-4 py-2 md:py-0 border-t md:border-t-0 border-slate-200 dark:border-slate-700">
+          <IoMdSearch size={22} className="text-slate-400 mr-2 flex-shrink-0" />
           <input
             type="text"
-            className="w-full bg-transparent outline-none"
-            placeholder="Nhập từ khóa..."
+            className="w-full bg-transparent outline-none font-medium text-[15px] text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
+            placeholder="Tìm kiếm kỹ năng, chức danh, công ty..."
             name="query"
             value={query}
-            onChange={(e)=>setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
           />
-          {/* Nút bật/tắt tìm kiếm nâng cao */}
-          <Funnel 
-            className="cursor-pointer text-gray-400 hover:text-gray-600"
+          
+          <button 
+            type="button" 
             onClick={() => setIsFilterDialogOpen(true)}
-          />
+            className="flex items-center gap-2 px-3 py-1.5 ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-slate-500 dark:text-slate-300"
+          >
+            <Funnel size={18} />
+            <span className="hidden sm:inline-block text-sm font-medium">Lọc</span>
+          </button>
         </div>
 
+        {/* Search Button - Right side of the pill */}
         <button
           type="button"
-          onClick={()=>navigateToSearch()}
-          className="flex items-center justify-center gap-x-[10px] md:w-[240px] w-full h-[56px] rounded-[4px] bg-[#0088FF] font-[500] text-[16px] text-[#fff] px-[20px] cursor-pointer"
+          onClick={() => navigateToSearch()}
+          className="mt-2 md:mt-0 w-full md:w-auto min-w-[140px] h-[48px] rounded-[24px] bg-[#00b14f] hover:bg-[#00b14f]/90 transition-all font-bold text-[16px] text-white px-6 shadow-md hover:shadow-lg flex items-center justify-center cursor-pointer"
         >
-          <IoMdSearch className="text-[26px]" /> Tìm kiếm
+          Tìm kiếm
         </button>
       </div>
 
