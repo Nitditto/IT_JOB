@@ -1,4 +1,4 @@
-import React, { type ComponentPropsWithoutRef } from 'react'
+import React from 'react'
 import { NavLink, type NavLinkProps } from 'react-router'
 
 type HeaderItemProps = {
@@ -13,12 +13,12 @@ const HeaderItem = ({
 }: HeaderProps) => {
   return (
       <li
-        className="group-item flex items-center flex-wrap justify-between py-[10px] px-[16px] rounded-[4px] hover:bg-[#000096]"
+        className="group-item flex items-center flex-wrap justify-between rounded-[4px] mx-2"
       >
         <NavLink
           to={to}
           {...rest}
-          className="font-[600] text-[16px] text-white w-full"
+          className="font-[500] text-[15px] w-full py-[10px] px-[16px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground dark:text-white rounded-md"
         >
           {linkText}
         </NavLink>
