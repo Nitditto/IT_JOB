@@ -33,9 +33,38 @@ select,input,button,textarea{
   color: red;
 }
 
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-indigo-600), var(--color-violet-500));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient {
+  background: linear-gradient(135deg, var(--color-indigo-400), var(--color-violet-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 @layer base {
   :root {
-    --blue-sliderbar: #2A2A88;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    
+    --blue-sliderbar: #4f46e5; /* Indigo 600 */
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.205 0 0);
@@ -44,9 +73,21 @@ select,input,button,textarea{
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* Custom App Colors */
+    --primary: #4f46e5; /* Indigo 600 */
+    --primary-foreground: #ffffff;
+    --secondary: #8b5cf6; /* Violet 500 */
+    --secondary-foreground: #ffffff;
+    --accent: #f3f4f6;
+    --accent-foreground: #111827;
   }
 
   .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+
+    --blue-sliderbar: #818cf8; /* Indigo 400 */
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -55,5 +96,19 @@ select,input,button,textarea{
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.439 0 0);
+
+    /* Custom App Colors */
+    --primary: #818cf8; /* Indigo 400 */
+    --primary-foreground: #ffffff;
+    --secondary: #a78bfa; /* Violet 400 */
+    --secondary-foreground: #ffffff;
+    --accent: #1f2937;
+    --accent-foreground: #f9fafb;
   }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
