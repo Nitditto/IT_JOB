@@ -70,8 +70,9 @@ export const Header = () => {
                 <HeaderHoverItem toHref='/search' linkText='Tìm việc làm'>
                   <HeaderMenu>
                     <HeaderItem to='/search' linkText='Việc làm mới nhất' />
-                    <HeaderItem to='/search?tags=React' linkText='Việc làm ReactJS' />
-                    <HeaderItem to='/search?tags=Java' linkText='Việc làm Java' />
+                    {tagList.slice(0, 4).sort((a: any, b: any) => b.jobCount - a.jobCount).map((value: any, index) => (
+                      <HeaderItem key={index} to={`/search?tags=${value["tag"]}`} linkText={`Việc làm ${value["tag"]}`} />
+                    ))}
                     <HeaderItem to='/search?location=HN' linkText='Việc làm tại Hà Nội' />
                     <HeaderItem to='/search?location=SG' linkText='Việc làm tại Hồ Chí Minh' />
                   </HeaderMenu>
@@ -79,16 +80,17 @@ export const Header = () => {
 
                 <HeaderHoverItem toHref='#' linkText='Hồ sơ & CV'>
                   <HeaderMenu>
-                    <HeaderItem to='#' linkText='Tạo CV mới' />
-                    <HeaderItem to='#' linkText='Quản lý CV' />
-                    <HeaderItem to='#' linkText='Hướng dẫn viết CV' />
+                    <HeaderItem to='/dashboard/cv' linkText='Quản lý CV' />
+                    <HeaderItem to='/dashboard/settings/user-profile' linkText='Cập nhật hồ sơ' />
                   </HeaderMenu>
                 </HeaderHoverItem>
 
                 <HeaderHoverItem toHref='#' linkText='Công ty'>
                   <HeaderMenu>
-                    <HeaderItem to='#' linkText='Danh sách công ty' />
-                    <HeaderItem to='#' linkText='Top công ty IT' />
+                    <HeaderItem to='/search' linkText='Danh sách công ty' />
+                    {topCompanies.map((value: any, index) => (
+                      <HeaderItem key={index} to={`/search?companyID=${value.id}`} linkText={value.name} />
+                    ))}
                   </HeaderMenu>
                 </HeaderHoverItem>
               </nav>
@@ -110,6 +112,11 @@ export const Header = () => {
                       <>
                         <HeaderItem to={`/company/${user.id}`} linkText="Thông tin công ty" />
                         <HeaderItem to='/dashboard/company/job' linkText="Quản lý công việc" />
+                      </>
+                    ) : user.role == "ROLE_ADMIN" ? (
+                      <>
+                        <HeaderItem to={`/dashboard`} linkText="Admin Dashboard" />
+                        <HeaderItem to={`/dashboard/admin/register`} linkText="Cấp tài khoản công ty" />
                       </>
                     ) : (
                       <>

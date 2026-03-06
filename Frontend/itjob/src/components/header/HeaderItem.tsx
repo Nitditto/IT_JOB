@@ -18,7 +18,7 @@ const HeaderItem = ({
         <NavLink
           to={to}
           {...rest}
-          className="font-[500] text-[15px] w-full py-[10px] px-[16px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground dark:text-white rounded-md"
+          className="font-[500] text-[15px] block w-full py-[10px] px-[16px] hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-foreground dark:text-white rounded-md cursor-pointer"
         >
           {linkText}
         </NavLink>
