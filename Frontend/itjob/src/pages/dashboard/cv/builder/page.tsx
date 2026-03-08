@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaDownload, FaMagic, FaPalette, FaFont, FaChevronLeft, FaSave, FaCheck, FaExclamationCircle } from "react-icons/fa";
+import { FaDownload, FaMagic, FaPalette, FaFont, FaChevronLeft, FaSave, FaCheck, FaExclamationCircle, FaSpinner } from "react-icons/fa";
 import { Link } from "react-router";
 import { suggestCVField } from "../../../../utils/gemini";
 
@@ -41,25 +41,110 @@ export default function CVBuilderPage() {
     const [cvData, setCvData] = useState(INITIAL_CV_DATA);
     const [design, setDesign] = useState(INITIAL_DESIGN);
     const [activeTab, setActiveTab] = useState("content"); // content, design
-    const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    const handleAISuggest = async (field: 'summary' | 'exp' | 'skill', text: string) => {
+    // Per-field AI suggestion state
+    const [aiSuggestions, setAiSuggestions] = useState<Record<string, string | null>>({});
+    const [loadingField, setLoadingField] = useState<string | null>(null);
+
+    const handleAISuggest = async (field: 'summary' | 'exp' | 'skill', text: string, fieldKey?: string) => {
+        const key = fieldKey || field;
         if (!text || text.trim() === '') {
-            setAiSuggestion("Vui lòng nhập một ít nội dung vào ô text để AI có thể gợi ý!");
+            setAiSuggestions(prev => ({ ...prev, [key]: "Vui lòng nhập một ít nội dung vào ô text để AI có thể gợi ý!" }));
             return;
         }
 
-        setIsAnalyzing(true);
+        setLoadingField(key);
         try {
             const suggestion = await suggestCVField(field, text);
-            setAiSuggestion(suggestion);
+            setAiSuggestions(prev => ({ ...prev, [key]: suggestion }));
         } catch (error: any) {
             console.error("Lỗi AI Suggest:", error);
-            setAiSuggestion("Lỗi kết nối bộ AI: " + (error.message || "Vui lòng xem lại API Key."));
+            setAiSuggestions(prev => ({ ...prev, [key]: "Lỗi kết nối bộ AI: " + (error.message || "Vui lòng xem lại API Key.") }));
         } finally {
-            setIsAnalyzing(false);
+            setLoadingField(null);
         }
+    };
+
+    const handleApplySuggestion = (fieldKey: string) => {
+        const suggestion = aiSuggestions[fieldKey];
+        if (!suggestion) return;
+
+        if (fieldKey === 'summary') {
+            setCvData(prev => ({ ...prev, summary: suggestion }));
+        } else if (fieldKey.startsWith('exp_')) {
+            const idx = parseInt(fieldKey.replace('exp_', ''));
+            setCvData(prev => ({
+                ...prev,
+                experiences: prev.experiences.map((exp, i) =>
+                    i === idx ? { ...exp, description: suggestion } : exp
+                )
+            }));
+        } else if (fieldKey === 'skill') {
+            // Parse the AI suggestion into skill items (split by comma, newline, or bullet points)
+            const newSkills = suggestion
+                .split(/[,\n•\-]+/)
+                .map(s => s.trim())
+                .filter(s => s.length > 0 && s.length < 50);
+            if (newSkills.length > 0) {
+                setCvData(prev => ({ ...prev, skills: newSkills }));
+            }
+        }
+
+        // Clear the suggestion after applying
+        setAiSuggestions(prev => ({ ...prev, [fieldKey]: null }));
+    };
+
+    const dismissSuggestion = (fieldKey: string) => {
+        setAiSuggestions(prev => ({ ...prev, [fieldKey]: null }));
+    };
+
+    const renderSuggestionBox = (fieldKey: string) => {
+        const suggestion = aiSuggestions[fieldKey];
+        if (!suggestion) return null;
+
+        return (
+            <div className="mb-3 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                <div className="flex items-start gap-3">
+                    <div className="text-indigo-500 mt-0.5"><FaExclamationCircle /></div>
+                    <div className="flex-1 text-sm text-indigo-900 leading-relaxed whitespace-pre-wrap">{suggestion}</div>
+                    <button onClick={() => dismissSuggestion(fieldKey)} className="text-indigo-400 hover:text-indigo-700 flex-shrink-0">×</button>
+                </div>
+                <div className="flex gap-2 mt-3 ml-7">
+                    <button
+                        onClick={() => handleApplySuggestion(fieldKey)}
+                        className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 transition-colors flex items-center gap-1"
+                    >
+                        <FaCheck size={10} /> Áp dụng gợi ý
+                    </button>
+                    <button
+                        onClick={() => dismissSuggestion(fieldKey)}
+                        className="px-3 py-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-medium rounded-md hover:bg-slate-50 transition-colors"
+                    >
+                        Bỏ qua
+                    </button>
+                </div>
+            </div>
+        );
+    };
+
+    const renderAIButton = (field: 'summary' | 'exp' | 'skill', text: string, fieldKey?: string, label?: string) => {
+        const key = fieldKey || field;
+        const isLoading = loadingField === key;
+
+        return (
+            <button
+                onClick={() => handleAISuggest(field, text, fieldKey)}
+                disabled={isLoading}
+                className={`text-xs font-medium text-pink-600 bg-pink-50 px-2 py-1 rounded-md flex items-center gap-1 hover:bg-pink-100 transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+                {isLoading ? (
+                    <FaSpinner size={10} className="animate-spin" />
+                ) : (
+                    <FaMagic size={10} />
+                )}
+                {label || 'AI Gợi ý'}
+            </button>
+        );
     };
 
     return (
@@ -132,18 +217,10 @@ export default function CVBuilderPage() {
                             <section>
                                 <div className="flex justify-between items-end mb-2 border-b border-slate-200 pb-2">
                                     <h2 className="text-lg font-bold text-slate-800">Giới thiệu bản thân</h2>
-                                    <button onClick={() => handleAISuggest('summary', cvData.summary)} className="text-xs font-medium text-pink-600 bg-pink-50 px-2 py-1 rounded-md flex items-center gap-1 hover:bg-pink-100 transition-colors">
-                                        <FaMagic size={10} /> AI Gợi ý
-                                    </button>
+                                    {renderAIButton('summary', cvData.summary)}
                                 </div>
 
-                                {aiSuggestion && (
-                                    <div className="mb-3 p-3 bg-indigo-50 border border-indigo-100 rounded-lg flex items-start gap-3">
-                                        <div className="text-indigo-500 mt-0.5"><FaExclamationCircle /></div>
-                                        <div className="text-sm text-indigo-900 leading-relaxed pr-6">{aiSuggestion}</div>
-                                        <button onClick={() => setAiSuggestion(null)} className="ml-auto text-indigo-400 hover:text-indigo-700">×</button>
-                                    </div>
-                                )}
+                                {renderSuggestionBox('summary')}
 
                                 <textarea
                                     value={cvData.summary}
@@ -163,29 +240,97 @@ export default function CVBuilderPage() {
                                 </div>
 
                                 {cvData.experiences.map((exp, idx) => (
-                                    <div key={idx} className="p-4 border border-slate-200 rounded-xl bg-slate-50 relative group">
+                                    <div key={idx} className="p-4 border border-slate-200 rounded-xl bg-slate-50 relative group mb-4">
                                         <button className="absolute top-2 right-2 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">×</button>
                                         <div className="grid grid-cols-2 gap-3 mb-3">
                                             <div>
                                                 <label className="block text-xs font-semibold text-slate-500 mb-1">Công ty</label>
-                                                <input type="text" value={exp.company} className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm bg-white" readOnly />
+                                                <input
+                                                    type="text"
+                                                    value={exp.company}
+                                                    onChange={e => {
+                                                        const newExps = [...cvData.experiences];
+                                                        newExps[idx] = { ...newExps[idx], company: e.target.value };
+                                                        setCvData({ ...cvData, experiences: newExps });
+                                                    }}
+                                                    className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm bg-white"
+                                                />
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-semibold text-slate-500 mb-1">Vị trí</label>
-                                                <input type="text" value={exp.position} className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm bg-white" readOnly />
+                                                <input
+                                                    type="text"
+                                                    value={exp.position}
+                                                    onChange={e => {
+                                                        const newExps = [...cvData.experiences];
+                                                        newExps[idx] = { ...newExps[idx], position: e.target.value };
+                                                        setCvData({ ...cvData, experiences: newExps });
+                                                    }}
+                                                    className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm bg-white"
+                                                />
                                             </div>
                                         </div>
                                         <div>
                                             <div className="flex justify-between mb-1">
                                                 <label className="block text-xs font-semibold text-slate-500">Mô tả công việc</label>
-                                                <button onClick={() => handleAISuggest('exp', exp.description)} className="text-[10px] font-medium text-pink-600 flex items-center gap-1 hover:underline">
-                                                    <FaMagic size={8} /> Gợi ý viết chuẩn
-                                                </button>
+                                                {renderAIButton('exp', exp.description, `exp_${idx}`, 'Gợi ý viết chuẩn')}
                                             </div>
-                                            <textarea value={exp.description} rows={3} className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm bg-white" readOnly />
+                                            {renderSuggestionBox(`exp_${idx}`)}
+                                            <textarea
+                                                value={exp.description}
+                                                onChange={e => {
+                                                    const newExps = [...cvData.experiences];
+                                                    newExps[idx] = { ...newExps[idx], description: e.target.value };
+                                                    setCvData({ ...cvData, experiences: newExps });
+                                                }}
+                                                rows={3}
+                                                className="w-full border border-slate-300 rounded-md px-2 py-1.5 text-sm bg-white"
+                                            />
                                         </div>
                                     </div>
                                 ))}
+                            </section>
+
+                            {/* Section: Skills */}
+                            <section>
+                                <div className="flex justify-between items-end mb-2 border-b border-slate-200 pb-2">
+                                    <h2 className="text-lg font-bold text-slate-800">Kỹ năng</h2>
+                                    {renderAIButton('skill', cvData.skills.join(', '), 'skill', 'AI Phân loại')}
+                                </div>
+
+                                {renderSuggestionBox('skill')}
+
+                                <div className="flex flex-wrap gap-2 mb-3">
+                                    {cvData.skills.map((skill, idx) => (
+                                        <div key={idx} className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-lg px-3 py-1.5">
+                                            <input
+                                                type="text"
+                                                value={skill}
+                                                onChange={e => {
+                                                    const newSkills = [...cvData.skills];
+                                                    newSkills[idx] = e.target.value;
+                                                    setCvData({ ...cvData, skills: newSkills });
+                                                }}
+                                                className="bg-transparent text-sm text-slate-700 font-medium border-none outline-none w-24"
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    const newSkills = cvData.skills.filter((_, i) => i !== idx);
+                                                    setCvData({ ...cvData, skills: newSkills });
+                                                }}
+                                                className="text-slate-400 hover:text-red-500 text-xs"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        onClick={() => setCvData({ ...cvData, skills: [...cvData.skills, ''] })}
+                                        className="px-3 py-1.5 border-2 border-dashed border-slate-300 rounded-lg text-sm text-slate-500 hover:border-indigo-400 hover:text-indigo-600 transition-colors"
+                                    >
+                                        + Thêm
+                                    </button>
+                                </div>
                             </section>
                         </div>
                     )}

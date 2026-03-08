@@ -27,6 +27,10 @@ export default [
 
   route("/dashboard", "./pages/dashboard/page.tsx", [
     {
+      path: "home",
+      file: "./pages/dashboard/home/page.tsx"
+    },
+    {
       path: "list",
       file: "./pages/dashboard/list/page.tsx"
     },

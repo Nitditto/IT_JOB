@@ -66,6 +66,60 @@ export const fileToGenerativePart = async (file: File): Promise<{ inlineData: { 
     });
 }
 
+export interface ChatMessage {
+    role: 'user' | 'model';
+    parts: [{ text: string }];
+}
+
+const CHATBOT_SYSTEM_PROMPT = `Bạn là "IT.JOB AI" — trợ lý tư vấn nghề nghiệp IT thông minh trên nền tảng IT.JOB.
+Nhiệm vụ của bạn:
+- Tư vấn nghề nghiệp IT (lộ trình, xu hướng, kỹ năng cần học)
+- Gợi ý viết CV, chuẩn bị phỏng vấn
+- Thông tin mức lương IT theo thị trường Việt Nam
+- Hướng dẫn sử dụng các tính năng trên IT.JOB (tìm việc, tạo CV, đánh giá CV bằng AI)
+- Giải đáp thắc mắc về công nghệ, framework, ngôn ngữ lập trình
+
+Quy tắc:
+1. Luôn trả lời bằng tiếng Việt, thân thiện và chuyên nghiệp
+2. Câu trả lời ngắn gọn, dễ hiểu, có cấu trúc rõ ràng
+3. Nếu không liên quan đến IT/công nghệ/tuyển dụng, hãy lịch sự từ chối và gợi ý quay lại chủ đề
+4. Sử dụng emoji phù hợp để tạo sự thân thiện
+5. Khi nói về lương, luôn nói rõ đơn vị (VNĐ) và khoảng (range)`;
+
+export const chatWithAI = async (
+    userMessage: string,
+    history: ChatMessage[]
+): Promise<string> => {
+    if (!API_KEY) {
+        throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
+    }
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        const chat = model.startChat({
+            history: [
+                {
+                    role: 'user',
+                    parts: [{ text: CHATBOT_SYSTEM_PROMPT }],
+                },
+                {
+                    role: 'model',
+                    parts: [{ text: 'Xin chào! 👋 Tôi là IT.JOB AI, trợ lý tư vấn nghề nghiệp IT của bạn. Tôi sẵn sàng hỗ trợ bạn!' }],
+                },
+                ...history,
+            ],
+        });
+
+        const result = await chat.sendMessage(userMessage);
+        const response = await result.response;
+        return response.text();
+    } catch (error) {
+        console.error("Lỗi khi gọi Gemini Chat API:", error);
+        throw error;
+    }
+};
+
 export const evaluateCVPDF = async (file: File): Promise<any> => {
     if (!API_KEY) {
         throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
@@ -101,6 +155,61 @@ Chỉ trả về JSON.
         return JSON.parse(textStr);
     } catch (error) {
         console.error("Lỗi khi đánh giá PDF:", error);
+        throw error;
+    }
+};
+
+export interface DashboardInsightContext {
+    role: 'ROLE_USER' | 'ROLE_COMPANY' | 'ROLE_ADMIN';
+    userName?: string;
+    jobCount?: number;
+    companyCount?: number;
+    cvCount?: number;
+    topTags?: string[];
+    userProfile?: {
+        lookingfor?: string | null;
+        status?: string | null;
+    };
+}
+
+export const generateDashboardInsight = async (context: DashboardInsightContext): Promise<string> => {
+    if (!API_KEY) {
+        throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
+    }
+
+    const rolePrompts: Record<string, string> = {
+        'ROLE_USER': `Bạn là tư vấn viên nghề nghiệp IT. Dựa trên dữ liệu nền tảng:
+- Có ${context.jobCount} việc làm IT đang tuyển
+- Các công nghệ hot nhất: ${context.topTags?.join(', ')}
+- Người dùng đã nộp ${context.cvCount} CV
+${context.userProfile?.lookingfor ? `- Người dùng đang tìm kiếm: ${context.userProfile.lookingfor}` : ''}
+${context.userProfile?.status ? `- Trạng thái: ${context.userProfile.status}` : ''}
+
+Hãy đưa ra 3 lời khuyên ngắn gọn (mỗi ý 1-2 câu) giúp người dùng tối ưu hóa cơ hội tìm việc IT. Sử dụng emoji. Trả lời bằng tiếng Việt.`,
+
+        'ROLE_COMPANY': `Bạn là chuyên gia tư vấn tuyển dụng IT. Dựa trên dữ liệu nền tảng:
+- Hiện có ${context.jobCount} việc làm đang tuyển trên nền tảng
+- Có ${context.companyCount} công ty đang hoạt động
+- Các công nghệ được quan tâm nhất: ${context.topTags?.join(', ')}
+
+Hãy đưa ra 3 lời khuyên ngắn gọn (mỗi ý 1-2 câu) giúp công ty tuyển dụng IT hiệu quả hơn. Sử dụng emoji. Trả lời bằng tiếng Việt.`,
+
+        'ROLE_ADMIN': `Bạn là chuyên gia phân tích nền tảng tuyển dụng IT. Dựa trên dữ liệu:
+- Tổng việc làm: ${context.jobCount}
+- Tổng công ty: ${context.companyCount}
+- Công nghệ trending: ${context.topTags?.join(', ')}
+
+Hãy đưa ra 3 nhận xét ngắn gọn (mỗi ý 1-2 câu) về tình hình nền tảng và gợi ý phát triển. Sử dụng emoji. Trả lời bằng tiếng Việt.`
+    };
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const prompt = rolePrompts[context.role] || rolePrompts['ROLE_USER'];
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
+    } catch (error) {
+        console.error("Lỗi khi tạo Dashboard Insight:", error);
         throw error;
     }
 };
