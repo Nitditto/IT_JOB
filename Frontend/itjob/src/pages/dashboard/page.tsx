@@ -11,6 +11,7 @@ import {
     Settings,
     BarChart3,
     LogOut,
+    Home,
 } from 'lucide-react'
 import Sidebar from '../../components/side_bar/Sidebar'
 import { SidebarItem } from '../../components/side_bar/SidebarItem'
@@ -58,7 +59,12 @@ export default function DashboardLayout() {
         <>
             <div className="flex h-screen overflow-hidden bg-slate-50 w-full">
                 <Sidebar>
-                    {(isAdmin ) && (
+                    <SidebarItem
+                        icon={<Home size={20} />}
+                        text="Tổng quan"
+                        to="/dashboard/home"
+                    />
+                    {(isAdmin) && (
                         <SidebarItem
                             icon={<LayoutDashboard size={20} />}
                             text="Dashboard"
@@ -112,7 +118,7 @@ export default function DashboardLayout() {
                         }}
                     />
                 </Sidebar>
-                
+
                 {/* Main Content Area - Scolls Independently */}
                 <main className="flex-1 overflow-y-auto relative w-full h-full">
                     <Outlet />

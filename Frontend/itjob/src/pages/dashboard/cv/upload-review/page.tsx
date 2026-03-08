@@ -1,28 +1,60 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { FaCloudUploadAlt, FaFilePdf, FaCheckCircle, FaExclamationTriangle, FaMagic } from "react-icons/fa";
 import { Link } from "react-router";
 import { evaluateCVPDF } from "../../../../utils/gemini";
+
+function getScoreLabel(score: number): { label: string; color: string } {
+    if (score >= 81) return { label: "Xuất sắc", color: "text-emerald-600" };
+    if (score >= 61) return { label: "Khá tốt", color: "text-blue-600" };
+    if (score >= 41) return { label: "Trung bình", color: "text-amber-600" };
+    return { label: "Cần cải thiện nhiều", color: "text-red-600" };
+}
 
 export default function CVUploadReviewPage() {
     const [file, setFile] = useState<File | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<any>(null);
+    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const selectedFile = e.target.files[0];
-            if (selectedFile.type === 'application/pdf') {
-                setFile(selectedFile);
-                // Reset state
-                setAnalysisResult(null);
-            } else {
-                alert("Vui lòng tải lên file PDF");
-            }
+            handleFileSelect(e.target.files[0]);
         }
     };
 
-    //...
+    const handleFileSelect = (selectedFile: File) => {
+        if (selectedFile.type === 'application/pdf') {
+            setFile(selectedFile);
+            setAnalysisResult(null);
+        } else {
+            alert("Vui lòng tải lên file PDF");
+        }
+    };
+
+    const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            handleFileSelect(e.dataTransfer.files[0]);
+            e.dataTransfer.clearData();
+        }
+    }, []);
+
     const startAnalysis = async () => {
         if (!file) return;
         setIsAnalyzing(true);
@@ -39,6 +71,8 @@ export default function CVUploadReviewPage() {
         }
     };
 
+    const scoreInfo = analysisResult ? getScoreLabel(analysisResult.score) : null;
+
     return (
         <div className="p-4 md:p-8 h-full bg-slate-50 min-h-screen">
             <div className="max-w-6xl mx-auto">
@@ -54,11 +88,18 @@ export default function CVUploadReviewPage() {
                 </div>
 
                 {!analysisResult && !isAnalyzing && (
-                    <div className="bg-white p-10 border-2 border-dashed border-indigo-200 rounded-3xl flex flex-col items-center justify-center text-center shadow-sm">
-                        <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-6">
+                    <div
+                        className={`bg-white p-10 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-center shadow-sm transition-colors duration-200 ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-indigo-200'}`}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                    >
+                        <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-colors ${isDragging ? 'bg-indigo-100 text-indigo-600' : 'bg-indigo-50 text-indigo-500'}`}>
                             <FaCloudUploadAlt size={40} />
                         </div>
-                        <h2 className="text-xl font-bold text-slate-800 mb-2">Giữ & Kéo thả file PDF vào đây</h2>
+                        <h2 className="text-xl font-bold text-slate-800 mb-2">
+                            {isDragging ? 'Thả file vào đây!' : 'Giữ & Kéo thả file PDF vào đây'}
+                        </h2>
                         <p className="text-slate-500 mb-8 max-w-md">Hoạt động tốt nhất với file PDF xuất ra tĩnh (có text selectable). Kích thước tối đa: 5MB.</p>
 
                         <input
@@ -125,7 +166,17 @@ export default function CVUploadReviewPage() {
                                     <span className="text-6xl font-black text-indigo-600">{analysisResult.score}</span>
                                     <span className="text-xl text-slate-400 font-bold mb-2">/ 100</span>
                                 </div>
-                                <p className="text-sm text-slate-600 px-4">CV của bạn ở mức <strong className="text-emerald-600">Khá tốt</strong>. Tuy nhiên vẫn cần cải thiện vài điểm nội dung để lọt mắt xanh nhà tuyển dụng.</p>
+                                <p className="text-sm text-slate-600 px-4">
+                                    CV của bạn ở mức <strong className={scoreInfo?.color}>{scoreInfo?.label}</strong>.
+                                    {analysisResult.score >= 81
+                                        ? ' Rất tốt! CV của bạn đã khá ấn tượng và chuyên nghiệp.'
+                                        : analysisResult.score >= 61
+                                            ? ' Tuy nhiên vẫn cần cải thiện vài điểm nội dung để lọt mắt xanh nhà tuyển dụng.'
+                                            : analysisResult.score >= 41
+                                                ? ' Hãy xem xét các gợi ý bên dưới để cải thiện CV tốt hơn.'
+                                                : ' CV cần được chỉnh sửa đáng kể. Tham khảo gợi ý bên dưới hoặc thử lại với CV Builder.'
+                                    }
+                                </p>
                             </div>
 
                             {/* Analysis Details */}
