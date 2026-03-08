@@ -43,8 +43,6 @@ export function Layout({ children } : { children: React.ReactNode }) {
                     <main className="flex-1">
                         {children}
                     </main>
-                    <Footer />
-                    
                     {/* Back to Top Button */}
                     <AnimatePresence>
                         {showBackToTop && (
