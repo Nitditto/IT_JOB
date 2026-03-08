@@ -65,7 +65,7 @@ export const Header = () => {
                 {/* Optional: Modify logo coloring if needed or keep existing SVG */}
                 <img src="/assets/images/logo.svg" alt="IT.JOB Logo" className="h-8" />
               </Link>
-              
+
               <nav className="hidden lg:flex items-center gap-x-2">
                 <HeaderHoverItem toHref='/search' linkText='Tìm việc làm'>
                   <HeaderMenu>
@@ -80,6 +80,7 @@ export const Header = () => {
 
                 <HeaderHoverItem toHref='#' linkText='Hồ sơ & CV'>
                   <HeaderMenu>
+                    <HeaderItem to='/dashboard/cv/templates' linkText='Mẫu CV' />
                     <HeaderItem to='/dashboard/cv' linkText='Quản lý CV' />
                     <HeaderItem to='/dashboard/settings/user-profile' linkText='Cập nhật hồ sơ' />
                   </HeaderMenu>
