@@ -3,181 +3,118 @@ import { Link, useNavigate } from 'react-router'
 import { validateEmpty, validatePassword, validate, validateEmail } from '../../utils/validateForms';
 import axios from 'axios';
 import { formReducer, handleFieldChange } from '../../utils/formUtils';
+import { motion } from 'framer-motion';
+import { Building2, Mail, Lock, Briefcase, ArrowRight } from 'lucide-react';
 
 export default function CompanyRegisterPage() {
     const initialState = {
-        data: {
-            name: "",
-            email: "",
-            password: ""
-        },
-        error: {
-            name: "",
-            email: "",
-            password: ""
-        },
+        data: { name: "", email: "", password: "" },
+        error: { name: "", email: "", password: "" },
         isLoading: false,
-        status: {
-            isError: false,
-            reason: ""
-        }
+        status: { isError: false, reason: "" }
     }
     const [state, dispatch] = useReducer(formReducer(initialState), initialState)
-    const {data, error, isLoading, status} = state;
+    const { data, error, isLoading, status } = state;
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const navigate = useNavigate();
 
     const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        let emailChecker = validate(data.email, [validateEmpty("Vui lòng nhập email công ty!"), validateEmail]);
+        let passwordChecker = validate(data.password, [validateEmpty("Vui lòng nhập mật khẩu!"), validatePassword]);
+        let nameChecker = validate(data.name, [validateEmpty("Vui lòng nhập tên công ty!")]);
 
-        let emailChecker = validate(
-            data.email, 
-            [
-                validateEmpty("Vui lòng nhập email công ty!"), 
-                validateEmail
-            ]
-        );
-        let passwordChecker = validate(
-            data.password,
-            [
-                validateEmpty("Vui lòng nhập mật khẩu!"),
-                validatePassword
-            ]
-        )
-        let nameChecker = validate(
-            data.name,
-            [
-                validateEmpty("Vui lòng nhập tên công ty!")
-            ]
-        )
-        
         if (!emailChecker.status || !passwordChecker.status || !nameChecker.status) {
-            // Dispatch error
-            dispatch({
-                type: "VALIDATE_FAILURE",
-                payload: {
-                    email: emailChecker.reason,
-                    password: passwordChecker.reason,
-                    name: nameChecker.reason
-                }
-            });
+            dispatch({ type: "VALIDATE_FAILURE", payload: { email: emailChecker.reason, password: passwordChecker.reason, name: nameChecker.reason } });
             return;
         }
-
-        // If there's no error, buffering load and call API
-        dispatch({type: "SUBMIT_START"});
+        dispatch({ type: "SUBMIT_START" });
         try {
-            await axios.post(`${BACKEND_URL}/auth/register`, {
-                ...data,
-                role: "ROLE_COMPANY"
-            })
-            dispatch({type: "SUBMIT_SUCCESS", payload: "Đăng ký tài khoản Nhà Tuyển Dụng thành công!"})
-            setTimeout(() => {
-                navigate('/login')
-            }, 1000);
+            await axios.post(`${BACKEND_URL}/auth/register`, { ...data, role: "ROLE_COMPANY" })
+            dispatch({ type: "SUBMIT_SUCCESS", payload: "Đăng ký tài khoản Nhà Tuyển Dụng thành công!" })
+            setTimeout(() => { navigate('/login') }, 1000);
         } catch (error: any) {
-            dispatch({
-                type: "SUBMIT_FAILURE", 
-                payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!"})
+            dispatch({ type: "SUBMIT_FAILURE", payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!" })
         }
     }
 
-    useEffect(() => {
-        document.title = 'Đăng ký Nhà Tuyển Dụng'
-    }, [])
+    useEffect(() => { document.title = 'Đăng ký Nhà Tuyển Dụng' }, [])
 
     return (
-        <div className="py-[60px] bg-slate-50 min-h-[calc(100vh-100px)]">
-            <div className="container">
-                <div className="mx-auto max-w-[602px] rounded-[16px] bg-white shadow-xl px-[40px] py-[50px]">
-                    <div className="text-center mb-[40px]">
-                        <h1 className="text-[28px] font-bold text-slate-900 mb-2">
-                            Đăng ký Nhà Tuyển Dụng
-                        </h1>
-                        <p className="text-slate-500">
-                            Tìm kiếm những ứng viên tài năng nhất cho doanh nghiệp của bạn
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-slate-50 dark:bg-slate-950 py-12 px-4">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="w-full max-w-md"
+            >
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+                    {/* Header */}
+                    <div className="px-8 pt-8 pb-6 text-center"
+                        style={{ background: 'linear-gradient(135deg, rgba(67,56,202,0.05) 0%, rgba(109,40,217,0.05) 100%)' }}
+                    >
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+                            <Building2 size={26} className="text-white" />
+                        </div>
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">Đăng ký Nhà Tuyển Dụng</h1>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Tìm kiếm ứng viên tài năng cho doanh nghiệp
                         </p>
                     </div>
-                    
-                    <form
-                        onSubmit={formSubmission}
-                        className="grid grid-cols-1 gap-y-[20px]"
-                    >
-                        <div>
-                            <label
-                                htmlFor="name"
-                                className="mb-[8px] block text-[15px] font-[600] text-slate-700 required"
-                            >
-                                Tên công ty đại diện
-                            </label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={data.name}
-                                onChange={handleFieldChange(dispatch)}
-                                className="h-[50px] w-full rounded-[8px] border border-slate-300 px-[20px] text-[15px] text-slate-900 focus:outline-none focus:border-[#00b14f] focus:ring-1 focus:ring-[#00b14f] transition-all"
-                                placeholder="Nhập tên nhà tuyển dụng..."
-                            />
-                            {error.name && <div className="text-red-500 text-[13px] mt-1">{error.name}</div>}
-                        </div>
-                        
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="mb-[8px] block text-[15px] font-[600] text-slate-700 required"
-                            >
-                                Email công việc
-                            </label>
-                            <input
-                                type="text"
-                                name="email"
-                                value={data.email}
-                                onChange={handleFieldChange(dispatch)}
-                                className="h-[50px] w-full rounded-[8px] border border-slate-300 px-[20px] text-[15px] text-slate-900 focus:outline-none focus:border-[#00b14f] focus:ring-1 focus:ring-[#00b14f] transition-all"
-                                placeholder="Email liên hệ tuyển dụng..."
-                            />
-                            {error.email && <div className="text-red-500 text-[13px] mt-1">{error.email}</div>}
-                        </div>
-                        
-                        <div>
-                            <label
-                                htmlFor="password"
-                                className="mb-[8px] block text-[15px] font-[600] text-slate-700 required"
-                            >
-                                Mật khẩu
-                            </label>
-                            <input
-                                type="password"
-                                name="password"
-                                value={data.password}
-                                onChange={handleFieldChange(dispatch)}
-                                className="h-[50px] w-full rounded-[8px] border border-slate-300 px-[20px] text-[15px] text-slate-900 focus:outline-none focus:border-[#00b14f] focus:ring-1 focus:ring-[#00b14f] transition-all"
-                                placeholder="Tạo mật khẩu an toàn..."
-                            />
-                            {error.password && <div className="text-red-500 text-[13px] mt-1">{error.password}</div>}
-                        </div>
-                        
-                        <div className="mt-4">
-                            <button type="submit" disabled={isLoading} className="h-[52px] w-full cursor-pointer rounded-[8px] bg-[#00b14f] hover:bg-[#00b14f]/90 transition-colors disabled:bg-slate-300 px-[20px] text-[16px] font-bold text-white shadow-md">
-                                {isLoading ? "Đang xử lý..." : "Hoàn tất đăng ký"}
-                            </button>
-                            <div className={`mt-3 text-center text-[14px] ${status.isError ? "text-red-500" : "text-[#00b14f] font-medium"}`}>
-                                {status.reason}
+
+                    {/* Form */}
+                    <div className="px-8 pb-8 pt-2">
+                        <form onSubmit={formSubmission} className="space-y-5">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 required">Tên công ty</label>
+                                <div className="relative">
+                                    <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input type="text" name="name" value={data.name} onChange={handleFieldChange(dispatch)}
+                                        placeholder="Nhập tên nhà tuyển dụng..."
+                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                </div>
+                                {error.name && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.name}</div>}
                             </div>
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 required">Email công việc</label>
+                                <div className="relative">
+                                    <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input type="text" name="email" value={data.email} onChange={handleFieldChange(dispatch)}
+                                        placeholder="Email liên hệ tuyển dụng..."
+                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                </div>
+                                {error.email && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.email}</div>}
+                            </div>
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5 required">Mật khẩu</label>
+                                <div className="relative">
+                                    <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input type="password" name="password" value={data.password} onChange={handleFieldChange(dispatch)}
+                                        placeholder="Tạo mật khẩu an toàn..."
+                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                </div>
+                                {error.password && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.password}</div>}
+                            </div>
+
+                            <button type="submit" disabled={isLoading}
+                                className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold text-sm transition-all shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] flex items-center justify-center gap-2">
+                                {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Hoàn tất đăng ký <ArrowRight size={16} /></>}
+                            </button>
+
+                            {status.reason && (
+                                <div className={`text-sm text-center py-2 px-3 rounded-lg font-medium ${status.isError ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400' : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'}`}>
+                                    {status.reason}
+                                </div>
+                            )}
+                        </form>
+
+                        <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center text-sm">
+                            <span className="text-slate-500 dark:text-slate-400">Đã có tài khoản? </span>
+                            <Link to="/login" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Đăng nhập ngay</Link>
                         </div>
-                        
-                        <div className="flex items-center justify-center gap-2 mt-2 pt-6 border-t border-slate-100">
-                            <p className="text-slate-600">Đã có tài khoản nhà tuyển dụng?</p>
-                            <Link
-                                to={`/login`}
-                                className="cursor-pointer text-[15px] font-bold text-[#00b14f] hover:underline"
-                            >
-                                Đăng nhập ngay
-                            </Link>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </motion.div>
         </div>
     )
 }

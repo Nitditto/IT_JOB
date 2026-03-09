@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { generateDashboardInsight, type DashboardInsightContext } from "../../../utils/gemini";
+import { ProfileCompleteness } from "../../../components/dashboard/ProfileCompleteness";
 import axios from "axios";
 import api from "../../../utils/api";
 import { Link } from "react-router";
@@ -284,6 +285,13 @@ export default function DashboardHomePage() {
                             )}
                         </div>
                     </motion.div>
+
+                    {/* Profile Completeness — for users */}
+                    {isUser && (
+                        <motion.div variants={itemVariants}>
+                            <ProfileCompleteness />
+                        </motion.div>
+                    )}
                 </div>
             </motion.div>
         </div>

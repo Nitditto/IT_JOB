@@ -31,6 +31,10 @@ export default [
       file: "./pages/dashboard/home/page.tsx"
     },
     {
+      path: "saved-jobs",
+      file: "./pages/dashboard/saved-jobs/page.tsx"
+    },
+    {
       path: "list",
       file: "./pages/dashboard/list/page.tsx"
     },
