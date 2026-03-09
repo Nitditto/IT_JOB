@@ -5,7 +5,7 @@ import HeaderHoverItem from './HeaderHoverItem';
 import HeaderItem from './HeaderItem';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import { Moon, Sun, Menu, X, ChevronDown, User, LogOut, Settings, Briefcase, FileText, Building2, Shield } from 'lucide-react';
+import { Moon, Sun, Menu, X, User, Settings, Briefcase, FileText, Building2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export const Header = () => {
@@ -66,8 +66,8 @@ export const Header = () => {
   return (
     <>
       <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled
-          ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-slate-200/80 dark:border-slate-800/80 shadow-sm'
-          : 'bg-white/60 dark:bg-slate-950/60 backdrop-blur-md border-transparent'
+        ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-slate-200/80 dark:border-slate-800/80 shadow-sm'
+        : 'bg-white/60 dark:bg-slate-950/60 backdrop-blur-md border-transparent'
         }`}>
         <div className="container">
           <div className="flex justify-between items-center h-16">

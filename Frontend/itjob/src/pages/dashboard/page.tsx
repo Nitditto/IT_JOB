@@ -1,17 +1,16 @@
-import { Link, Navigate, Outlet } from 'react-router'
+import { Navigate, Outlet } from 'react-router'
 import { useEffect } from 'react'
 import {
     LifeBuoy,
-    Receipt,
     Boxes,
     Package,
     UserCircle,
-    BarChart,
     LayoutDashboard,
     Settings,
     BarChart3,
     LogOut,
     Home,
+    Heart,
 } from 'lucide-react'
 import Sidebar from '../../components/side_bar/Sidebar'
 import { SidebarItem } from '../../components/side_bar/SidebarItem'
@@ -80,11 +79,18 @@ export default function DashboardLayout() {
                         />
                     )}
                     {(isUser) && (
-                        <SidebarItem
-                            icon={<UserCircle size={20} />}
-                            text="Xem CV đã nộp"
-                            to="/dashboard/cv" // (Có thể bạn cần sửa link này cho User)
-                        />
+                        <>
+                            <SidebarItem
+                                icon={<UserCircle size={20} />}
+                                text="Xem CV đã nộp"
+                                to="/dashboard/cv"
+                            />
+                            <SidebarItem
+                                icon={<Heart size={20} />}
+                                text="Việc đã lưu"
+                                to="/dashboard/saved-jobs"
+                            />
+                        </>
                     )}
                     {isAdmin && (
                         <>

@@ -1,8 +1,8 @@
-const translation = {
+const translation: Record<string, string> = {
   remote: "Làm từ xa",
-  onsite:"Tại văn phòng",
+  onsite: "Tại văn phòng",
   hybrid: "Linh hoạt",
-  intern: "Intern", 
+  intern: "Intern",
   fresher: "Fresher",
   junior: "Junior",
   middle: "Middle",

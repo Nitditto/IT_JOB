@@ -213,3 +213,242 @@ Hãy đưa ra 3 nhận xét ngắn gọn (mỗi ý 1-2 câu) về tình hình n�
         throw error;
     }
 };
+
+// ===== AI JOB MATCH SCORE =====
+export interface JobMatchResult {
+    score: number;
+    matchingSkills: string[];
+    missingSkills: string[];
+    advice: string[];
+}
+
+export const analyzeJobMatch = async (
+    userSkills: string[],
+    userPosition: string,
+    jobTitle: string,
+    jobTags: string[],
+    jobPosition: string,
+    jobWorkstyle: string
+): Promise<JobMatchResult> => {
+    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
+
+    const prompt = `Bạn là chuyên gia tuyển dụng IT. Hãy phân tích mức độ phù hợp giữa ứng viên và công việc.
+
+Thông tin ứng viên:
+- Kỹ năng: ${userSkills.length > 0 ? userSkills.join(', ') : 'Chưa cập nhật'}
+- Vị trí hiện tại: ${userPosition || 'Chưa cập nhật'}
+
+Thông tin công việc:
+- Tên công việc: ${jobTitle}
+- Yêu cầu kỹ năng: ${jobTags.join(', ')}
+- Cấp bậc: ${jobPosition}
+- Hình thức: ${jobWorkstyle}
+
+Trả về JSON hợp lệ (không markdown wrap):
+{
+  "score": <số 0-100>,
+  "matchingSkills": ["kỹ năng trùng khớp"],
+  "missingSkills": ["kỹ năng thiếu"],
+  "advice": ["lời khuyên 1", "lời khuyên 2", "lời khuyên 3"]
+}
+Chỉ trả về JSON, viết bằng tiếng Việt.`;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Lỗi AI Job Match:", error);
+        throw error;
+    }
+};
+
+// ===== AI INTERVIEW PREP =====
+export const generateInterviewQuestions = async (
+    jobTitle: string,
+    jobTags: string[],
+    jobPosition: string,
+    companyName: string
+): Promise<string> => {
+    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
+
+    const prompt = `Bạn là chuyên gia phỏng vấn IT senior. Hãy tạo bộ câu hỏi phỏng vấn cho vị trí sau:
+
+- Công việc: ${jobTitle}
+- Công ty: ${companyName}
+- Cấp bậc: ${jobPosition}
+- Công nghệ: ${jobTags.join(', ')}
+
+Hãy tạo 10 câu hỏi phỏng vấn chia theo 3 nhóm:
+1. **Câu hỏi kỹ thuật** (5 câu) — liên quan trực tiếp đến ${jobTags.join(', ')}
+2. **Câu hỏi tình huống** (3 câu) — xử lý tình huống thực tế
+3. **Câu hỏi hành vi** (2 câu) — về kinh nghiệm và teamwork
+
+Mỗi câu hỏi kèm gợi ý trả lời ngắn (1-2 câu). Sử dụng emoji. Trả lời bằng tiếng Việt.`;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        return result.response.text();
+    } catch (error) {
+        console.error("Lỗi AI Interview Prep:", error);
+        throw error;
+    }
+};
+
+// ===== AI SMART SEARCH SUGGESTIONS =====
+export const getSmartSearchSuggestions = async (
+    naturalQuery: string,
+    availableTags: string[]
+): Promise<string[]> => {
+    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
+
+    const prompt = `Bạn là trợ lý tìm việc IT thông minh. Người dùng nhập: "${naturalQuery}"
+
+Danh sách công nghệ có trên nền tảng: ${availableTags.join(', ')}
+
+Hãy gợi ý 4-5 từ khóa tìm kiếm liên quan, dựa trên ngữ cảnh IT Việt Nam.
+Trả về JSON array các string, ví dụ: ["React Developer", "Frontend", "JavaScript"]
+Chỉ trả về JSON array, không giải thích.`;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Lỗi AI Smart Search:", error);
+        return [];
+    }
+};
+
+// ===== AI MARKET COMPANIES =====
+export interface MarketCompany {
+    name: string;
+    industry: string;
+    techStack: string[];
+    employees: string;
+    hiringStatus: string;
+    website: string;
+    description: string;
+}
+
+export const fetchMarketCompanies = async (): Promise<MarketCompany[]> => {
+    // Check sessionStorage cache first
+    const cached = sessionStorage.getItem('market_companies');
+    if (cached) {
+        try { return JSON.parse(cached); } catch { /* ignore */ }
+    }
+
+    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
+
+    const prompt = `Bạn là chuyên gia thị trường IT Việt Nam. Hãy liệt kê 12 công ty công nghệ hàng đầu tại Việt Nam đang tuyển dụng nhiều nhất.
+
+Bao gồm cả công ty Việt Nam (FPT, VNG, Zalo, Tiki, MoMo, Momo, VNPay, Sendo...) và công ty quốc tế có văn phòng tại VN (Samsung, Bosch, Axon, NashTech, KMS, TMA...).
+
+Trả về JSON array (không markdown wrap), mỗi object có:
+{
+  "name": "Tên công ty",
+  "industry": "Lĩnh vực (vd: Fintech, E-commerce, AI, Cloud...)",
+  "techStack": ["React", "Java", "Python"],
+  "employees": "1000-5000",
+  "hiringStatus": "Đang tuyển 50+ vị trí" hoặc "Đang tuyển mạnh",
+  "website": "https://...",
+  "description": "Mô tả ngắn 1 câu"
+}
+Chỉ trả về JSON array.`;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        const companies = JSON.parse(text);
+        sessionStorage.setItem('market_companies', JSON.stringify(companies));
+        return companies;
+    } catch (error) {
+        console.error("Lỗi fetch market companies:", error);
+        return [];
+    }
+};
+
+// ===== AI SALARY INSIGHTS =====
+export interface SalaryInsight {
+    position: string;
+    techStack: string;
+    minSalary: number;
+    maxSalary: number;
+    avgSalary: number;
+    demand: string;
+}
+
+export const generateSalaryInsights = async (): Promise<SalaryInsight[]> => {
+    const cached = sessionStorage.getItem('salary_insights');
+    if (cached) {
+        try { return JSON.parse(cached); } catch { /* ignore */ }
+    }
+
+    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
+
+    const prompt = `Bạn là chuyên gia lương IT Việt Nam. Hãy cung cấp dữ liệu lương cho 8 vị trí IT phổ biến nhất.
+
+Trả về JSON array (không markdown wrap), mỗi object:
+{
+  "position": "Frontend Developer",
+  "techStack": "React, TypeScript",
+  "minSalary": 500,
+  "maxSalary": 3000,
+  "avgSalary": 1500,
+  "demand": "Rất cao"
+}
+Salary là USD/tháng. Bao gồm: Frontend, Backend, Fullstack, DevOps, Data Engineer, Mobile, QA/Tester, AI/ML.
+Chỉ trả về JSON array.`;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        const data = JSON.parse(text);
+        sessionStorage.setItem('salary_insights', JSON.stringify(data));
+        return data;
+    } catch (error) {
+        console.error("Lỗi AI Salary Insights:", error);
+        return [];
+    }
+};
+
+// ===== AI JOB RECOMMENDATIONS =====
+export const getJobRecommendations = async (
+    userSkills: string,
+    userLocation: string,
+    jobs: Array<{ id: number; name: string; tags: string[]; position: string; minSalary: number; maxSalary: number; company: string }>
+): Promise<Array<{ jobId: number; reason: string }>> => {
+    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
+
+    const jobList = jobs.slice(0, 20).map(j =>
+        `ID:${j.id} | ${j.name} | ${j.tags.join(',')} | ${j.position} | ${j.minSalary}-${j.maxSalary}$ | ${j.company}`
+    ).join('\n');
+
+    const prompt = `Bạn là AI tuyển dụng. Hãy chọn 4 công việc phù hợp nhất cho ứng viên.
+
+Ứng viên:
+- Kỹ năng/mong muốn: ${userSkills || 'Chưa cập nhật'}
+- Khu vực: ${userLocation || 'Cả nước'}
+
+Danh sách việc:
+${jobList}
+
+Trả về JSON array (không markdown wrap):
+[{"jobId": 123, "reason": "Lý do ngắn gọn bằng tiếng Việt"}]
+Chỉ trả về JSON array.`;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Lỗi AI Job Recommendations:", error);
+        return [];
+    }
+};
