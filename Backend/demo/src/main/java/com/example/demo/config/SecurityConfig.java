@@ -88,6 +88,10 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 
             )
+            .csrf((csrf) -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 
+            )
             .authorizeHttpRequests(auth -> auth
                 // Cho phép public endpoints
                 .requestMatchers(
@@ -99,7 +103,7 @@ public class SecurityConfig {
                     "/location", 
                     "/job/count", 
                     "/job/tags",
-                    "/job/get/*",
+                    "/job/get/",
                     "/user/",
                     "/company/*").permitAll()
                 // Yêu cầu auth cho các endpoint còn lại
@@ -109,12 +113,7 @@ public class SecurityConfig {
             // Nếu dùng JWT
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            // QUAN TRỌNG: Thiết lập session stateless vì dùng API và token
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // Gắn provider xác thực đã tạo ở trên
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            );
 
         return http.build();
     }
