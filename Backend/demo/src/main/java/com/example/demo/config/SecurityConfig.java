@@ -52,9 +52,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -82,15 +82,13 @@ public class SecurityConfig {
     // ---------------------------------------------
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf((csrf) -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 
-            )
+            // Tắt CSRF nếu dùng REST API (stateless)
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Cho phép các endpoint này không cần xác thực
+                // Cho phép public endpoints
                 .requestMatchers(
                     "/", 
                     "/csrf", 
@@ -100,18 +98,19 @@ public class SecurityConfig {
                     "/location", 
                     "/job/count", 
                     "/job/tags",
-                    "/job/get/*",
-                    "/user/*",
-                    "/company/*"
-                    ).permitAll()
-                // Yêu cầu xác thực cho các endpoint còn lại
+                    "/job/get/",
+                    "/user/",
+                    "/company/*").permitAll()
+                // Yêu cầu auth cho các endpoint còn lại
                 .anyRequest().authenticated()
             )
-            // QUAN TRỌNG: Thiết lập session stateless vì dùng API và token
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // Gắn provider xác thực đã tạo ở trên
-            .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            // Thêm JwtAuthenticationFilter trước UsernamePasswordAuthenticationFilter
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            // Nếu dùng JWT
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
+
         return http.build();
     }
 

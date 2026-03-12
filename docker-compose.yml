@@ -38,7 +38,11 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - 3306:3306
-
+  cloudflared-frontend:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://frontend:5173
+    depends_on:
+      - frontend
 volumes:
   db_data:
     driver: local

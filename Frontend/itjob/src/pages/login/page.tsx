@@ -5,6 +5,7 @@ import axios from 'axios';
 import { formReducer, handleFieldChange } from '../../utils/formUtils';
 import { motion } from 'framer-motion';
 import { User, Building2, Mail, Lock, ArrowRight } from 'lucide-react';
+import api from '@/utils/api';
 
 export default function LoginPage() {
     const initialState = {
@@ -53,7 +54,7 @@ export default function LoginPage() {
         dispatch({ type: "SUBMIT_START" });
 
         try {
-            let response = await axios.post(`${BACKEND_URL}/auth/login`, {
+            let response = await api.post(`${BACKEND_URL}/auth/login`, {
                 ...data
             })
             const { token } = response.data;
