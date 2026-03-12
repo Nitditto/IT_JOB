@@ -103,17 +103,23 @@ public class SecurityConfig {
                     "/location", 
                     "/job/count", 
                     "/job/tags",
-                    "/job/get/",
+                    "/job/get/*",
                     "/user/",
                     "/company/*").permitAll()
                 // Yêu cầu auth cho các endpoint còn lại
                 .anyRequest().authenticated()
             )
 
+
             // Nếu dùng JWT
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
+            )
+            // QUAN TRỌNG: Thiết lập session stateless vì dùng API và token
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Gắn provider xác thực đã tạo ở trên
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
