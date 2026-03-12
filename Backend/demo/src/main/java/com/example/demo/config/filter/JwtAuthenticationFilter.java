@@ -47,29 +47,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3. Trích xuất token từ header (bỏ "Bearer ")
         jwt = authHeader.substring(7);
 
-        // 4. Giải mã token để lấy email (subject)
-        userEmail = jwtServices.extractUsername(jwt);
+        try {
+            // 4. Giải mã token để lấy email (subject)
+            userEmail = jwtServices.extractUsername(jwt);
 
-        // 5. Kiểm tra email có tồn tại và user chưa được xác thực trong SecurityContext
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Tải thông tin UserDetails từ database
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            // 5. Kiểm tra email có tồn tại và user chưa được xác thực trong SecurityContext
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // Tải thông tin UserDetails từ database
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            // 6. Kiểm tra xem token có hợp lệ không
-            if (jwtServices.isTokenValid(jwt, userDetails)) {
-                // Nếu hợp lệ, tạo đối tượng xác thực
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null, // credentials, không cần thiết vì đã xác thực bằng token
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                // 6. Kiểm tra xem token có hợp lệ không
+                if (jwtServices.isTokenValid(jwt, userDetails)) {
+                    // Nếu hợp lệ, tạo đối tượng xác thực
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null, // credentials, không cần thiết vì đã xác thực bằng token
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
 
-                // 7. Cập nhật SecurityContextHolder
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // 7. Cập nhật SecurityContextHolder
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            // Log error or ignoring it so that unauthenticated access continues
+            System.err.println("JWT Parse error: " + e.getMessage());
         }
         
         // Chuyển request và response cho filter tiếp theo trong chuỗi

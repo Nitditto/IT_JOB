@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Tạo một instance Axios với cấu hình chung
 const api = axios.create({
-  baseURL: 'http://localhost:8080', // URL backend của bạn
+  baseURL: '/api', // URL backend của bạn
   withCredentials: true, // Nếu bạn dùng cookie
   withXSRFToken: true,
   xsrfCookieName: "XSRF-TOKEN",

@@ -74,14 +74,14 @@ export const Header = () => {
             {/* Left: Logo + Nav */}
             <div className="flex items-center gap-x-8">
               <Link to="/" className="flex items-center gap-2 group">
-                <img src="/assets/images/logo.svg" alt="IT.JOB Logo" className="h-8 group-hover:opacity-80 transition-opacity" />
+                <img src="/assets/images/logo_sidebar.svg" alt="IT.JOB Logo" className="h-8 group-hover:opacity-80 transition-opacity" />
               </Link>
 
               <nav className="hidden lg:flex items-center gap-x-1">
                 <HeaderHoverItem toHref='/search' linkText='Tìm việc làm'>
                   <HeaderMenu>
                     <HeaderItem to='/search' linkText='Việc làm mới nhất' />
-                    {tagList.slice(0, 4).sort((a: any, b: any) => b.jobCount - a.jobCount).map((value: any, index) => (
+                    {Array.isArray(tagList) && tagList.slice(0, 4).sort((a: any, b: any) => b.jobCount - a.jobCount).map((value: any, index) => (
                       <HeaderItem key={index} to={`/search?tags=${value["tag"]}`} linkText={`Việc làm ${value["tag"]}`} />
                     ))}
                     <HeaderItem to='/search?location=HN' linkText='Việc làm tại Hà Nội' />
@@ -101,7 +101,7 @@ export const Header = () => {
                 <HeaderHoverItem toHref='#' linkText='Công ty'>
                   <HeaderMenu>
                     <HeaderItem to='/search' linkText='Danh sách công ty' />
-                    {topCompanies.map((value: any, index) => (
+                    {Array.isArray(topCompanies) && topCompanies.map((value: any, index) => (
                       <HeaderItem key={index} to={`/search?companyID=${value.id}`} linkText={value.name} />
                     ))}
                   </HeaderMenu>
@@ -111,14 +111,6 @@ export const Header = () => {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-x-2">
-              {/* Theme Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-foreground dark:text-white"
-                aria-label="Toggle Theme"
-              >
-                {isDark ? <Sun size={18} /> : <Moon size={18} />}
-              </button>
 
               {isAuthenticated && !!user ? (
                 /* Logged In — User Menu */

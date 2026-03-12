@@ -54,7 +54,7 @@ export default function LoginPage() {
         dispatch({ type: "SUBMIT_START" });
 
         try {
-            let response = await api.post(`${BACKEND_URL}/auth/login`, {
+            let response = await axios.post(`${BACKEND_URL}/auth/login`, {
                 ...data
             })
             const { token } = response.data;
