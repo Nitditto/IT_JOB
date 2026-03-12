@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext"
 interface SidebarProps {
   children: ReactNode
 }
-export default function Sidebar({ children }:SidebarProps) {
+export default function Sidebar({ children }: SidebarProps) {
   const [expanded, setExpanded] = useState(true)
   const [activeItem, setActiveItem] = useState("Dashboard")
   const { user } = useAuth();
@@ -17,17 +17,16 @@ export default function Sidebar({ children }:SidebarProps) {
         <div className="flex-1 overflow-y-auto no-scrollbar">
           <div className="p-4 pb-4 flex justify-between items-center sticky top-0 bg-white z-10">
             <img
-              src="/assets/images/logo.svg"
-              className={`overflow-hidden transition-all duration-300 ${
-                expanded ? "w-28" : "w-0 opacity-0"
-              }`}
+              src="/assets/images/logo_sidebar.svg"
+              className={`overflow-hidden transition-all duration-300 ${expanded ? "w-28" : "w-0 opacity-0"
+                }`}
               alt="Logo"
             />
             <button
               onClick={() => setExpanded((curr) => !curr)}
               className="p-1.5 rounded-lg bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
             >
-              {expanded ? <ChevronFirst size={20} /> : <ChevronLast size={20} />}
+              {expanded ? <ChevronFirst size={25} /> : <ChevronLast size={25} />}
             </button>
           </div>
 
@@ -42,19 +41,19 @@ export default function Sidebar({ children }:SidebarProps) {
             alt="User Avatar"
             className="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-sm flex-shrink-0"
           />
-          
+
           <div
             className={`
               flex justify-between items-center ml-3
-              overflow-hidden transition-all duration-300 ease-in-out ${expanded ? "w-full opacity-100" : "w-0 opacity-0"}
+              transition-all duration-300 ease-in-out ${expanded ? "w-full opacity-100" : "w-0 opacity-0 hidden"}
           `}
           >
             <div className="flex flex-col min-w-0 pr-2">
               <h4 className="font-semibold text-sm text-slate-800 truncate" title={user?.name}>
-                  {user?.name || "Guest User"}
+                {user?.name || "Guest User"}
               </h4>
               <span className="text-xs text-slate-500 truncate" title={user?.email}>
-                  {user?.email || "guest@itjob.com"}
+                {user?.email || "guest@itjob.com"}
               </span>
             </div>
           </div>

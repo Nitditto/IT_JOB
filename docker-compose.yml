@@ -10,6 +10,7 @@ services:
       - /frontend/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
+      - PROXY_TARGET=http://backend:8080
   backend:
     build:
       context: .

@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("CSRF token received");
 
         // Make a request to a backend endpoint that verifies the session
-        const response = await api.get(`${BACKEND_URL}/auth/me`); // A "who am I" endpoint
+        const response = await api.get(`/auth/me`); // A "who am I" endpoint
         setUser(response.data);
         console.log('User session verified.');
       } catch (error) {

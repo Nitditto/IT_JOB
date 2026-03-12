@@ -21,7 +21,13 @@ export default defineConfig({
     allowedHosts: true,
     watch: {
       usePolling: true,
-
     },
+    proxy: {
+      '/api': {
+        target: process.env.PROXY_TARGET || 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })

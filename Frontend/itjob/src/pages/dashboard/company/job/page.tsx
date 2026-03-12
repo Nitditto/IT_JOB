@@ -58,9 +58,9 @@ export default function CompanyJobList() {
   // 3. Search Filter State
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredJobs = jobList.filter((job: any) => 
+  const filteredJobs = Array.isArray(jobList) ? jobList.filter((job: any) => 
     job.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) : [];
 
   return (
     <>
