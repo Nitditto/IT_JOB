@@ -5,12 +5,13 @@ import java.util.Objects;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 @Embeddable
-@NoArgsConstructor @AllArgsConstructor @Getter @Setter
-public class CVId {
+@Data
+@NoArgsConstructor      // ← constructor không tham số (Hibernate cần)
+@AllArgsConstructor     // ← constructor có tham số (CVId(Long, Long))
+public class CVId implements Serializable {
     private Long accountID;
     private Long jobID;
 }
