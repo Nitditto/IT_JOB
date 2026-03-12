@@ -52,7 +52,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://*.trycloudflare.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -85,8 +85,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // Tắt CSRF nếu dùng REST API (stateless)
-            .csrf(csrf -> csrf.disable())
+            .csrf((csrf) -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 
+            )
             .authorizeHttpRequests(auth -> auth
                 // Cho phép public endpoints
                 .requestMatchers(
@@ -98,18 +100,22 @@ public class SecurityConfig {
                     "/location", 
                     "/job/count", 
                     "/job/tags",
-                    "/job/get/",
-                    "/user/",
+                    "/job/get/*",
+                    "/user/*",
                     "/company/*").permitAll()
                 // Yêu cầu auth cho các endpoint còn lại
                 .anyRequest().authenticated()
             )
-            // Thêm JwtAuthenticationFilter trước UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
             // Nếu dùng JWT
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            );
+            )
+                        // QUAN TRỌNG: Thiết lập session stateless vì dùng API và token
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Gắn provider xác thực đã tạo ở trên
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
