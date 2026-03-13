@@ -473,69 +473,94 @@ export default function CVBuilderPage() {
                             </section>
                             
                             {/* Section: Profile Summary */}
+                            {/* Section: Education */}
                             <section>
-                                <div className="cols-span-2">
-                                    <label className="mb-4 flex items-end justify-between border-b border-slate-200 pb-2">
+                                <div className="mb-4 flex items-end justify-between border-b border-slate-200 pb-2">
+                                    <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wide">
                                         Học Vấn
-                                        
-                                    </label>
+                                    </h2>
                                     <button
-                                            onClick={() =>
-                                                setCvData({
+                                        onClick={() =>
+                                            setCvData({
                                                 ...cvData,
                                                 education: [
                                                     ...cvData.education,
                                                     {
-                                                    school: "",
-                                                    degree: "",
-                                                    duration: ""
+                                                        school: "",
+                                                        degree: "",
+                                                        duration: ""
                                                     }
                                                 ]
-                                                })
-                                            }
-                                            className="right-0.5 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100"
-                                        >
+                                            })
+                                        }
+                                        className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100 transition-colors"
+                                    >
                                         + Thêm học vấn
                                     </button>
-                                    {cvData.education.map((edu, idx) => (
-                                        <div key={idx} className="mb-4 grid rounded-lg grid-cols-2 gap-3 bg-slate-50 p-4">
-                                            <input
-                                            type="text"
-                                            value={edu.school}
-                                            onChange={(e) => {
-                                                const newEdu = [...cvData.education];
-                                                newEdu[idx].school = e.target.value;
-                                                setCvData({...cvData, education: newEdu});
-                                            }}
-                                            className='border border-slate-300 rounded px-3 py-2 text-sm'
-                                            />
-                                            <input 
-                                                type="text"
-                                                value={edu.degree}
-                                                onChange={(e) => {
-                                                    const newEdu = [...cvData.education];
-                                                    newEdu[idx].degree = e.target.value;
-                                                    setCvData({...cvData, education: newEdu});
-                                                }}
-                                                className="border border-slate-300 rounded px-3 py-2 text-sm"
-                                            />
-                                            <input
-                                                type="text"
-                                                value={edu.duration}
-                                                onChange={(e) => {
-                                                    const newEdu = [...cvData.education];
-                                                    newEdu[idx].duration = e.target.value;
-                                                    setCvData({...cvData, education: newEdu});
-                                                }}
-                                                className='border border-slate-400 rounded px-3 py-2 text-sm'
-                                            />
-                                        </div>
-                                    
-                                    ))}
-
                                 </div>
+                                {cvData.education.map((edu, idx) => (
+                                    <div key={idx} className="group relative mb-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                        <button 
+                                            onClick={() => {
+                                                const newEdu = cvData.education.filter((_, i) => i !== idx);
+                                                setCvData({ ...cvData, education: newEdu });
+                                            }}
+                                            className="absolute top-2 right-2 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
+                                        >
+                                            ×
+                                        </button>
+                                        <div className="grid grid-cols-2 gap-3 mb-3">
+                                            <div className="col-span-2">
+                                                <label className="mb-1 block text-xs font-semibold text-slate-500">Trường / Trung tâm</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Tên trường học..."
+                                                    value={edu.school}
+                                                    onChange={(e) => {
+                                                        const newEdu = [...cvData.education];
+                                                        newEdu[idx] = { ...newEdu[idx], school: e.target.value };
+                                                        setCvData({ ...cvData, education: newEdu });
+                                                    }}
+                                                    className='w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none'
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-semibold text-slate-500">Bằng cấp / Ngành học</label>
+                                                <input 
+                                                    type="text"
+                                                    placeholder="Ví dụ: Cử nhân CNTT"
+                                                    value={edu.degree}
+                                                    onChange={(e) => {
+                                                        const newEdu = [...cvData.education];
+                                                        newEdu[idx] = { ...newEdu[idx], degree: e.target.value };
+                                                        setCvData({ ...cvData, education: newEdu });
+                                                    }}
+                                                    className="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="mb-1 block text-xs font-semibold text-slate-500">Thời gian</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="2018 - 2022"
+                                                    value={edu.duration}
+                                                    onChange={(e) => {
+                                                        const newEdu = [...cvData.education];
+                                                        newEdu[idx] = { ...newEdu[idx], duration: e.target.value };
+                                                        setCvData({ ...cvData, education: newEdu });
+                                                    }}
+                                                    className='w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none'
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </section>
+
+                            {/* Section: Profile Summary */}
+                            <section>
                                 <div className="mb-2 flex items-end justify-between border-b border-slate-200 pb-2">
-                                    <h2 className="text-lg font-bold text-slate-800">
+                                    <h2 className="text-lg font-bold text-slate-800 uppercase tracking-wide">
                                         Giới thiệu bản thân
                                     </h2>
                                     {renderAIButton('summary', cvData.summary)}
