@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
     FaDownload,
     FaMagic,
@@ -9,9 +9,13 @@ import {
     FaCheck,
     FaExclamationCircle,
     FaSpinner,
+    FaUndo,
 } from 'react-icons/fa'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { suggestCVField } from '@/utils/gemini'
+import { toPng } from 'html-to-image'
+import jsPDF from 'jspdf'
+import CVPreview from '@/components/cv/CVPreview'
 
 // Mock CV Data
 const INITIAL_CV_DATA = {
@@ -50,9 +54,128 @@ const INITIAL_DESIGN = {
 }
 
 export default function CVBuilderPage() {
+    const [searchParams] = useSearchParams();
+    const templateId = searchParams.get('template') || 'default';
+    
     const [cvData, setCvData] = useState(INITIAL_CV_DATA)
     const [design, setDesign] = useState(INITIAL_DESIGN)
     const [activeTab, setActiveTab] = useState('content') // content, design
+    const [isSaved, setIsSaved] = useState(false);
+    const [lastSaved, setLastSaved] = useState<number | null>(null);
+    const [timeAgo, setTimeAgo] = useState<string>("");
+    const [isDownloading, setIsDownloading] = useState(false);
+    const cvPreviewRef = useRef<HTMLDivElement>(null);
+
+    // Helper to format relative time
+    const getRelativeTime = (timestamp: number | null) => {
+        if (!timestamp) return "";
+        const now = Date.now();
+        const diffInSeconds = Math.floor((now - timestamp) / 1000);
+        
+        if (diffInSeconds < 60) return "vừa xong";
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours} giờ trước`;
+        return new Date(timestamp).toLocaleDateString("vi-VN");
+    };
+
+    // Periodically update the "time ago" string
+    useEffect(() => {
+        const updateTime = () => setTimeAgo(getRelativeTime(lastSaved));
+        updateTime();
+        const interval = setInterval(updateTime, 60000); // Update every minute
+        return () => clearInterval(interval);
+    }, [lastSaved]);
+
+    // Load data from Local Storage on mount
+    useEffect(() => {
+        const savedData = localStorage.getItem(`cv_data_${templateId}`);
+        const savedDesign = localStorage.getItem(`cv_design_${templateId}`);
+        const savedTime = localStorage.getItem(`cv_last_saved_${templateId}`);
+        
+        if (savedData) {
+            try {
+                setCvData(JSON.parse(savedData));
+            } catch (e) {
+                console.error("Error parsing saved CV data", e);
+            }
+        }
+        
+        if (savedDesign) {
+            try {
+                setDesign(JSON.parse(savedDesign));
+            } catch (e) {
+                console.error("Error parsing saved design data", e);
+            }
+        }
+
+        if (savedTime) {
+            setLastSaved(parseInt(savedTime));
+        }
+    }, [templateId]);
+
+    const handleSave = () => {
+        const now = Date.now();
+        localStorage.setItem(`cv_data_${templateId}`, JSON.stringify(cvData));
+        localStorage.setItem(`cv_design_${templateId}`, JSON.stringify(design));
+        localStorage.setItem(`cv_last_saved_${templateId}`, now.toString());
+        setLastSaved(now);
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 3000);
+    };
+
+    const handleReset = () => {
+        if (window.confirm("Bạn có chắc chắn muốn đặt lại toàn bộ thông tin về mặc định? Hành động này sẽ xóa dữ liệu đã lưu cho mẫu này.")) {
+            localStorage.removeItem(`cv_data_${templateId}`);
+            localStorage.removeItem(`cv_design_${templateId}`);
+            localStorage.removeItem(`cv_last_saved_${templateId}`);
+            setCvData(INITIAL_CV_DATA);
+            setDesign(INITIAL_DESIGN);
+            setLastSaved(null);
+            setIsSaved(false);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+    if (!cvPreviewRef.current) return;
+    
+    setIsDownloading(true);
+    try {
+        const element = cvPreviewRef.current;
+        
+        // Dùng html-to-image để chụp ảnh. 
+        // Thêm thuộc tính style để ép scale về 1 lúc chụp, giúp ảnh nét cứng và không bị lệch
+        const dataUrl = await toPng(element, {
+            quality: 1,
+            pixelRatio: 2, // Tăng độ nét gấp đôi (giống scale: 2 của html2canvas)
+            backgroundColor: '#ffffff',
+            skipFonts: true,
+            style: {
+                transform: 'scale(1)', // Ép bỏ scale 0.8 lúc chụp
+                transformOrigin: 'top left',
+            }
+        });
+        
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+        
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        // Tính toán chiều cao tương ứng với tỷ lệ của tờ A4
+        const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth;
+        
+        pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${cvData.fullName || 'User'} - CV.pdf`);
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("Có lỗi xảy ra khi tải PDF. Vui lòng thử lại.");
+    } finally {
+        setIsDownloading(false);
+    }
+};
 
     // Per-field AI suggestion state
     const [aiSuggestions, setAiSuggestions] = useState<
@@ -195,7 +318,7 @@ export default function CVBuilderPage() {
                 <div className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
                     <div className="flex items-center gap-4">
                         <Link
-                            to="/dashboard/cv/templates"
+                            to="/cv/templates"
                             className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
                         >
                             <FaChevronLeft />
@@ -205,17 +328,37 @@ export default function CVBuilderPage() {
                                 Mẫu CV Chuyên Nghiệp
                             </h1>
                             <span className="text-xs text-slate-500">
-                                Đã lưu 2 phút trước
+                                {isSaved ? (
+                                    <span className="text-emerald-600 flex items-center gap-1 font-medium">
+                                        <FaCheck size={10} /> Đã lưu vào trình duyệt
+                                    </span>
+                                ) : (
+                                    lastSaved ? `Đã lưu ${timeAgo}` : "Chưa lưu thay đổi"
+                                )}
                             </span>
                         </div>
                     </div>
 
                     <div className="flex gap-2">
-                        <button className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100">
-                            <FaMagic /> Auto-fill từ Job Description
+                        <button 
+                            onClick={handleReset}
+                            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-red-600"
+                        >
+                            <FaUndo /> Đặt về mặc định
                         </button>
-                        <button className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800">
-                            <FaSave /> Lưu
+                        <button 
+                            onClick={handleDownloadPDF}
+                            disabled={isDownloading}
+                            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-indigo-600 disabled:opacity-50"
+                        >
+                            {isDownloading ? <FaSpinner className="animate-spin" /> : <FaDownload />} 
+                            {isDownloading ? "Đang tạo..." : "Tải PDF"}
+                        </button>
+                        <button 
+                            onClick={handleSave}
+                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors ${isSaved ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-900 hover:bg-slate-800'}`}
+                        >
+                            {isSaved ? <FaCheck /> : <FaSave />} {isSaved ? "Đã lưu" : "Lưu"}
                         </button>
                     </div>
                 </div>
@@ -635,139 +778,23 @@ export default function CVBuilderPage() {
                     <div className="pointer-events-auto flex items-center gap-4 rounded-full bg-slate-900/80 px-4 py-2 text-sm font-medium text-white shadow-xl backdrop-blur">
                         <span>Preview: 100%</span>
                         <div className="h-4 w-px bg-white/20"></div>
-                        <button className="flex items-center gap-2 transition-colors hover:text-indigo-300">
-                            <FaDownload /> Tải PDF (A4)
+                        <button 
+                            onClick={handleDownloadPDF} 
+                            disabled={isDownloading}
+                            className="flex items-center gap-2 transition-colors hover:text-indigo-300 disabled:opacity-50"
+                        >
+                            {isDownloading ? <FaSpinner className="animate-spin" /> : <FaDownload />} Tải PDF (A4)
                         </button>
                     </div>
                 </div>
 
                 {/* The CV Paper */}
                 <div className="flex flex-1 items-start justify-center overflow-y-auto p-12">
-                    <div
-                        className={`flex h-auto min-h-[297mm] w-[210mm] flex-col bg-white p-0 shadow-2xl ${design.font}`}
-                        style={{ transformOrigin: 'top center', scale: '0.8' }}
-                    >
-                        {/* Header CV */}
-                        <div
-                            className={`relative flex items-end justify-between p-8 pb-6`}
-                            style={{
-                                borderColor: 'var(--theme-color)',
-                                borderLeftColor: 'var(--theme-color)',
-                            }}
-                        >
-                            <div
-                                className={`absolute top-0 left-0 h-full w-2 ${design.bgColor}`}
-                            ></div>
-                            <div>
-                                <h1
-                                    className={`mb-1 text-4xl font-black py-2 text-slate-900 uppercase overflow-hidden h-fit text-wrap w-[450px] text-clip`}
-                                >
-                                    {cvData.fullName}
-                                </h1>
-                                <h2
-                                    className={`text-xl font-semibold tracking-wide ${design.color}`}
-                                >
-                                    {cvData.jobTitle}
-                                </h2>
-                            </div>
-                            <div className="space-y-1 text-right text-xs text-slate-600">
-                                <p>{cvData.phone}</p>
-                                <p>{cvData.email}</p>
-                                <p>{cvData.address}</p>
-                            </div>
-                        </div>
-
-                        {/* Layout Content CV */}
-                        <div className="flex h-full gap-8 px-8 py-6">
-                            {/* Left Column CV */}
-                            <div className="w-2/3 space-y-6">
-                                <div>
-                                    <h3
-                                        className={`mb-2 border-b border-slate-200 pb-1 text-lg font-bold tracking-wider uppercase ${design.color}`}
-                                    >
-                                        Tóm tắt
-                                    </h3>
-                                    <p
-                                        className={`text-sm leading-relaxed text-slate-700 ${design.spacing === 'loose' ? 'leading-loose' : design.spacing === 'compact' ? 'leading-snug' : ''}`}
-                                    >
-                                        {cvData.summary}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3
-                                        className={`mb-3 border-b border-slate-200 pb-1 text-lg font-bold tracking-wider uppercase ${design.color}`}
-                                    >
-                                        Kinh nghiệm
-                                    </h3>
-                                    {cvData.experiences.map((exp, idx) => (
-                                        <div key={idx} className="mb-4">
-                                            <div className="mb-1 flex items-baseline justify-between">
-                                                <h4 className="font-bold text-slate-800">
-                                                    {exp.position}
-                                                </h4>
-                                                <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">
-                                                    {exp.duration}
-                                                </span>
-                                            </div>
-                                            <div
-                                                className={`mb-2 text-sm font-semibold ${design.color}`}
-                                            >
-                                                {exp.company}
-                                            </div>
-                                            <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-600">
-                                                {exp.description}
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Right Column CV */}
-                            <div className="w-1/3 space-y-6">
-                                <div>
-                                    <h3
-                                        className={`mb-2 border-b border-slate-200 pb-1 text-lg font-bold tracking-wider uppercase ${design.color}`}
-                                    >
-                                        Học vấn
-                                    </h3>
-                                    {cvData.education.map((edu, idx) => (
-                                        <div key={idx} className="mb-3">
-                                            <h4 className="text-sm font-bold text-slate-800">
-                                                {edu.degree}
-                                            </h4>
-                                            <div className="my-0.5 text-sm text-slate-600">
-                                                {edu.school}
-                                            </div>
-                                            <div
-                                                className={`text-xs font-medium uppercase ${design.color}`}
-                                            >
-                                                {edu.duration}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div>
-                                    <h3
-                                        className={`mb-2 border-b border-slate-200 pb-1 text-lg font-bold tracking-wider uppercase ${design.color}`}
-                                    >
-                                        Kỹ năng
-                                    </h3>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {cvData.skills.map((skill, idx) => (
-                                            <span
-                                                key={idx}
-                                                className="rounded-sm border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700"
-                                            >
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <CVPreview 
+                        cvData={cvData} 
+                        design={design} 
+                        previewRef={cvPreviewRef} 
+                    />
                 </div>
             </div>
         </div>

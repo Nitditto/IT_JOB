@@ -1,8 +1,28 @@
-import { FaRegFileAlt, FaMagic, FaEye } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaRegFileAlt, FaMagic, FaEye, FaCheck } from "react-icons/fa";
 import { Link } from "react-router";
+import CVPreviewModal from "@/components/cv/CVPreviewModal";
 
 export default function CVTemplatesPage() {
     document.title = "Mẫu CV - Kiến tạo sự nghiệp";
+    
+    interface Template {
+        id: string;
+        name: string;
+        description: string;
+        tags: string[];
+        thumbnail: string;
+        color: string;
+        recommended?: boolean;
+    }
+
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+    const handlePreview = (tpl: Template) => {
+        setSelectedTemplate(tpl);
+        setIsPreviewOpen(true);
+    };
 
     // Mock data for CV templates
     const templates = [
@@ -49,6 +69,16 @@ export default function CVTemplatesPage() {
         }
     ];
 
+    // State to track which templates have saved progress
+    const [savedTemplates, setSavedTemplates] = useState<string[]>([]);
+
+    useEffect(() => {
+        const existing = templates
+            .filter(t => localStorage.getItem(`cv_data_${t.id}`))
+            .map(t => t.id);
+        setSavedTemplates(existing);
+    }, []);
+
     return (
         <div className="p-4 md:p-8 h-full bg-slate-50 min-h-screen">
             <div className="max-w-6xl mx-auto space-y-8">
@@ -81,56 +111,70 @@ export default function CVTemplatesPage() {
 
                 {/* Templates Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {templates.map((tpl) => (
-                        <div key={tpl.id} className="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300 transition-all duration-300">
-                            {/* Thumbnail Container */}
-                            <div className="relative aspect-[1/1.4] bg-slate-100 overflow-hidden">
-                                <img
-                                    src={tpl.thumbnail}
-                                    alt={tpl.name}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
+                    {templates.map((tpl) => {
+                        const hasProgress = savedTemplates.includes(tpl.id);
+                        return (
+                            <div key={tpl.id} className="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300 transition-all duration-300">
+                                {/* Thumbnail Container */}
+                                <div className="relative aspect-[1/1.4] bg-slate-100 overflow-hidden">
+                                    <img
+                                        src={tpl.thumbnail}
+                                        alt={tpl.name}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
 
-                                {/* Overlay actions */}
-                                <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
-                                    <Link
-                                        to={`/cv/builder?template=${tpl.id}`}
-                                        className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-indigo-900/30"
-                                    >
-                                        <FaMagic /> Tạo CV này
-                                    </Link>
-                                    <button className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75">
-                                        <FaEye /> Xem trước
-                                    </button>
-                                </div>
-
-                                {/* Badge recommendations */}
-                                {tpl.recommended && (
-                                    <div className="absolute top-3 left-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5">
-                                        <FaMagic size={10} /> Phù hợp với bạn
+                                    {/* Overlay actions */}
+                                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
+                                        <Link
+                                            to={`/cv/builder?template=${tpl.id}`}
+                                            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-indigo-900/30"
+                                        >
+                                            {hasProgress ? <FaMagic /> : <FaMagic />}
+                                            {hasProgress ? 'Tiếp tục chỉnh sửa' : 'Tạo CV này'}
+                                        </Link>
+                                        <button 
+                                            onClick={() => handlePreview(tpl)}
+                                            className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75"
+                                        >
+                                            <FaEye /> Xem trước
+                                        </button>
                                     </div>
-                                )}
-                            </div>
 
-                            {/* Template Info */}
-                            <div className="p-4 flex-1 flex flex-col">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className={`w-2 h-2 rounded-full ${tpl.color}`}></div>
-                                    <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{tpl.name}</h3>
+                                    {/* Badge recommendations */}
+                                    {tpl.recommended && (
+                                        <div className="absolute top-3 left-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5">
+                                            <FaMagic size={10} /> Phù hợp với bạn
+                                        </div>
+                                    )}
+
+                                    {/* Saved Badge */}
+                                    {hasProgress && (
+                                        <div className="absolute top-10 left-3 px-3 py-1 bg-emerald-500 text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1.5">
+                                            <FaCheck size={8} /> Đang chỉnh sửa
+                                        </div>
+                                    )}
                                 </div>
-                                <p className="text-sm text-slate-500 mb-4 line-clamp-2 leading-relaxed flex-1">
-                                    {tpl.description}
-                                </p>
-                                <div className="flex flex-wrap gap-1.5 mt-auto">
-                                    {tpl.tags.map(tag => (
-                                        <span key={tag} className="text-[10px] font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
-                                            {tag}
-                                        </span>
-                                    ))}
+
+                                {/* Template Info */}
+                                <div className="p-4 flex-1 flex flex-col">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className={`w-2 h-2 rounded-full ${tpl.color}`}></div>
+                                        <h3 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{tpl.name}</h3>
+                                    </div>
+                                    <p className="text-sm text-slate-500 mb-4 line-clamp-2 leading-relaxed flex-1">
+                                        {tpl.description}
+                                    </p>
+                                    <div className="flex flex-wrap gap-1.5 mt-auto">
+                                        {tpl.tags.map(tag => (
+                                            <span key={tag} className="text-[10px] font-medium px-2 py-1 bg-slate-100 text-slate-600 rounded-md">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
 
                     {/* Create Blank Card */}
                     <div className="flex flex-col bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group cursor-pointer justify-center items-center min-h-[350px]">
@@ -143,6 +187,12 @@ export default function CVTemplatesPage() {
 
                 </div>
             </div>
+
+            <CVPreviewModal 
+                isOpen={isPreviewOpen} 
+                onClose={() => setIsPreviewOpen(false)} 
+                template={selectedTemplate} 
+            />
         </div>
     );
 }
