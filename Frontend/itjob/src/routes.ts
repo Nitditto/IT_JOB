@@ -25,6 +25,10 @@ export default [
   route("/register", "./pages/register/page.tsx"),
   route("/company-register", "./pages/company-register/page.tsx"),
 
+  route("/cv/templates", "./pages/cv/templates/page.tsx"),
+  route('/cv/builder', './pages/cv/builder/page.tsx'),
+  route('/cv/upload-review', './pages/cv/upload-review/page.tsx'),
+
   route("/dashboard", "./pages/dashboard/page.tsx", [
     {
       path: "home",
@@ -83,18 +87,7 @@ export default [
       path: "cv",
       file: "./pages/dashboard/cv/list/page.tsx"
     },
-    {
-      path: "cv/templates",
-      file: "./pages/dashboard/cv/templates/page.tsx"
-    },
-    {
-      path: "cv/builder",
-      file: "./pages/dashboard/cv/builder/page.tsx"
-    },
-    {
-      path: "cv/upload-review",
-      file: "./pages/dashboard/cv/upload-review/page.tsx"
-    },
+
     {
       path: "company/job/:jobId/view/:accountId",
       file: "./pages/dashboard/company/cv/detail/page.tsx"

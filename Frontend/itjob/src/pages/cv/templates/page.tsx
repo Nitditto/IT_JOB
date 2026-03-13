@@ -65,7 +65,7 @@ export default function CVTemplatesPage() {
                         </p>
                     </div>
                     <div className="flex-shrink-0">
-                        <Link to="/dashboard/cv/upload-review" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm">
+                        <Link to="/cv/upload-review" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm">
                             Đánh giá CV của bạn
                         </Link>
                     </div>
@@ -94,7 +94,7 @@ export default function CVTemplatesPage() {
                                 {/* Overlay actions */}
                                 <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
                                     <Link
-                                        to={`/dashboard/cv/builder?template=${tpl.id}`}
+                                        to={`/cv/builder?template=${tpl.id}`}
                                         className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-indigo-900/30"
                                     >
                                         <FaMagic /> Tạo CV này
