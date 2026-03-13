@@ -205,7 +205,7 @@ export default function CVBuilderPage() {
                                 Mẫu CV Chuyên Nghiệp
                             </h1>
                             <span className="text-xs text-slate-500">
-                                Đã lưu 2 phút trước
+                                Đã lưu 2     phút trước
                             </span>
                         </div>
                     </div>
@@ -262,6 +262,37 @@ export default function CVBuilderPage() {
                                             className="line-clamp-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
+                                    <div className="cols-span-1">
+                                        <label className="mb-1 block text-xs font-extrabold text-slate-600 uppercase">
+                                            Số điện thoại
+                                        </label>
+                                        <input 
+                                            type='text'
+                                            value={cvData.phone}
+                                            onChange={(e) => 
+                                                setCvData({...cvData,
+                                                    phone: e.target.value
+                                                })
+                                            }
+                                            className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus-outline-none"
+                                        />
+                                        
+                                    </div>
+                                    <div className="cols-span-1">
+                                        <label className="mb-1 block text-xs font-extrabold text-slate-600 uppercase">
+                                            Địa chỉ                                        
+                                        </label>
+                                        <input 
+                                            type='text'
+                                            value={cvData.address}
+                                            onChange={(e) => 
+                                                setCvData({...cvData,
+                                                    address: e.target.value
+                                                })
+                                            }
+                                            className="w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus-outline-none"
+                                        />
+                                    </div>
                                     <div>
                                         <label className="mb-1 block text-xs font-semibold text-slate-600 uppercase">
                                             Vị trí ứng tuyển
@@ -294,18 +325,79 @@ export default function CVBuilderPage() {
                                             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                                         />
                                     </div>
+
                                 </div>
                             </section>
-
+                            
                             {/* Section: Profile Summary */}
                             <section>
+                                <div className="cols-span-2">
+                                    <label className="mb-4 flex items-end justify-between border-b border-slate-200 pb-2">
+                                        Học Vấn
+                                        
+                                    </label>
+                                    <button
+                                            onClick={() =>
+                                                setCvData({
+                                                ...cvData,
+                                                education: [
+                                                    ...cvData.education,
+                                                    {
+                                                    school: "",
+                                                    degree: "",
+                                                    duration: ""
+                                                    }
+                                                ]
+                                                })
+                                            }
+                                            className="right-0.5 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100"
+                                        >
+                                        + Thêm học vấn
+                                    </button>
+                                    {cvData.education.map((edu, idx) => (
+                                        <div key={idx} className="mb-4 grid rounded-lg grid-cols-2 gap-3 bg-slate-50 p-4">
+                                            <input
+                                            type="text"
+                                            value={edu.school}
+                                            onChange={(e) => {
+                                                const newEdu = [...cvData.education];
+                                                newEdu[idx].school = e.target.value;
+                                                setCvData({...cvData, education: newEdu});
+                                            }}
+                                            className='border border-slate-300 rounded px-3 py-2 text-sm'
+                                            />
+                                            <input 
+                                                type="text"
+                                                value={edu.degree}
+                                                onChange={(e) => {
+                                                    const newEdu = [...cvData.education];
+                                                    newEdu[idx].degree = e.target.value;
+                                                    setCvData({...cvData, education: newEdu});
+                                                }}
+                                                className="border border-slate-300 rounded px-3 py-2 text-sm"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={edu.duration}
+                                                onChange={(e) => {
+                                                    const newEdu = [...cvData.education];
+                                                    newEdu[idx].duration = e.target.value;
+                                                    setCvData({...cvData, education: newEdu});
+                                                }}
+                                                className='border border-slate-400 rounded px-3 py-2 text-sm'
+                                            />
+                                        </div>
+                                    
+                                    ))}
+
+                                </div>
                                 <div className="mb-2 flex items-end justify-between border-b border-slate-200 pb-2">
                                     <h2 className="text-lg font-bold text-slate-800">
                                         Giới thiệu bản thân
                                     </h2>
                                     {renderAIButton('summary', cvData.summary)}
                                 </div>
-
+                                    
                                 {renderSuggestionBox('summary')}
 
                                 <textarea
@@ -327,7 +419,23 @@ export default function CVBuilderPage() {
                                     <h2 className="text-lg font-bold text-slate-800">
                                         Kinh nghiệm làm việc
                                     </h2>
-                                    <button className="flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-100">
+                                    <button
+                                        onClick={() =>
+                                            setCvData({
+                                            ...cvData,
+                                            experiences: [
+                                                ...cvData.experiences,
+                                                {
+                                                company: "",
+                                                position: "",
+                                                duration: "",
+                                                description: ""
+                                                }
+                                            ]
+                                            })
+                                        }
+                                        className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md flex items-center gap-1 hover:bg-indigo-100 transition-colors"
+                                        >
                                         + Thêm kinh nghiệm
                                     </button>
                                 </div>
