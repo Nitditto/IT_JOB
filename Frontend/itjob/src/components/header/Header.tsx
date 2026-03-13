@@ -72,9 +72,9 @@ export const Header = () => {
 
                 <HeaderHoverItem toHref='#' linkText='Hồ sơ & CV'>
                   <HeaderMenu>
-                    <HeaderItem to='/dashboard/cv/templates' linkText='Mẫu CV' />
+                    <HeaderItem to='/cv/templates' linkText='Mẫu CV' />
                     <HeaderItem to='/dashboard/cv' linkText='Quản lý CV' />
-                    <HeaderItem to='/dashboard/cv/upload-review' linkText='AI Đánh giá CV' />
+                    <HeaderItem to='/cv/upload-review' linkText='AI Đánh giá CV' />
                     <HeaderItem to='/dashboard/settings/user-profile' linkText='Cập nhật hồ sơ' />
                   </HeaderMenu>
                 </HeaderHoverItem>

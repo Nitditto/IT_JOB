@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { FaCloudUploadAlt, FaFilePdf, FaCheckCircle, FaExclamationTriangle, FaMagic } from "react-icons/fa";
 import { Link } from "react-router";
-import { evaluateCVPDF } from "../../../../utils/gemini";
+import { evaluateCVPDF } from "@/utils/gemini";
 
 function getScoreLabel(score: number): { label: string; color: string } {
     if (score >= 81) return { label: "Xuất sắc", color: "text-emerald-600" };
