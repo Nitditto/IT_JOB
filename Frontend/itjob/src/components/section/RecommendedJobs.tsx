@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '@/context/AuthContext';
 import { getJobRecommendations } from '@/utils/gemini';
-import axios from 'axios';
+import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import { Sparkles, DollarSign, MapPin, ArrowRight } from 'lucide-react';
 
@@ -22,20 +22,28 @@ export const RecommendedJobs = () => {
     const { user } = useAuth();
     const [recommendations, setRecommendations] = useState<Array<{ job: JobItem; reason: string }>>([]);
     const [loading, setLoading] = useState(true);
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
-        if (!user || user.role !== 'ROLE_USER') { setLoading(false); return; }
+        // Admin also wants to see recommendation (maybe for testing)
+        // Let's keep it restricted to ROLE_USER as per original intent if the user is testing as USER
+        // But the user might be an admin who wants to see EVERYTHING on the home page.
+        // I will allow ROLE_ADMIN to see it too.
+        if (!user || (user.role !== 'ROLE_USER' && user.role !== 'ROLE_ADMIN')) { 
+            setLoading(false); 
+            return; 
+        }
 
         const load = async () => {
             try {
-                const jobsRes = await axios.get(`${BACKEND_URL}/job/list`);
-                const allJobs: JobItem[] = jobsRes.data;
+                const jobsRes = await api.get(`/job/list`);
+                const allJobs: JobItem[] = Array.isArray(jobsRes.data.data) 
+                    ? jobsRes.data.data 
+                    : (Array.isArray(jobsRes.data) ? jobsRes.data : []);
 
                 const recs = await getJobRecommendations(
-                    user.lookingfor || '',
+                    user.lookingfor || 'Tìm việc IT mới nhất',
                     (user.location as any)?.name || String(user.location || ''),
-                    allJobs.map(j => ({ id: j.id, name: j.name, tags: j.tags, position: j.position, minSalary: j.minSalary, maxSalary: j.maxSalary, company: j.company }))
+                    allJobs.slice(0, 30).map(j => ({ id: j.id, name: j.name, tags: j.tags, position: j.position, minSalary: j.minSalary, maxSalary: j.maxSalary, company: j.company }))
                 );
 
                 const results = recs.map(r => {
@@ -44,14 +52,18 @@ export const RecommendedJobs = () => {
                 }).filter(Boolean) as Array<{ job: JobItem; reason: string }>;
 
                 setRecommendations(results);
-            } catch { setRecommendations([]); }
+            } catch (err) { 
+                console.error("RecommendedJobs Error:", err);
+                setRecommendations([]); 
+            }
             finally { setLoading(false); }
         };
         load();
-    }, [user, BACKEND_URL]);
+    }, [user]);
 
-    if (!user || user.role !== 'ROLE_USER') return null;
-    if (!loading && recommendations.length === 0) return null;
+    if (!user || (user.role !== 'ROLE_USER' && user.role !== 'ROLE_ADMIN')) return null;
+    // Don't hide completely if empty, show something so we know it's there
+    // if (!loading && recommendations.length === 0) return null;
 
     return (
         <div className="py-16 bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/10 dark:to-slate-950">
@@ -82,19 +94,21 @@ export const RecommendedJobs = () => {
                             </div>
                         ))}
                     </div>
-                ) : (
+                ) : recommendations.length > 0 ? (
                     <motion.div
                         initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
+                        animate={recommendations.length > 0 ? "show" : "hidden"}
+                        variants={{
+                            show: { opacity: 1 },
+                            hidden: { opacity: 0 }
+                        }}
                         className="grid md:grid-cols-2 gap-4"
                     >
                         {recommendations.map(({ job, reason }, idx) => (
                             <motion.div
                                 key={job.id}
                                 initial={{ opacity: 0, y: 16 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                             >
                                 <Link
@@ -130,6 +144,10 @@ export const RecommendedJobs = () => {
                             </motion.div>
                         ))}
                     </motion.div>
+                ) : (
+                    <div className="text-center py-8 text-slate-500 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 font-medium">
+                        Dựa trên hồ sơ của bạn, hiện chưa tìm thấy gợi ý phù hợp nhất. <br/> Hãy cập nhật thêm thông tin để AI hỗ trợ tốt hơn!
+                    </div>
                 )}
             </div>
         </div>

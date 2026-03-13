@@ -1,5 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
-import axios from "axios";
+import api from "@/utils/api";
 import { useEffect, useState } from "react";
 import { FaUserTie } from "react-icons/fa6"
 
@@ -7,12 +6,20 @@ import { Link } from "react-router";
 export const CardCompanyItem=({companyInfo}: {companyInfo: any})=>{
   
   const [jobCount, setJobCount] = useState(0);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const init = async () => {
-      const jobCountRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${companyInfo["id"]}`);
-      setJobCount(jobCountRes.data.length);
+      try {
+        const jobCountRes = await api.get(`/job/search?companyID=${companyInfo["id"]}`);
+        const jobsData = Array.isArray(jobCountRes.data.data)
+          ? jobCountRes.data.data
+          : Array.isArray(jobCountRes.data)
+            ? jobCountRes.data
+            : []
+        setJobCount(jobsData.length);
+      } catch (err) {
+        console.error(`Error fetching job count for company ${companyInfo["id"]}:`, err)
+      }
     }
 
     init()

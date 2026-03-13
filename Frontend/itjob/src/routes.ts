@@ -1,6 +1,6 @@
 import {
   type RouteConfig,
-  route, layout
+  route
 } from "@react-router/dev/routes";
 
 export default [
@@ -41,6 +41,10 @@ export default [
     {
       path: "company/job",
       file: "./pages/dashboard/company/job/page.tsx"
+    },
+    {
+      path: "admin/companies",
+      file: "./pages/dashboard/admin/companies/page.tsx"
     },
     {
       path: "setting",

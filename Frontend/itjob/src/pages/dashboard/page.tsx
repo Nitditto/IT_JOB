@@ -50,27 +50,19 @@ export default function DashboardLayout() {
             </div>
         )
     }
-    const role = user?.role;
-    const isAdmin = role === "ROLE_ADMIN";
-    const isCompany = role === "ROLE_COMPANY";
-    const isUser = role === "ROLE_USER";
+    const role = user?.role
+    const isAdmin = role === 'ROLE_ADMIN'
+    const isCompany = role === 'ROLE_COMPANY'
+    const isUser = role === 'ROLE_USER'
     return isAuthenticated ? (
         <>
-            <div className="flex h-screen overflow-hidden bg-slate-50 w-full">
+            <div className="flex h-screen w-full overflow-hidden bg-slate-50">
                 <Sidebar>
                     <SidebarItem
                         icon={<Home size={20} />}
                         text="Tổng quan"
                         to="/dashboard/home"
                     />
-                    {(isAdmin) && (
-                        <SidebarItem
-                            icon={<LayoutDashboard size={20} />}
-                            text="Dashboard"
-                            to="/dashboard"
-                            alert
-                        />
-                    )}
                     {(isAdmin || isCompany) && (
                         <SidebarItem
                             icon={<BarChart3 size={20} />}
@@ -78,7 +70,7 @@ export default function DashboardLayout() {
                             to="/dashboard/company/job"
                         />
                     )}
-                    {(isUser) && (
+                    {isUser && (
                         <>
                             <SidebarItem
                                 icon={<UserCircle size={20} />}
@@ -97,14 +89,12 @@ export default function DashboardLayout() {
                             <SidebarItem
                                 icon={<Boxes size={20} />}
                                 text="Chi tiết công ty"
-                                to=''
-                                alert
+                                to="/dashboard/admin/companies"
                             />
                             <SidebarItem
                                 icon={<Package size={20} />}
                                 text="Đăng ký công ty"
-                                to=''
-                                alert
+                                to="/dashboard/admin/register"
                             />
                         </>
                     )}
@@ -126,7 +116,7 @@ export default function DashboardLayout() {
                 </Sidebar>
 
                 {/* Main Content Area - Scolls Independently */}
-                <main className="flex-1 overflow-y-auto relative w-full h-full">
+                <main className="relative h-full w-full flex-1 overflow-y-auto">
                     <Outlet />
                 </main>
             </div>

@@ -31,7 +31,8 @@ export const MarketCompanies = () => {
         show: { opacity: 1, y: 0, transition: { type: "spring" as const, bounce: 0.3 } }
     };
 
-    if (!loading && companies.length === 0) return null;
+    // Don't return null if empty, show something so we know it's there
+    // if (!loading && companies.length === 0) return null;
 
     return (
         <div className="py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
@@ -67,12 +68,11 @@ export const MarketCompanies = () => {
                             </div>
                         ))}
                     </div>
-                ) : (
+                ) : companies.length > 0 ? (
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
-                        whileInView="show"
-                        viewport={{ once: true, margin: "-50px" }}
+                        animate={companies.length > 0 ? "show" : "hidden"}
                         className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4"
                     >
                         {companies.map((company, index) => (
@@ -129,6 +129,10 @@ export const MarketCompanies = () => {
                             </motion.div>
                         ))}
                     </motion.div>
+                ) : (
+                    <div className="text-center py-12 text-slate-400 italic">
+                        Đang cập nhật dữ liệu thị trường mới nhất...
+                    </div>
                 )}
 
                 {/* AI Badge */}

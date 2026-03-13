@@ -8,7 +8,8 @@ import type { JobFilterParams } from '../../types'
 import { useSearchParams } from "react-router";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Search, Briefcase } from "lucide-react";
+import { Search, Briefcase, MapPin, Tag, UserCheck, DollarSign } from "lucide-react";
+import translation from "@/utils/translation";
 
 
 export default function SearchPage() {
@@ -84,10 +85,58 @@ export default function SearchPage() {
               <h2 className="font-bold text-2xl text-slate-900 dark:text-white">
                 {isLoading ? "Đang tìm kiếm..." : `${jobList.length} việc làm tìm thấy`}
               </h2>
-              {searchParams.get('query') && (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Kết quả cho từ khóa "<span className="text-indigo-600 dark:text-indigo-400 font-medium">{searchParams.get('query')}</span>"
-                </p>
+              {searchParams.toString() && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[...searchParams.entries()].map(([key, value], index) => {
+                    if (key === 'page') return null;
+                    
+                    let label = "";
+                    let icon = null;
+                    
+                    switch (key) {
+                      case 'query':
+                        label = `Từ khóa: ${value}`;
+                        icon = <Search size={12} />;
+                        break;
+                      case 'location':
+                        label = `Địa điểm: ${value}`;
+                        icon = <MapPin size={12} />;
+                        break;
+                      case 'position':
+                        label = `Cấp bậc: ${translation[value] || value}`;
+                        icon = <UserCheck size={12} />;
+                        break;
+                      case 'workstyle':
+                        label = `Hình thức: ${translation[value] || value}`;
+                        icon = <Briefcase size={12} />;
+                        break;
+                      case 'minSalary':
+                        // Only show range if both min and max exist to avoid redundancy
+                        if (searchParams.has('maxSalary')) return null;
+                        label = `Lương từ: ${value}$`;
+                        icon = <DollarSign size={12} />;
+                        break;
+                      case 'maxSalary':
+                        const min = searchParams.get('minSalary');
+                        label = min ? `Lương: ${min}$ - ${value}$` : `Lương đến: ${value}$`;
+                        icon = <DollarSign size={12} />;
+                        break;
+                      case 'tags':
+                        label = `Lĩnh vực: ${value}`;
+                        icon = <Tag size={12} />;
+                        break;
+                      default:
+                        return null;
+                    }
+
+                    return (
+                      <div key={index} className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400">
+                        {icon}
+                        <span>{label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>

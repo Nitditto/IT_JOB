@@ -42,3 +42,23 @@ export interface Tag {
   tag: string;
   count: number;
 }
+
+export interface Company {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string | null;
+  phone: string | null;
+  description: string | null;
+  address: string | null;
+  location: {
+    abbreviation: string;
+    name: string;
+  } | null;
+  model: string | null;
+  scale: string | null;
+  startWork: string | null;
+  endWork: string | null;
+  hasOvertime: boolean;
+  jobCount?: number;
+}

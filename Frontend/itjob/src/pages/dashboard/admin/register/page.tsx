@@ -79,7 +79,7 @@ export default function RegisterPage() {
 
     return (
         <div className="p-4 md:p-8 h-full bg-slate-50 min-h-screen flex flex-col items-center justify-start pt-12">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-200 overflow-hidden">
+            <div className="w-full max-w-lg bg-white rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)] border border-slate-200 overflow-hidden">
                 <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50">
                     <h1 className="text-xl font-bold text-slate-900 text-center">
                         Cấp Tài Khoản Công Ty
