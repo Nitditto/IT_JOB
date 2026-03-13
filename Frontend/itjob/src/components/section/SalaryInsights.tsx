@@ -18,7 +18,7 @@ export const SalaryInsights = () => {
         load();
     }, []);
 
-    if (!loading && insights.length === 0) return null;
+    // if (!loading && insights.length === 0) return null;
 
     const demandColor = (d: string) => {
         if (d.includes('Rất cao') || d.includes('rất cao')) return 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400';
@@ -52,19 +52,21 @@ export const SalaryInsights = () => {
                             </div>
                         ))}
                     </div>
-                ) : (
+                ) : insights.length > 0 ? (
                     <motion.div
                         initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
+                        animate={insights.length > 0 ? "show" : "hidden"}
+                        variants={{
+                            show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+                            hidden: { opacity: 0 }
+                        }}
                         className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
                     >
                         {insights.map((item, idx) => (
                             <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, y: 16 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
+                                animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.05 }}
                                 className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:shadow-indigo-500/5 transition-all group"
                             >
@@ -99,6 +101,10 @@ export const SalaryInsights = () => {
                             </motion.div>
                         ))}
                     </motion.div>
+                ) : (
+                    <div className="text-center py-10 text-slate-400 italic">
+                        Đang phân tích xu hướng thị trường...
+                    </div>
                 )}
 
                 <div className="mt-6 text-center">

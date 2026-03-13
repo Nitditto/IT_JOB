@@ -6,6 +6,29 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
+const safeParseJSON = (text: string) => {
+    try {
+        // Tìm mảng hoặc object đầu tiên và cuối cùng
+        const start = text.indexOf('[');
+        const end = text.lastIndexOf(']');
+        const startObj = text.indexOf('{');
+        const endObj = text.lastIndexOf('}');
+        
+        let jsonStr = text;
+        
+        if (start !== -1 && end !== -1 && (startObj === -1 || start < startObj)) {
+            jsonStr = text.substring(start, end + 1);
+        } else if (startObj !== -1 && endObj !== -1) {
+            jsonStr = text.substring(startObj, endObj + 1);
+        }
+        
+        return JSON.parse(jsonStr);
+    } catch (e) {
+        console.error("Lỗi parse JSON từ Gemini:", e, "Dữ liệu gốc:", text);
+        throw e;
+    }
+};
+
 export const generateCVSuggestion = async (promptText: string): Promise<string> => {
     if (!API_KEY) {
         throw new Error("Vui lòng cấu hình GEMINI_API_KEY trong file .env");
@@ -151,8 +174,7 @@ Chỉ trả về JSON.
 
         const result = await model.generateContent([prompt, generativePart]);
         const response = await result.response;
-        const textStr = response.text().replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-        return JSON.parse(textStr);
+        return safeParseJSON(response.text());
     } catch (error) {
         console.error("Lỗi khi đánh giá PDF:", error);
         throw error;
@@ -362,8 +384,7 @@ Chỉ trả về JSON array.`;
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await model.generateContent(prompt);
-        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-        const companies = JSON.parse(text);
+        const companies = safeParseJSON(result.response.text());
         sessionStorage.setItem('market_companies', JSON.stringify(companies));
         return companies;
     } catch (error) {
@@ -407,8 +428,7 @@ Chỉ trả về JSON array.`;
     try {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await model.generateContent(prompt);
-        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-        const data = JSON.parse(text);
+        const data = safeParseJSON(result.response.text());
         sessionStorage.setItem('salary_insights', JSON.stringify(data));
         return data;
     } catch (error) {

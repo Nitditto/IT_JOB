@@ -17,13 +17,6 @@ export const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  useEffect(() => {
-    const theme = localStorage.getItem('theme');
-    if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -31,16 +24,7 @@ export const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    }
-    setIsDark(!isDark);
-  };
+  
 
   const fetchTopCompanies = async () => {
     try {
@@ -65,10 +49,7 @@ export const Header = () => {
 
   return (
     <>
-      <header className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled
-        ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-slate-200/80 dark:border-slate-800/80 shadow-sm'
-        : 'bg-white/60 dark:bg-slate-950/60 backdrop-blur-md border-transparent'
-        }`}>
+      <header className={`sticky top-0 z-50 transition-all duration-300 bg-white shadow-sm`}>
         <div className="container">
           <div className="flex justify-between items-center h-16">
             {/* Left: Logo + Nav */}

@@ -5,7 +5,7 @@ import { CardCompanyItem } from "../components/card/CardCompanyItem";
 import { MarketCompanies } from "../components/section/MarketCompanies";
 import { SalaryInsights } from "../components/section/SalaryInsights";
 import { RecommendedJobs } from "../components/section/RecommendedJobs";
-import axios from "axios";
+import api from "../utils/api";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 
@@ -13,12 +13,20 @@ export default function SearchHome() {
 
   const [companyList, setCompanyList] = useState([]);
   const [page, setPage] = useState(1);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const init = async () => {
-      const companyRes = await axios.get(`${BACKEND_URL}/company/list`)
-      setCompanyList(companyRes.data)
+      try {
+        const companyRes = await api.get("/company/list")
+        const companiesData = Array.isArray(companyRes.data.data)
+          ? companyRes.data.data
+          : Array.isArray(companyRes.data)
+            ? companyRes.data
+            : []
+        setCompanyList(companiesData)
+      } catch (err) {
+        console.error("Error fetching company list:", err)
+      }
     }
 
     init()
@@ -59,8 +67,7 @@ export default function SearchHome() {
           <motion.div
             variants={containerVariants}
             initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
+            animate={companyList.length > 0 ? "show" : "hidden"}
             className="grid lg:grid-cols-3 grid-cols-2 sm:gap-x-[20px] gap-x-[10px] gap-y-[20px] mt-8"
           >
             {/* Item  */}
