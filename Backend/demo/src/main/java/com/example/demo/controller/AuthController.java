@@ -22,9 +22,15 @@ import com.example.demo.dto.LoginResponse;
 import com.example.demo.dto.RegistrationRequest;
 import com.example.demo.enums.UserRole;
 import com.example.demo.model.Account;
+import com.example.demo.model.RefreshToken;
 import com.example.demo.services.AuthServices;
+import com.example.demo.services.JwtServices;
+import com.example.demo.services.RefreshTokenServices;
 import com.example.demo.services.UserServices;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.web.bind.annotation.CookieValue;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +42,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
     private final UserServices userServices;
     private final AuthServices authServices;
+    private final RefreshTokenServices refreshTokenServices;
+    private final JwtServices jwtServices;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(
@@ -70,21 +78,80 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest request) {
         try {
             LoginResponse response = authServices.login(request);
-            return ResponseEntity.ok(response);
+            
+            // Đặt Refresh Token vào HttpOnly Cookie
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", response.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(false) // Đặt true nếu chạy HTTPS trong production
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60) // 7 ngày tương ứng thời hạn token
+                    .sameSite("Lax") // Thay đổi tùy theo yêu cầu CORS (Lax phù hợp chạy localhost khác port)
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(response);
             
         } catch (UsernameNotFoundException e) {
-            // Trường hợp 1: Không tìm thấy email trong DB
-            // Trả về 400 hoặc 404 tùy bạn, ở đây để 400 Bad Request
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // "Tài khoản không tồn tại!"
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
             
         } catch (AuthenticationException e) {
-            // Trường hợp 2: Tìm thấy email nhưng sai mật khẩu
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Mật khẩu không chính xác!");
             
         } catch (Exception e) {
-            // Các lỗi khác
-             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống");
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshTokenString) {
+        if (refreshTokenString == null || refreshTokenString.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh Token is missing!");
+        }
+        try {
+            // Xoay vòng Refresh Token (RTR)
+            RefreshToken newRefreshToken = refreshTokenServices.rotateRefreshToken(refreshTokenString);
+            
+            // Tạo Access Token mới
+            String newAccessToken = jwtServices.generateToken(newRefreshToken.getAccount());
+            
+            // Đặt Refresh Token mới vào Cookie
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken.getToken())
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(7 * 24 * 60 * 60)
+                    .sameSite("Lax")
+                    .build();
+
+            LoginResponse response = new LoginResponse(newAccessToken, null, newRefreshToken.getAccount().getId());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(@CookieValue(name = "refreshToken", required = false) String refreshTokenString) {
+        if (refreshTokenString != null && !refreshTokenString.isEmpty()) {
+            refreshTokenServices.revokeToken(refreshTokenString);
+        }
+        
+        // Xóa cookie ở client bằng cách set maxAge = 0
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body("Đăng xuất thành công!");
     }
     
 
