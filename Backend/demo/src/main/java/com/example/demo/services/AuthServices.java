@@ -12,6 +12,7 @@ import com.example.demo.dto.ChangePasswordRequest;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.LoginResponse;
 import com.example.demo.model.Account;
+import com.example.demo.model.RefreshToken;
 import com.example.demo.repository.AccountRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class AuthServices {
     private final AccountRepository accountRepository;
     private final JwtServices jwtServices;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenServices refreshTokenServices;
 
     public LoginResponse login(LoginRequest request) {
         // --- SỬA ĐỔI TẠI ĐÂY ---
@@ -44,11 +46,14 @@ public class AuthServices {
         // 3. Lấy thông tin UserDetails (Lúc này chắc chắn login thành công)
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        // 4. Tạo token
+        // 4. Tạo access token
         String token = jwtServices.generateToken(userDetails);
 
-        // 5. Trả về response (Sử dụng ID từ biến user đã query ở bước 1 luôn cho tối ưu)
-        return new LoginResponse(token, user.getId());
+        // 5. Tạo refresh token
+        RefreshToken refreshToken = refreshTokenServices.createRefreshToken(user);
+
+        // 6. Trả về response chứa cả access token và refresh token
+        return new LoginResponse(token, refreshToken.getToken(), user.getId());
     }
     public void changePassword(Account user, ChangePasswordRequest request) {
         // 1. Kiểm tra mật khẩu cũ
