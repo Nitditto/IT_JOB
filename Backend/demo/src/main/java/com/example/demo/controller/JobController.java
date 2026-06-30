@@ -22,11 +22,15 @@ import com.example.demo.dto.JobCardDTO;
 import com.example.demo.dto.JobCreationRequest;
 import com.example.demo.dto.JobEditRequest;
 import com.example.demo.dto.JobFilterDTO;
+import com.example.demo.dto.JobRecommendationDTO;
 import com.example.demo.dto.TagDTO;
+import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 import com.example.demo.services.JobServices;
+import com.example.demo.services.TfIdfRecommender;
 import com.example.demo.services.UserServices;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import lombok.RequiredArgsConstructor;
 
 
@@ -37,6 +41,16 @@ public class JobController {
 
     private final JobServices jobServices;
     private final UserServices userServices;
+    private final TfIdfRecommender tfIdfRecommender;
+
+    @GetMapping("/recommendations")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<JobRecommendationDTO>> getRecommendations(
+            @AuthenticationPrincipal Account currentUser) {
+        List<Job> allJobs = jobServices.getAllJobs();
+        List<JobRecommendationDTO> recommendations = tfIdfRecommender.recommendJobs(currentUser, allJobs, 10);
+        return ResponseEntity.ok(recommendations);
+    }
 
 
     @PostMapping("/create")
