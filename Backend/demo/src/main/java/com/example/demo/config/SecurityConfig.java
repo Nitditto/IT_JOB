@@ -99,6 +99,8 @@ public class SecurityConfig {
                     "/csrf", 
                     "/auth/register", 
                     "/auth/login", 
+                    "/auth/refresh",
+                    "/auth/logout",
                     "/job/search", 
                     "/location", 
                     "/job/count", 
