@@ -3,6 +3,7 @@ package com.example.demo.services;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.CVCreationRequest;
 import com.example.demo.dto.CVDTO;
@@ -24,12 +25,20 @@ public class CVServices {
     private final UserServices userServices;
     private final JobServices jobServices;
 
+    @Transactional(rollbackFor = Exception.class)
     public CV addCV(CVCreationRequest request, Long accountID, Long jobID) {
         CVId id = new CVId(accountID, jobID);
-        Account account = userServices.getUserById(accountID);
-        Job job = jobServices.getJobByID(jobID).get();
-        // CV cv = new CV(id, account, job, request.getName(), request.getPhone(), request.getCvFile(), request.getReferral());
+        
+        // 1. Kiểm tra trùng lặp ứng tuyển
+        if (cvRepository.existsById(id)) {
+            throw new IllegalStateException("Bạn đã ứng tuyển công việc này rồi!");
+        }
 
+        Account account = userServices.getUserById(accountID);
+        Job job = jobServices.getJobByID(jobID)
+                .orElseThrow(() -> new RuntimeException("Công việc không tồn tại!"));
+
+        // 2. Tạo thực thể CV
         CV cv = new CV();
         cv.setId(id);
         cv.setAccount(account);
@@ -40,6 +49,11 @@ public class CVServices {
         cv.setCvFile(request.getCvFile());
         cv.setReferral(request.getReferral());
         cv.setStatus(CVStatus.PENDING);
+
+        // 3. Tăng số lượng appliedCount của Job (ACID Transaction)
+        int currentCount = job.getAppliedCount() != null ? job.getAppliedCount() : 0;
+        job.setAppliedCount(currentCount + 1);
+
         return cvRepository.save(cv);
     }
 

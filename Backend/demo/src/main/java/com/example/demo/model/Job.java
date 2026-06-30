@@ -24,8 +24,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,7 +35,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "jobs")
 @NoArgsConstructor
-@Getter @Setter @AllArgsConstructor @Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class Job {
 
     @Id
@@ -41,7 +46,7 @@ public class Job {
     private Long id;
 
     @CreationTimestamp
-    @Column(name="createdAt", updatable = false)
+    @Column(name = "createdAt", updatable = false)
     private Instant createdAt;
 
     private Long companyID;
@@ -55,7 +60,6 @@ public class Job {
     @Enumerated(EnumType.STRING)
     private JobWorkstyle workstyle;
 
-    
     @ManyToOne(fetch = FetchType.EAGER) // 1. Tell JPA to always load it
     @Fetch(FetchMode.JOIN) // 2. Tell Hibernate to use a JOIN (avoids N+1)
     @JoinColumn(name = "location_abbreviation")
@@ -68,7 +72,6 @@ public class Job {
     @Column(name = "tag")
     private List<String> tags;
 
-
     @ElementCollection
     @CollectionTable(name = "job_images", joinColumns = @JoinColumn(name = "job_id"))
     @Lob
@@ -77,4 +80,9 @@ public class Job {
     @Column(length = 2000)
     private String description;
 
+    @Default
+    private Integer appliedCount = 0;
+
+    @Version
+    private Long version;
 }
