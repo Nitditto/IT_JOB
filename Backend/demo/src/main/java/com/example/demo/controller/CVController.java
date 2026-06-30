@@ -57,6 +57,8 @@ public class CVController {
     public ResponseEntity<?> apply(@PathVariable Long jobID, @RequestBody CVCreationRequest request, @AuthenticationPrincipal Account account) {
         try {
             return ResponseEntity.ok(cvServices.toDTO(cvServices.addCV(request, account.getId(), jobID)));
+        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Hệ thống đang bận xử lý lượt ứng tuyển khác cho công việc này, vui lòng thử lại!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
