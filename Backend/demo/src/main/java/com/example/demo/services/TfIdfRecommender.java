@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.dto.JobCardDTO;
-import com.example.demo.dto.JobRecommendationDTO;
+import com.example.demo.dto.response.JobCardResponse;
+import com.example.demo.dto.response.JobRecommendationResponse;
 import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 
@@ -22,12 +22,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TfIdfRecommender {
 
-    private final JobServices jobServices;
+    private final JobService jobService;
 
     /**
      * Recommends jobs for a candidate based on TF-IDF and Cosine Similarity.
      */
-    public List<JobRecommendationDTO> recommendJobs(Account candidate, List<Job> jobs, int limit) {
+    public List<JobRecommendationResponse> recommendJobs(Account candidate, List<Job> jobs, int limit) {
         if (jobs == null || jobs.isEmpty() || candidate == null) {
             return new ArrayList<>();
         }
@@ -63,7 +63,7 @@ public class TfIdfRecommender {
         double[] candidateVector = calculateTfIdfVector(candidateTokens, vocabList, idfMap);
 
         // 7. Tính độ tương đồng Cosine Similarity cho từng Job
-        List<JobRecommendationDTO> recommendations = new ArrayList<>();
+        List<JobRecommendationResponse> recommendations = new ArrayList<>();
         for (Job job : jobs) {
             List<String> jobTokens = jobTokensMap.get(job.getId());
             double[] jobVector = calculateTfIdfVector(jobTokens, vocabList, idfMap);
@@ -73,8 +73,8 @@ public class TfIdfRecommender {
             double matchPercentage = Math.round(similarity * 100.0 * 100.0) / 100.0;
 
             if (matchPercentage > 0) { // Chỉ gợi ý những việc có mức độ phù hợp > 0%
-                JobCardDTO card = jobServices.toCard(job);
-                recommendations.add(new JobRecommendationDTO(card, matchPercentage));
+                JobCardResponse card = jobService.toCard(job);
+                recommendations.add(new JobRecommendationResponse(card, matchPercentage));
             }
         }
 
@@ -195,3 +195,5 @@ public class TfIdfRecommender {
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 }
+
+

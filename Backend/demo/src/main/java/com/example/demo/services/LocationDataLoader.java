@@ -66,3 +66,4 @@ public class LocationDataLoader implements CommandLineRunner{
         System.out.println("Inserted " + locations.size() + " locations to the database");
     }
 }
+

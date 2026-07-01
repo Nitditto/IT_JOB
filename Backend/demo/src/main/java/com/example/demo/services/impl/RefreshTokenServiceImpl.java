@@ -1,4 +1,4 @@
-package com.example.demo.services;
+package com.example.demo.services.impl;
 
 import java.time.Instant;
 import java.util.List;
@@ -9,41 +9,43 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.model.RefreshToken;
 import com.example.demo.repository.RefreshTokenRepository;
+import com.example.demo.services.RefreshTokenService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenServices {
+@Slf4j
+public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Value("${jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    /**
-     * Finds a refresh token by its token string.
-     */
+    @Override
     public Optional<RefreshToken> findByToken(String token) {
+        log.info("Finding refresh token: {}", token);
         return refreshTokenRepository.findByToken(token);
     }
 
-    /**
-     * Creates a new refresh token for an account.
-     */
+    @Override
     @Transactional
     public RefreshToken createRefreshToken(Account account) {
-        // Thu hồi tất cả các token cũ chưa hết hạn của tài khoản này để dọn dẹp DB
+        log.info("Creating new refresh token for user {}", account.getEmail());
+        
         List<RefreshToken> activeTokens = refreshTokenRepository.findAllByAccountAndRevokedFalse(account);
         for (RefreshToken token : activeTokens) {
             token.setRevoked(true);
         }
         refreshTokenRepository.saveAll(activeTokens);
 
-        // Tạo token mới
         RefreshToken refreshToken = RefreshToken.builder()
                 .account(account)
                 .token(UUID.randomUUID().toString())
@@ -51,52 +53,50 @@ public class RefreshTokenServices {
                 .revoked(false)
                 .build();
 
-        return refreshTokenRepository.save(refreshToken);
+        RefreshToken savedToken = refreshTokenRepository.save(refreshToken);
+        log.info("Refresh token created successfully for user {}", account.getEmail());
+        return savedToken;
     }
 
-    /**
-     * Verifies if a refresh token has expired.
-     */
+    @Override
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().isBefore(Instant.now())) {
+            log.warn("Refresh token expired: {}", token.getToken());
             refreshTokenRepository.delete(token);
-            throw new RuntimeException("Refresh token was expired. Please sign in again.");
+            throw new BadRequestException("Refresh token was expired. Please sign in again.");
         }
         if (token.isRevoked()) {
-            throw new RuntimeException("Refresh token has been revoked.");
+            log.warn("Attempted to use a revoked refresh token: {}", token.getToken());
+            throw new BadRequestException("Refresh token has been revoked.");
         }
         return token;
     }
 
-    /**
-     * Implements Refresh Token Rotation (RTR).
-     * If the old token is valid, revokes it and issues a new one.
-     * If the old token is already revoked, it warns of a reuse attack: revokes ALL tokens for the account.
-     */
+    @Override
     @Transactional
     public RefreshToken rotateRefreshToken(String oldTokenString) {
+        log.info("Attempting to rotate refresh token");
         RefreshToken oldToken = refreshTokenRepository.findByToken(oldTokenString)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found."));
+                .orElseThrow(() -> {
+                    log.warn("Rotate failed: Refresh token not found: {}", oldTokenString);
+                    return new ResourceNotFoundException("Refresh token not found.");
+                });
 
-        // Phát hiện tấn công tái sử dụng (Reuse Attack)
         if (oldToken.isRevoked()) {
-            // Thu hồi toàn bộ token hoạt động của tài khoản này để bảo vệ người dùng
+            log.error("WARNING: Refresh token reuse detected! Account: {}. Revoking all active tokens.", oldToken.getAccount().getEmail());
             List<RefreshToken> activeTokens = refreshTokenRepository.findAllByAccountAndRevokedFalse(oldToken.getAccount());
             for (RefreshToken token : activeTokens) {
                 token.setRevoked(true);
             }
             refreshTokenRepository.saveAll(activeTokens);
-            throw new RuntimeException("Warning: Refresh token reuse detected! All sessions revoked.");
+            throw new BadRequestException("Warning: Refresh token reuse detected! All sessions revoked.");
         }
 
-        // Kiểm tra xem token đã hết hạn chưa
         verifyExpiration(oldToken);
 
-        // Thu hồi token cũ
         oldToken.setRevoked(true);
         refreshTokenRepository.save(oldToken);
 
-        // Tạo token mới
         RefreshToken newToken = RefreshToken.builder()
                 .account(oldToken.getAccount())
                 .token(UUID.randomUUID().toString())
@@ -104,17 +104,19 @@ public class RefreshTokenServices {
                 .revoked(false)
                 .build();
 
-        return refreshTokenRepository.save(newToken);
+        RefreshToken savedNewToken = refreshTokenRepository.save(newToken);
+        log.info("Refresh token rotated successfully. New token issued for user {}", oldToken.getAccount().getEmail());
+        return savedNewToken;
     }
 
-    /**
-     * Revokes a refresh token (used on logout).
-     */
+    @Override
     @Transactional
     public void revokeToken(String tokenString) {
+        log.info("Revoking refresh token: {}", tokenString);
         refreshTokenRepository.findByToken(tokenString).ifPresent(token -> {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
+            log.info("Refresh token revoked: {}", tokenString);
         });
     }
 }
