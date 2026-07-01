@@ -43,3 +43,4 @@ public class RefreshToken {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 }
+

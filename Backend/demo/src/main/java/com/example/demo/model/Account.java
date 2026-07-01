@@ -69,8 +69,7 @@ public class Account implements UserDetails {
 
     private String address;
 
-    @ManyToOne(fetch = FetchType.EAGER) // 1. Tell JPA to always load it
-    @Fetch(FetchMode.JOIN) // 2. Tell Hibernate to use a JOIN (avoids N+1)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 
@@ -127,3 +126,4 @@ public class Account implements UserDetails {
     }
 
 }
+

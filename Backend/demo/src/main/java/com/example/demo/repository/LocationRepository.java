@@ -10,3 +10,4 @@ import com.example.demo.model.Location;
 public interface LocationRepository extends JpaRepository<Location, String> {
     Optional<Location> findByAbbreviation(String abbr);
 }
+

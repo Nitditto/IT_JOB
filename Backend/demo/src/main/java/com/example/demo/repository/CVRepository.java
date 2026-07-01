@@ -14,3 +14,4 @@ public interface CVRepository extends JpaRepository<CV, CVId>{
     List<CV> findByJob(Job job);
     void deleteAllByJobId(Long jobId); 
 }
+
