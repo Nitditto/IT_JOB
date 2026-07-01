@@ -88,10 +88,6 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 
             )
-            .csrf((csrf) -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRequestHandler(new SpaCsrfTokenRequestHandler()) 
-            )
             .authorizeHttpRequests(auth -> auth
                 // Cho phép public endpoints
                 .requestMatchers(
@@ -100,25 +96,22 @@ public class SecurityConfig {
                     "/auth/register", 
                     "/auth/login", 
                     "/auth/refresh",
-                    "/auth/logout",
-                    "/job/search", 
-                    "/location", 
-                    "/job/count", 
-                    "/job/tags",
-                    "/job/get/*",
-                    "/user/",
-                    "/company/*").permitAll()
+                    "/auth/logout"
+                ).permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/count").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/tags").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/*").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/locations").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/users/*").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies/*").permitAll()
                 // Yêu cầu auth cho các endpoint còn lại
                 .anyRequest().authenticated()
             )
-
-
-            // Nếu dùng JWT
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            // QUAN TRỌNG: Thiết lập session stateless vì dùng API và token
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // Gắn provider xác thực đã tạo ở trên
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,11 +1,7 @@
 package com.example.demo.controller;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,76 +9,63 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.CompanyDTO;
-import com.example.demo.dto.CompanyEditRequest;
-import com.example.demo.dto.UserDTO;
-import com.example.demo.dto.UserEditRequest;
-import com.example.demo.enums.UserRole;
+import com.example.demo.dto.response.CompanyResponse;
+import com.example.demo.dto.request.CompanyEditRequest;
+import com.example.demo.dto.response.UserResponse;
+import com.example.demo.dto.request.UserEditRequest;
 import com.example.demo.model.Account;
-import com.example.demo.model.Job;
-import com.example.demo.services.JobServices;
-import com.example.demo.services.UserServices;
+import com.example.demo.services.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping
+@Slf4j
 public class UserController {
     
-    private final UserServices userServices;
-    private final JobServices jobServices;
-    @GetMapping("/user/{id}")
-    public UserDTO getUser(@PathVariable Long id) {
-        return userServices.convertToUser(userServices.getUserById(id));
+    private final UserService userService;
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+        log.info("REST request to get user: {}", id);
+        UserResponse user = userService.convertToUser(userService.getUserById(id));
+        return ResponseEntity.ok(user);
     }
     
-    @GetMapping("/company/{id}")
-    public CompanyDTO getCompany(@PathVariable Long id) {
-        return userServices.convertToCompany(userServices.getUserById(id));
+    @GetMapping("/companies/{id}")
+    public ResponseEntity<CompanyResponse> getCompany(@PathVariable Long id) {
+        log.info("REST request to get company: {}", id);
+        CompanyResponse company = userService.convertToCompany(userService.getUserById(id));
+        return ResponseEntity.ok(company);
     }
 
-    @GetMapping("/company/list")
-    public List<CompanyDTO> getCompanyList(@RequestParam(required=false) Integer limit) {
-        List<Account> companies = userServices.getUsersByRole(UserRole.ROLE_COMPANY);
-        Collections.sort(companies, new Comparator<>(){
-            @Override
-            public int compare(Account a1, Account a2) {
-                List<Job> a1Jobs = jobServices.getJobByCompanyID(a1.getId());
-                List<Job> a2Jobs = jobServices.getJobByCompanyID(a2.getId());
-                return a2Jobs.size() - a1Jobs.size();
-            }
-        });
-        if (limit != null) {
-            companies = companies.subList(0, limit > companies.size() ? companies.size() : limit);
-        }
-        return companies.stream()
-        .map(userServices::convertToCompany)
-        .collect(Collectors.toList());
+    @GetMapping("/companies")
+    public ResponseEntity<List<CompanyResponse>> getCompanyList(@RequestParam(required = false) Integer limit) {
+        log.info("REST request to get company list (limit={})", limit);
+        List<CompanyResponse> dtos = userService.getCompanyListSortedByJobs(limit);
+        return ResponseEntity.ok(dtos);
     }
     
-
-    @PutMapping("/edit/user")
+    @PutMapping("/users/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> editUser(@RequestBody UserEditRequest request, @AuthenticationPrincipal Account account) {
-        try {
-            return ResponseEntity.ok(userServices.convertToUser(userServices.editUser(account.getId(), request)));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> editUser(@Valid @RequestBody UserEditRequest request, @AuthenticationPrincipal Account account) {
+        log.info("REST request to edit user profile: {}", account.getEmail());
+        Account updated = userService.editUser(account.getId(), request);
+        return ResponseEntity.ok(userService.convertToUser(updated));
     }
 
-    @PutMapping("/edit/company")
+    @PutMapping("/companies/me")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<?> editCompany(@RequestBody CompanyEditRequest request, @AuthenticationPrincipal Account account) {
-        try {
-            return ResponseEntity.ok(userServices.convertToCompany(userServices.editCompany(account.getId(), request)));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<CompanyResponse> editCompany(@Valid @RequestBody CompanyEditRequest request, @AuthenticationPrincipal Account account) {
+        log.info("REST request to edit company profile: {}", account.getEmail());
+        Account updated = userService.editCompany(account.getId(), request);
+        return ResponseEntity.ok(userService.convertToCompany(updated));
     }
 }
