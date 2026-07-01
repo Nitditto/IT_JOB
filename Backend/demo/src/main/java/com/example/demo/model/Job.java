@@ -2,10 +2,9 @@ package com.example.demo.model;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import com.example.demo.enums.JobPosition;
 import com.example.demo.enums.JobWorkstyle;
@@ -60,8 +59,7 @@ public class Job {
     @Enumerated(EnumType.STRING)
     private JobWorkstyle workstyle;
 
-    @ManyToOne(fetch = FetchType.EAGER) // 1. Tell JPA to always load it
-    @Fetch(FetchMode.JOIN) // 2. Tell Hibernate to use a JOIN (avoids N+1)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 
@@ -70,12 +68,12 @@ public class Job {
     @ElementCollection
     @CollectionTable(name = "job_tags", joinColumns = @JoinColumn(name = "job_id"))
     @Column(name = "tag")
-    private List<String> tags;
+    private Set<String> tags;
 
     @ElementCollection
     @CollectionTable(name = "job_images", joinColumns = @JoinColumn(name = "job_id"))
     @Lob
-    private List<String> images;
+    private Set<String> images;
 
     @Column(length = 2000)
     private String description;

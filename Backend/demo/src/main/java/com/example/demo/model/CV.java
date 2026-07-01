@@ -53,3 +53,4 @@ public class CV {
     @Enumerated(EnumType.STRING)
     private CVStatus status = CVStatus.PENDING;
 }
+
