@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import java.util.List;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class JobFilterDTO {
+public class JobFilterRequest {
     private String query;
     private String location;
     private List<String> position;
@@ -16,3 +16,4 @@ public class JobFilterDTO {
     private List<String> tags;
     private Long companyID;
 }
+

@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import java.util.List;
 
@@ -61,3 +61,4 @@ public class JobCreationRequest {
         return maxSalary.compareTo(minSalary) >= 0;
     }
 }
+

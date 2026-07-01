@@ -1,27 +1,27 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import java.util.List;
 
 import com.example.demo.enums.JobPosition;
 import com.example.demo.enums.JobWorkstyle;
-import com.example.demo.model.Location;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
-public class JobCardDTO {
-    private Long id;
+@Getter @Setter @AllArgsConstructor
+public class JobEditRequest {
+    private Long jobID;
     private String name;
-    private Long companyID;
-    private String companyName;
-    private String companyAvatar;
     private Long minSalary;
     private Long maxSalary;
     private JobPosition position;
     private JobWorkstyle workstyle;
-    private Location location;
+    private String address;
+    private String location;
     private List<String> tags;
+    private List<String> images;
+    private String description;
+
 }
+

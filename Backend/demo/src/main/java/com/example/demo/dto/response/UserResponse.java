@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.response;
 
 import com.example.demo.enums.UserRole;
 import com.example.demo.enums.UserStatus;
@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter @AllArgsConstructor
-public class UserDTO {
+public class UserResponse {
     private Long id;
     private String name;
     private String email;
@@ -21,3 +21,4 @@ public class UserDTO {
     private String address;
     private Location location;
 }
+
