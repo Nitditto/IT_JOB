@@ -5,3 +5,4 @@ public enum UserStatus {
     freelancer,
     inactive
 }
+

@@ -5,3 +5,4 @@ public enum CompanyScale {
     medium, // 151 - 300 nv
     large   // 300+ nv
 }
+

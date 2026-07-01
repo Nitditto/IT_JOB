@@ -2,11 +2,12 @@ package com.example.demo.controller;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,108 +18,100 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.CompanyDTO;
-import com.example.demo.dto.JobCardDTO;
-import com.example.demo.dto.JobCreationRequest;
-import com.example.demo.dto.JobEditRequest;
-import com.example.demo.dto.JobFilterDTO;
-import com.example.demo.dto.JobRecommendationDTO;
-import com.example.demo.dto.TagDTO;
+import com.example.demo.dto.response.CompanyResponse;
+import com.example.demo.dto.response.JobCardResponse;
+import com.example.demo.dto.request.JobCreationRequest;
+import com.example.demo.dto.request.JobEditRequest;
+import com.example.demo.dto.request.JobFilterRequest;
+import com.example.demo.dto.response.JobRecommendationResponse;
+import com.example.demo.dto.response.TagResponse;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.model.Job;
-import com.example.demo.services.JobServices;
+import com.example.demo.services.JobService;
 import com.example.demo.services.TfIdfRecommender;
-import com.example.demo.services.UserServices;
+import com.example.demo.services.UserService;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/job")
+@RequestMapping("/jobs")
+@Slf4j
 public class JobController {
 
-    private final JobServices jobServices;
-    private final UserServices userServices;
+    private final JobService jobService;
+    private final UserService userService;
     private final TfIdfRecommender tfIdfRecommender;
 
     @GetMapping("/recommendations")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<JobRecommendationDTO>> getRecommendations(
+    public ResponseEntity<List<JobRecommendationResponse>> getRecommendations(
             @AuthenticationPrincipal Account currentUser) {
-        List<Job> allJobs = jobServices.getAllJobs();
-        List<JobRecommendationDTO> recommendations = tfIdfRecommender.recommendJobs(currentUser, allJobs, 10);
+        log.info("REST request to get job recommendations for user: {}", currentUser.getEmail());
+        List<Job> allJobs = jobService.getAllJobs();
+        List<JobRecommendationResponse> recommendations = tfIdfRecommender.recommendJobs(currentUser, allJobs, 10);
         return ResponseEntity.ok(recommendations);
     }
 
-
-    @PostMapping("/create")
+    @PostMapping
     @PreAuthorize("hasRole('COMPANY')")
-    public Job create(@RequestBody JobCreationRequest job, Principal principal) {
-
-        CompanyDTO company = userServices.convertToCompany(userServices.getCurrentUser(principal)); 
-        
-        return jobServices.createJob(job, company);
+    public ResponseEntity<Job> create(@Valid @RequestBody JobCreationRequest jobRequest, Principal principal) {
+        log.info("REST request to create job: {}", jobRequest.getName());
+        CompanyResponse company = userService.convertToCompany(userService.getCurrentUser(principal)); 
+        Job createdJob = jobService.createJob(jobRequest, company);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdJob);
     }
 
-
     @GetMapping("/count")
-    public Long count() {
-        return jobServices.getJobCount();
+    public ResponseEntity<Long> count() {
+        log.info("REST request to get total job count");
+        return ResponseEntity.ok(jobService.getJobCount());
     }
     
     @GetMapping("/tags")
-    public List<TagDTO> getTags() {
-        return jobServices.getAllTags();
-    }
-    
-
-    @GetMapping("/search")
-    public List<JobCardDTO> search(@ModelAttribute JobFilterDTO filters) {
-        
-        // 1. Gọi một phương thức service mới (bạn sẽ tạo ở bước 3)
-        List<Job> filteredJobs = jobServices.searchJobsByFilters(filters);
-        
-        // 2. Dùng lại logic map DTO của bạn
-        return filteredJobs.stream()
-            .map(jobServices::toCard)
-            .collect(Collectors.toList());
+    public ResponseEntity<List<TagResponse>> getTags() {
+        log.info("REST request to get all job tags");
+        return ResponseEntity.ok(jobService.getAllTags());
     }
 
-    @GetMapping("/get/{id}")
-    public Job getJobInfo(@PathVariable Long id) {
-        Optional<Job> job = jobServices.getJobByID(id);
-        if (job.isPresent()) {
-            return job.get();
-        } else {
-            return new Job();
-        }
+    @GetMapping
+    public ResponseEntity<List<JobCardResponse>> search(@ModelAttribute JobFilterRequest filters) {
+        log.info("REST request to search jobs with filters: {}", filters);
+        List<Job> filteredJobs = jobService.searchJobsByFilters(filters);
+        List<JobCardResponse> cards = filteredJobs.stream()
+                .map(jobService::toCard)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(cards);
     }
-    
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Job> getJobInfo(@PathVariable Long id) {
+        log.info("REST request to get job detail: {}", id);
+        Job job = jobService.getJobByID(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy công việc với ID: " + id));
+        return ResponseEntity.ok(job);
+    }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('COMPANY')")
-    public Job editJob(@PathVariable String id, @RequestBody JobEditRequest jobEditRequest) {
-        return jobServices.editJob(jobEditRequest);
+    public ResponseEntity<Job> editJob(@PathVariable Long id, @Valid @RequestBody JobEditRequest jobEditRequest) {
+        log.info("REST request to edit job ID: {}", id);
+        // Đảm bảo ID trong path và body khớp nhau
+        jobEditRequest.setJobID(id);
+        Job updatedJob = jobService.editJob(jobEditRequest);
+        return ResponseEntity.ok(updatedJob);
     }
     
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<?> deleteJob(@PathVariable Long id, Principal principal) {
-        try {
-            // Lấy thông tin user hiện tại để check quyền
-            Long currentCompanyId = userServices.getCurrentUser(principal).getId();
-            
-            // Gọi service xóa
-            jobServices.deleteJob(id, currentCompanyId);
-            
-            return ResponseEntity.ok("Xóa công việc thành công!");
-        } catch (RuntimeException e) {
-            // Trả về lỗi nếu không tìm thấy hoặc không có quyền
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi hệ thống!");
-        }
+    public ResponseEntity<String> deleteJob(@PathVariable Long id, Principal principal) {
+        log.info("REST request to delete job ID: {}", id);
+        Long currentCompanyId = userService.getCurrentUser(principal).getId();
+        jobService.deleteJob(id, currentCompanyId);
+        return ResponseEntity.ok("Xóa công việc thành công!");
     }
 }
+
