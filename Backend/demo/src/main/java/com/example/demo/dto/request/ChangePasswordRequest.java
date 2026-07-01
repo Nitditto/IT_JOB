@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -15,3 +15,4 @@ public class ChangePasswordRequest {
     @NotBlank(message = "Vui lòng xác nhận mật khẩu mới")
     private String confirmPassword;
 }
+

@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import com.example.demo.enums.CompanyModel;
 import com.example.demo.enums.CompanyScale;
@@ -22,3 +22,4 @@ public class CompanyEditRequest {
     private Long endWork;
     private Boolean hasOvertime;
 }
+

@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -18,3 +18,4 @@ public class CVCreationRequest {
 
     private String referral;
 }
+

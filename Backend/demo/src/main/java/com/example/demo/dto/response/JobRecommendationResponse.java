@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobRecommendationDTO {
-    private JobCardDTO job;
+public class JobRecommendationResponse {
+    private JobCardResponse job;
     private double matchPercentage;
 }
+
+

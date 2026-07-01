@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.response;
 
 import com.example.demo.enums.CVStatus;
 import com.example.demo.enums.JobPosition;
@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter @AllArgsConstructor
-public class CVDTO {
+public class CVResponse {
     private Long accountID;
     private Long jobID;
 
@@ -28,3 +28,4 @@ public class CVDTO {
     private JobWorkstyle workstyle;
 
 }
+

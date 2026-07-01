@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.response;
 
 import com.example.demo.enums.CompanyModel;
 import com.example.demo.enums.CompanyScale;
@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter @AllArgsConstructor
-public class CompanyDTO {
+public class CompanyResponse {
     private Long id;
     private String name;
     private String email;
@@ -25,3 +25,4 @@ public class CompanyDTO {
     private Long endWork;
     private Boolean hasOvertime;
 }
+

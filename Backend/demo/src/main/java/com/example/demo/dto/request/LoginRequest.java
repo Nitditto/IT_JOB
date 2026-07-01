@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -15,3 +15,4 @@ public class LoginRequest {
     @NotBlank(message = "Vui lòng nhập mật khẩu của bạn!")
     private String password;
 }
+

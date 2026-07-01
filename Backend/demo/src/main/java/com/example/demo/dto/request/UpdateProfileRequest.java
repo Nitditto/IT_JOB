@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.request;
 
 import com.example.demo.enums.CompanyModel;
 import com.example.demo.enums.CompanyScale;
@@ -25,3 +25,4 @@ public class UpdateProfileRequest {
     // --- Riêng cho User ---
     private String lookingfor; // Vị trí mong muốn
 }
+
