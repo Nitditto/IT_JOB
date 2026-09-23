@@ -68,8 +68,8 @@ export default function RegisterPage() {
                 dispatch({type: "SUBMIT_SUCCESS", payload: "Đăng kí thành công!"})
             } catch (error: any) {
                 dispatch({
-                    type: "SUBMIT_FAILURE", 
-                    payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!"})
+                    type: "SUBMIT_FAILURE",
+                    payload: error.response?.data?.message || "Có lỗi đã xảy ra. Vui lòng thử lại!"})
                 }
             }
 

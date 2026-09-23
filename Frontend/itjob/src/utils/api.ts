@@ -30,4 +30,19 @@ api.interceptors.request.use(
   }
 );
 
+// Backend giờ bọc mọi response thành công trong ApiResponse<T>
+// ({ success, data, message, timestamp }). Unwrap ở đây để code cũ
+// đọc `res.data` (mong đợi payload thật) không phải sửa lại từng chỗ gọi.
+api.interceptors.response.use(
+  (response) => {
+    if (response.data && typeof response.data === 'object' && 'success' in response.data) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default api;

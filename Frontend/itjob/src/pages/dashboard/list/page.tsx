@@ -2,7 +2,6 @@ import {Link} from "react-router";
 import { FaUserTie } from "react-icons/fa6";
 import { useEffect } from "react";
 import { Title } from "../../../components/title/title";
-import { CardCompanyItem } from "../../../components/card/CardCompanyItem";
 import { Pagination } from "../../../components/pagination/Pagination";
 
 export default function CompanyListPage() {
@@ -83,9 +82,8 @@ export default function CompanyListPage() {
                 </div>
               </Link>
             ))}
-            <CardCompanyItem />
           </div>
-          <Pagination/>
+          <Pagination list={companyList} page={1} setPage={() => {}} searchParams={new URLSearchParams()} setSearchParams={() => {}} />
         </div>
       </div>
     </>

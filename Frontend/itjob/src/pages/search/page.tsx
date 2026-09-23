@@ -6,7 +6,6 @@ import { Section1 } from "../../components/section/Section1";
 import { useEffect, useState } from "react";
 import type { JobFilterParams } from '../../types'
 import { useSearchParams } from "react-router";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { Search, Briefcase, MapPin, Tag, UserCheck, DollarSign } from "lucide-react";
 import translation from "@/utils/translation";
@@ -40,11 +39,10 @@ export default function SearchPage() {
   };
   const [jobList, setJobList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const fetchJobs = async (filters: JobFilterParams) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${BACKEND_URL}/job/search`, {
+      const response = await api.get(`/jobs`, {
         params: filters,
         paramsSerializer: { indexes: null }
       });

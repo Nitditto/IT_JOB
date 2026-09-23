@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { validateEmpty, validatePassword, validate, validateEmail } from '../../utils/validateForms';
-import axios from 'axios';
+import api from '@/utils/api';
 import { formReducer, handleFieldChange } from '../../utils/formUtils';
 import { motion } from 'framer-motion';
 import { Building2, Mail, Lock, Briefcase, ArrowRight } from 'lucide-react';
@@ -15,7 +15,6 @@ export default function CompanyRegisterPage() {
     }
     const [state, dispatch] = useReducer(formReducer(initialState), initialState)
     const { data, error, isLoading, status } = state;
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const navigate = useNavigate();
 
     const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -30,11 +29,15 @@ export default function CompanyRegisterPage() {
         }
         dispatch({ type: "SUBMIT_START" });
         try {
-            await axios.post(`${BACKEND_URL}/auth/register`, { ...data, role: "ROLE_COMPANY" })
+            // LƯU Ý: backend hiện chỉ cho ROLE_ADMIN gọi /auth/register/company
+            // (xem @PreAuthorize ở AuthController#registerCompany). Trang public này
+            // sẽ luôn nhận 403 cho tới khi có quyết định: mở endpoint này public,
+            // hoặc bỏ flow tự đăng ký công ty (chuyển hẳn qua admin tạo tài khoản).
+            await api.post(`/auth/register/company`, data)
             dispatch({ type: "SUBMIT_SUCCESS", payload: "Đăng ký tài khoản Nhà Tuyển Dụng thành công!" })
             setTimeout(() => { navigate('/login') }, 1000);
         } catch (error: any) {
-            dispatch({ type: "SUBMIT_FAILURE", payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!" })
+            dispatch({ type: "SUBMIT_FAILURE", payload: error.response?.data?.message || "Có lỗi đã xảy ra. Vui lòng thử lại!" })
         }
     }
 

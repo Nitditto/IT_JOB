@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../../../context/AuthContext";
 import api from "../../../../../utils/api";
-import axios from "axios";
 import { useFilePicker } from 'use-file-picker';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router"; 
@@ -20,9 +19,7 @@ export default function UserManageProfilePage() {
   const { user } = useAuth();
   
   const [locations, setLocations] = useState<JobLocation[]>([]);
-  
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [statusMsg, setStatusMsg] = useState({ message: "", isError: false });
 
@@ -48,11 +45,11 @@ export default function UserManageProfilePage() {
     const init = async () => {
       try {
         // 3. SỬA API CALL: Dùng JobLocation
-        const locRes = await axios.get<JobLocation[]>(`${BACKEND_URL}/location`);
+        const locRes = await api.get<JobLocation[]>(`/locations`);
         setLocations(locRes.data);
 
         if (user?.id) {
-          const res = await api.get(`/user/${user.id}`);
+          const res = await api.get(`/users/${user.id}`);
           const info = res.data;
 
           setFormData({
@@ -75,7 +72,7 @@ export default function UserManageProfilePage() {
     };
 
     init();
-  }, [user, BACKEND_URL]);
+  }, [user]);
 
   useEffect(() => {
     if (filesContent.length > 0) {
@@ -93,19 +90,19 @@ export default function UserManageProfilePage() {
             ...formData
         };
 
-        await api.put("/edit/user", payload);
+        await api.put("/users/me", payload);
 
         setStatusMsg({ message: "Cập nhật thành công!", isError: false });
-        
+
         setTimeout(() => {
-           window.location.reload(); 
+           window.location.reload();
         }, 1000);
 
     } catch (error: any) {
         console.error(error);
-        setStatusMsg({ 
-            message: error.response?.data || "Lỗi cập nhật! Vui lòng kiểm tra lại.", 
-            isError: true 
+        setStatusMsg({
+            message: error.response?.data?.message || "Lỗi cập nhật! Vui lòng kiểm tra lại.",
+            isError: true
         });
     } finally {
         setIsLoading(false);

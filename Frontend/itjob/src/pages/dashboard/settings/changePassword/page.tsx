@@ -42,7 +42,7 @@ export default function ChangePasswordPage() {
         setIsLoading(true);
         try {
             // Gọi API
-            await api.put("/auth/change-password", formData);
+            await api.put("/auth/password", formData);
             
             setStatus({ message: "Đổi mật khẩu thành công!", isError: false });
             
@@ -51,9 +51,9 @@ export default function ChangePasswordPage() {
 
         } catch (error: any) {
             console.error(error);
-            setStatus({ 
-                message: error.response?.data || "Có lỗi xảy ra, vui lòng thử lại!", 
-                isError: true 
+            setStatus({
+                message: error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!",
+                isError: true
             });
         } finally {
             setIsLoading(false);
