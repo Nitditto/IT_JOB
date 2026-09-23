@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.model.Location;
 import com.example.demo.services.LocationService;
 
@@ -23,12 +24,12 @@ public class LocationController {
     private final LocationService locationService;
 
     @GetMapping
-    public ResponseEntity<List<Location>> getLocation(@RequestParam(required = false) String abbreviation) {
+    public ResponseEntity<ApiResponse<List<Location>>> getLocation(@RequestParam(required = false) String abbreviation) {
         log.info("REST request to get locations (abbreviation={})", abbreviation);
         if (abbreviation != null && !abbreviation.trim().isEmpty()) {
-            return ResponseEntity.ok(List.of(locationService.getLocation(abbreviation)));
-        } 
-        return ResponseEntity.ok(locationService.getAllLocations());
+            return ResponseEntity.ok(ApiResponse.success(List.of(locationService.getLocation(abbreviation))));
+        }
+        return ResponseEntity.ok(ApiResponse.success(locationService.getAllLocations()));
     }
 }
 

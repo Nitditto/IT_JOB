@@ -1,8 +1,11 @@
 package com.example.demo.config;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,20 +42,24 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@RequiredArgsConstructor // THÊM ANNOTATION NÀY
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
-
-    // THÊM DEPENDENCY INJECTION CHO USER REPOSITORY
     private final AccountRepository userRepository;
-		private final JwtAuthenticationFilter jwtAuthFilter; // TIÊM FILTER VÀO
+    private final JwtAuthenticationFilter jwtAuthFilter;
 
+    @Value("${allowed.cors.origins}")
+    private String allowedCorsOrigins;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> origins = Arrays.stream(allowedCorsOrigins.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -61,16 +68,6 @@ public class SecurityConfig {
         return source;
     }
 
-    // --- CÁC BEAN CÒN THIẾU ĐƯỢC THÊM VÀO ĐÂY ---
-
-    // 1. BEAN ĐỂ SPRING BIẾT CÁCH TÌM USER TRONG DATABASE
-    // @Bean
-    // public UserDetailsService userDetailsService() {
-    //     return username -> userRepository.findByEmail(username)
-    //             .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
-    // }
-
-    // 2. BEAN CUNG CẤP CƠ CHẾ XÁC THỰC
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -119,15 +116,15 @@ public class SecurityConfig {
         return http.build();
     }
 
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
 
 // Lớp SpaCsrfTokenRequestHandler giữ nguyên

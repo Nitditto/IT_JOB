@@ -1,7 +1,10 @@
 package com.example.demo.services.impl;
 
 import java.security.Principal;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -127,6 +130,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<Long, Account> getUsersByIds(Collection<Long> ids) {
+        log.info("Fetching {} users by IDs", ids.size());
+        Map<Long, Account> accountsById = new HashMap<>();
+        if (ids.isEmpty()) {
+            return accountsById;
+        }
+        accountRepository.findAllById(ids).forEach(account -> accountsById.put(account.getId(), account));
+        return accountsById;
+    }
+
+    @Override
     public List<Account> getUsersByRole(UserRole role) {
         log.info("Fetching users by role {}", role);
         return accountRepository.findByRole(role);
@@ -186,13 +200,12 @@ public class UserServiceImpl implements UserService {
     public List<CompanyResponse> getCompanyListSortedByJobs(Integer limit) {
         log.info("Fetching company list sorted by job count (limit={})", limit);
         List<Account> companies = accountRepository.findByRole(UserRole.ROLE_COMPANY);
-        
+        Map<Long, Long> jobCountByCompanyId = getJobCountByCompanyId(companies);
+
         // Sắp xếp các công ty theo số lượng tin tuyển dụng (nhiều nhất xếp trước)
-        companies.sort((a1, a2) -> {
-            List<Job> a1Jobs = jobRepository.findByCompanyID(a1.getId());
-            List<Job> a2Jobs = jobRepository.findByCompanyID(a2.getId());
-            return Integer.compare(a2Jobs.size(), a1Jobs.size());
-        });
+        companies.sort((a1, a2) -> Long.compare(
+                jobCountByCompanyId.getOrDefault(a2.getId(), 0L),
+                jobCountByCompanyId.getOrDefault(a1.getId(), 0L)));
 
         if (limit != null && limit > 0 && limit < companies.size()) {
             companies = companies.subList(0, limit);
@@ -201,5 +214,17 @@ public class UserServiceImpl implements UserService {
         return companies.stream()
                 .map(this::convertToCompany)
                 .collect(Collectors.toList());
+    }
+
+    private Map<Long, Long> getJobCountByCompanyId(List<Account> companies) {
+        List<Long> companyIds = companies.stream().map(Account::getId).collect(Collectors.toList());
+        if (companyIds.isEmpty()) {
+            return new HashMap<>();
+        }
+        Map<Long, Long> jobCountByCompanyId = new HashMap<>();
+        for (Object[] row : jobRepository.countByCompanyIds(companyIds)) {
+            jobCountByCompanyId.put((Long) row[0], (Long) row[1]);
+        }
+        return jobCountByCompanyId;
     }
 }

@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.UnauthorizedException;
 import com.example.demo.model.Account;
 import com.example.demo.model.RefreshToken;
 import com.example.demo.repository.RefreshTokenRepository;
@@ -63,11 +63,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         if (token.getExpiryDate().isBefore(Instant.now())) {
             log.warn("Refresh token expired: {}", token.getToken());
             refreshTokenRepository.delete(token);
-            throw new BadRequestException("Refresh token was expired. Please sign in again.");
+            throw new UnauthorizedException("Refresh token was expired. Please sign in again.");
         }
         if (token.isRevoked()) {
             log.warn("Attempted to use a revoked refresh token: {}", token.getToken());
-            throw new BadRequestException("Refresh token has been revoked.");
+            throw new UnauthorizedException("Refresh token has been revoked.");
         }
         return token;
     }
@@ -89,7 +89,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 token.setRevoked(true);
             }
             refreshTokenRepository.saveAll(activeTokens);
-            throw new BadRequestException("Warning: Refresh token reuse detected! All sessions revoked.");
+            throw new UnauthorizedException("Warning: Refresh token reuse detected! All sessions revoked.");
         }
 
         verifyExpiration(oldToken);

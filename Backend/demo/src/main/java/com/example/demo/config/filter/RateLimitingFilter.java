@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.constants.RateLimitConstants;
+
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -55,7 +57,7 @@ public class RateLimitingFilter implements Filter {
     }
 
     private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
+        String xfHeader = request.getHeader(RateLimitConstants.FORWARDED_FOR_HEADER);
         if (xfHeader == null) {
             return request.getRemoteAddr();
         }
@@ -64,31 +66,22 @@ public class RateLimitingFilter implements Filter {
 
     private String getLimitType(String uri) {
         if (uri.startsWith("/auth/login") || uri.startsWith("/auth/register")) {
-            return "AUTH";
+            return RateLimitConstants.AUTH_LIMIT_TYPE;
         } else if (uri.contains("/apply") || uri.contains("/upload")) {
-            return "UPLOAD";
+            return RateLimitConstants.UPLOAD_LIMIT_TYPE;
         }
-        return "GENERAL";
+        return RateLimitConstants.GENERAL_LIMIT_TYPE;
     }
 
     private Bucket createNewBucket(String limitType) {
-        switch (limitType) {
-            case "AUTH":
-                // Tối đa 5 request mỗi phút cho Login/Register
-                return Bucket.builder()
-                        .addLimit(Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1))))
-                        .build();
-            case "UPLOAD":
-                // Tối đa 10 request mỗi phút cho Nộp CV/Upload file
-                return Bucket.builder()
-                        .addLimit(Bandwidth.classic(10, Refill.intervally(10, Duration.ofMinutes(1))))
-                        .build();
-            default:
-                // Tối đa 100 request mỗi phút cho các API tìm kiếm/công khai khác
-                return Bucket.builder()
-                        .addLimit(Bandwidth.classic(100, Refill.intervally(100, Duration.ofMinutes(1))))
-                        .build();
-        }
+        int capacity = switch (limitType) {
+            case RateLimitConstants.AUTH_LIMIT_TYPE -> RateLimitConstants.AUTH_CAPACITY_PER_MINUTE;
+            case RateLimitConstants.UPLOAD_LIMIT_TYPE -> RateLimitConstants.UPLOAD_CAPACITY_PER_MINUTE;
+            default -> RateLimitConstants.GENERAL_CAPACITY_PER_MINUTE;
+        };
+        return Bucket.builder()
+                .addLimit(Bandwidth.classic(capacity, Refill.intervally(capacity, Duration.ofMinutes(1))))
+                .build();
     }
 }
 

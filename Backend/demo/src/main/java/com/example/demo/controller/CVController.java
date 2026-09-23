@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.request.CVCreationRequest;
+import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.CVResponse;
 import com.example.demo.dto.request.CVEditRequest;
 import com.example.demo.enums.CVStatus;
@@ -35,92 +35,85 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping
 @Slf4j
 public class CVController {
-    
+
     private final CVService cvService;
 
     // Lấy CV của ứng viên đăng nhập đối với 1 Job cụ thể
     @GetMapping("/jobs/{jobID}/cvs/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CVResponse> getCVFromJob(@PathVariable Long jobID, @AuthenticationPrincipal Account user) {
+    public ResponseEntity<ApiResponse<CVResponse>> getCVFromJob(@PathVariable Long jobID, @AuthenticationPrincipal Account user) {
         log.info("REST request to get CV for Job {} by user {}", jobID, user.getEmail());
         CV cv = cvService.getCVDetail(jobID, user.getId());
-        return ResponseEntity.ok(cvService.toDTO(cv));
+        return ResponseEntity.ok(ApiResponse.success(cvService.toDTO(cv)));
     }
-    
+
     // Ứng viên nộp CV cho 1 Job
     @PostMapping("/jobs/{jobID}/cvs")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CVResponse> apply(@PathVariable Long jobID, @Valid @RequestBody CVCreationRequest request, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<ApiResponse<CVResponse>> apply(@PathVariable Long jobID, @Valid @RequestBody CVCreationRequest request, @AuthenticationPrincipal Account account) {
         log.info("REST request to apply CV for Job {} by user {}", jobID, account.getEmail());
         CV cv = cvService.addCV(request, account.getId(), jobID);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cvService.toDTO(cv));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(cvService.toDTO(cv)));
     }
 
     // Ứng viên sửa CV đã nộp
     @PutMapping("/jobs/{jobID}/cvs")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<CVResponse> edit(@PathVariable Long jobID, @Valid @RequestBody CVEditRequest request, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<ApiResponse<CVResponse>> edit(@PathVariable Long jobID, @Valid @RequestBody CVEditRequest request, @AuthenticationPrincipal Account account) {
         log.info("REST request to edit CV for Job {} by user {}", jobID, account.getEmail());
         CV cv = cvService.editCV(request, account.getId(), jobID);
-        return ResponseEntity.ok(cvService.toDTO(cv));
+        return ResponseEntity.ok(ApiResponse.success(cvService.toDTO(cv)));
     }
-    
+
     // Ứng viên rút CV đã nộp
     @DeleteMapping("/jobs/{jobID}/cvs")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<String> delete(@PathVariable Long jobID, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long jobID, @AuthenticationPrincipal Account account) {
         log.info("REST request to delete CV for Job {} by user {}", jobID, account.getEmail());
         cvService.deleteCV(jobID, account.getId());
-        return ResponseEntity.ok("Đã rút CV thành công!");
+        return ResponseEntity.ok(ApiResponse.success(null, "Đã rút CV thành công!"));
     }
 
     // Nhà tuyển dụng lấy danh sách CV ứng tuyển vào Job của mình
     @GetMapping("/jobs/{jobID}/cvs")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<List<CVResponse>> getJobCVs(@PathVariable("jobID") Long jobID) {
+    public ResponseEntity<ApiResponse<List<CVResponse>>> getJobCVs(@PathVariable("jobID") Long jobID) {
         log.info("REST request for Company to get all CVs for Job {}", jobID);
-        List<CVResponse> cvs = cvService.getCVByJobID(jobID).stream()
-                .map(cvService::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(cvs);
+        List<CVResponse> cvs = cvService.toDTOList(cvService.getCVByJobID(jobID));
+        return ResponseEntity.ok(ApiResponse.success(cvs));
     }
-    
+
     // Ứng viên xem lại danh sách tất cả các CV mình đã nộp
     @GetMapping("/cvs")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<List<CVResponse>> getUserCVs(@AuthenticationPrincipal Account account) {
+    public ResponseEntity<ApiResponse<List<CVResponse>>> getUserCVs(@AuthenticationPrincipal Account account) {
         log.info("REST request for Candidate {} to get their CV history", account.getEmail());
-        List<CVResponse> cvs = cvService.getCVByUserID(account.getId()).stream()
-                .map(cvService::toDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(cvs);
+        List<CVResponse> cvs = cvService.toDTOList(cvService.getCVByUserID(account.getId()));
+        return ResponseEntity.ok(ApiResponse.success(cvs));
     }
-    
+
     // Nhà tuyển dụng xem chi tiết 1 CV của ứng viên
     @GetMapping("/jobs/{jobId}/cvs/accounts/{accountId}")
-    @PreAuthorize("hasRole('COMPANY')") 
-    public ResponseEntity<CVResponse> getCVDetailForCompany(
-            @PathVariable Long jobId,      
-            @PathVariable Long accountId   
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ApiResponse<CVResponse>> getCVDetailForCompany(
+            @PathVariable Long jobId,
+            @PathVariable Long accountId
     ) {
         log.info("REST request for Company to get CV detail for Job {} and Candidate {}", jobId, accountId);
         CV cv = cvService.getCVDetail(jobId, accountId);
-        return ResponseEntity.ok(cvService.toDTO(cv));
+        return ResponseEntity.ok(ApiResponse.success(cvService.toDTO(cv)));
     }
 
     // Nhà tuyển dụng cập nhật trạng thái duyệt CV (PENDING, APPROVED, REJECTED...)
     @PatchMapping("/jobs/{jobId}/cvs/accounts/{accountId}/status")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<String> updateStatus(
-            @PathVariable Long jobId, 
+    public ResponseEntity<ApiResponse<Void>> updateStatus(
+            @PathVariable Long jobId,
             @PathVariable Long accountId,
-            @RequestParam("status") String statusStr
+            @RequestParam("status") CVStatus status
     ) {
-        log.info("REST request for Company to update CV status for Job {} and Candidate {} to {}", jobId, accountId, statusStr);
-        CVStatus status = CVStatus.valueOf(statusStr.toUpperCase());
+        log.info("REST request for Company to update CV status for Job {} and Candidate {} to {}", jobId, accountId, status);
         cvService.updateCVStatus(jobId, accountId, status);
-        return ResponseEntity.ok("Cập nhật trạng thái CV thành công!");
+        return ResponseEntity.ok(ApiResponse.success(null, "Cập nhật trạng thái CV thành công!"));
     }
 }
-
-

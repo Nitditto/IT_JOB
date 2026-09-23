@@ -104,6 +104,18 @@
 			<artifactId>bucket4j-core</artifactId>
 			<version>8.3.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- Bắt buộc để spring.data.redis.lettuce.pool.* có tác dụng (Lettuce pooling cần commons-pool2,
+		     không tự có transitively qua starter-data-redis). -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-pool2</artifactId>
+		</dependency>
  </dependencies>
 
 	<build>

@@ -17,5 +17,6 @@ public interface CVService {
     CV getCVDetail(Long jobId, Long accountId);
     CV updateCVStatus(Long jobId, Long accountId, CVStatus newStatus);
     CVResponse toDTO(CV cv);
+    List<CVResponse> toDTOList(List<CV> cvs);
 }
 

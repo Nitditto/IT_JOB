@@ -1,6 +1,10 @@
 package com.example.demo.services.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +13,7 @@ import com.example.demo.dto.request.CVCreationRequest;
 import com.example.demo.dto.response.CVResponse;
 import com.example.demo.dto.request.CVEditRequest;
 import com.example.demo.enums.CVStatus;
-import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.model.CV;
@@ -40,7 +44,7 @@ public class CVServiceImpl implements CVService {
         
         if (cvRepository.existsById(id)) {
             log.warn("Apply failed: Account {} already applied for Job {}", accountID, jobID);
-            throw new BadRequestException("Bạn đã ứng tuyển công việc này rồi!");
+            throw new BusinessException("Bạn đã ứng tuyển công việc này rồi!");
         }
 
         Account account = userService.getUserById(accountID);
@@ -70,6 +74,7 @@ public class CVServiceImpl implements CVService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public CV editCV(CVEditRequest request, Long accountID, Long jobID) {
         log.info("Editing CV for Account {} on Job {}", accountID, jobID);
         CVId id = new CVId(accountID, jobID);
@@ -136,6 +141,26 @@ public class CVServiceImpl implements CVService {
     @Override
     public CVResponse toDTO(CV cv) {
         Account company = userService.getUserById(cv.getJob().getCompanyID());
+        return buildResponse(cv, company);
+    }
+
+    @Override
+    public List<CVResponse> toDTOList(List<CV> cvs) {
+        if (cvs == null || cvs.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Set<Long> companyIds = cvs.stream().map(cv -> cv.getJob().getCompanyID()).collect(Collectors.toSet());
+        Map<Long, Account> companyById = userService.getUsersByIds(companyIds);
+
+        List<CVResponse> responses = new ArrayList<>();
+        for (CV cv : cvs) {
+            responses.add(buildResponse(cv, companyById.get(cv.getJob().getCompanyID())));
+        }
+        return responses;
+    }
+
+    private CVResponse buildResponse(CV cv, Account company) {
         return new CVResponse(
             cv.getAccount().getId(),
             cv.getJob().getId(),
