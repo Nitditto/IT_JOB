@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.dto.request.CompanyEditRequest;
 import com.example.demo.dto.response.UserResponse;
@@ -29,43 +30,43 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping
 @Slf4j
 public class UserController {
-    
+
     private final UserService userService;
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(@PathVariable Long id) {
         log.info("REST request to get user: {}", id);
         UserResponse user = userService.convertToUser(userService.getUserById(id));
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(ApiResponse.success(user));
     }
-    
+
     @GetMapping("/companies/{id}")
-    public ResponseEntity<CompanyResponse> getCompany(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CompanyResponse>> getCompany(@PathVariable Long id) {
         log.info("REST request to get company: {}", id);
         CompanyResponse company = userService.convertToCompany(userService.getUserById(id));
-        return ResponseEntity.ok(company);
+        return ResponseEntity.ok(ApiResponse.success(company));
     }
 
     @GetMapping("/companies")
-    public ResponseEntity<List<CompanyResponse>> getCompanyList(@RequestParam(required = false) Integer limit) {
+    public ResponseEntity<ApiResponse<List<CompanyResponse>>> getCompanyList(@RequestParam(required = false) Integer limit) {
         log.info("REST request to get company list (limit={})", limit);
         List<CompanyResponse> dtos = userService.getCompanyListSortedByJobs(limit);
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(ApiResponse.success(dtos));
     }
-    
+
     @PutMapping("/users/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<UserResponse> editUser(@Valid @RequestBody UserEditRequest request, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<ApiResponse<UserResponse>> editUser(@Valid @RequestBody UserEditRequest request, @AuthenticationPrincipal Account account) {
         log.info("REST request to edit user profile: {}", account.getEmail());
         Account updated = userService.editUser(account.getId(), request);
-        return ResponseEntity.ok(userService.convertToUser(updated));
+        return ResponseEntity.ok(ApiResponse.success(userService.convertToUser(updated)));
     }
 
     @PutMapping("/companies/me")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<CompanyResponse> editCompany(@Valid @RequestBody CompanyEditRequest request, @AuthenticationPrincipal Account account) {
+    public ResponseEntity<ApiResponse<CompanyResponse>> editCompany(@Valid @RequestBody CompanyEditRequest request, @AuthenticationPrincipal Account account) {
         log.info("REST request to edit company profile: {}", account.getEmail());
         Account updated = userService.editCompany(account.getId(), request);
-        return ResponseEntity.ok(userService.convertToCompany(updated));
+        return ResponseEntity.ok(ApiResponse.success(userService.convertToCompany(updated)));
     }
 }

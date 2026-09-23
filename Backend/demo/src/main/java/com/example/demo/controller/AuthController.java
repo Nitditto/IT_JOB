@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +16,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.CookieValue;
 
+import com.example.demo.constants.SecurityConstants;
 import com.example.demo.dto.response.AccountResponse;
+import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.request.ChangePasswordRequest;
 import com.example.demo.dto.request.DeleteAccountRequest;
 import com.example.demo.dto.request.LoginRequest;
@@ -38,116 +41,109 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
-    
+
     private final UserService userService;
     private final AuthService authService;
     private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegistrationRequest request) {
-        log.info("REST request to register candidate: {}", request.getEmail());
-        userService.register(request, UserRole.ROLE_USER);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Đã đăng ký thành công!");
-    }
-    
-    @PostMapping("/register/company")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> registerCompany(@Valid @RequestBody RegistrationRequest request) {
-        log.info("REST request to register company: {}", request.getEmail());
-        userService.register(request, UserRole.ROLE_COMPANY);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Đã đăng ký thành công!");
-    }
-    
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest request) {
-        log.info("REST request to login user: {}", request.getEmail());
-        LoginResponse response = authService.login(request);
-        
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", response.getRefreshToken())
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
+
+    private ResponseCookie buildRefreshTokenCookie(String token, long maxAgeSeconds) {
+        return ResponseCookie.from(SecurityConstants.REFRESH_TOKEN_COOKIE_NAME, token)
                 .httpOnly(true)
-                .secure(false) // Đặt true nếu chạy HTTPS trong production
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60)
+                .secure(cookieSecure)
+                .path(SecurityConstants.REFRESH_TOKEN_COOKIE_PATH)
+                .maxAge(maxAgeSeconds)
                 .sameSite("Lax")
                 .build();
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<Void>> registerUser(@Valid @RequestBody RegistrationRequest request) {
+        log.info("REST request to register candidate: {}", request.getEmail());
+        userService.register(request, UserRole.ROLE_USER);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(null, "Đã đăng ký thành công!"));
+    }
+
+    @PostMapping("/register/company")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> registerCompany(@Valid @RequestBody RegistrationRequest request) {
+        log.info("REST request to register company: {}", request.getEmail());
+        userService.register(request, UserRole.ROLE_COMPANY);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(null, "Đã đăng ký thành công!"));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> loginUser(@Valid @RequestBody LoginRequest request) {
+        log.info("REST request to login user: {}", request.getEmail());
+        LoginResponse response = authService.login(request);
+
+        ResponseCookie cookie = buildRefreshTokenCookie(response.getRefreshToken(), SecurityConstants.REFRESH_TOKEN_COOKIE_MAX_AGE_SECONDS);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+                .body(ApiResponse.success(response));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshTokenString) {
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(@CookieValue(name = SecurityConstants.REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshTokenString) {
         log.info("REST request to refresh access token");
         if (refreshTokenString == null || refreshTokenString.isEmpty()) {
             throw new org.springframework.security.authentication.BadCredentialsException("Refresh Token is missing!");
         }
-        
+
         RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(refreshTokenString);
         String newAccessToken = jwtService.generateToken(newRefreshToken.getAccount());
-        
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken.getToken())
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Lax")
-                .build();
+
+        ResponseCookie cookie = buildRefreshTokenCookie(newRefreshToken.getToken(), SecurityConstants.REFRESH_TOKEN_COOKIE_MAX_AGE_SECONDS);
 
         LoginResponse response = new LoginResponse(newAccessToken, null, newRefreshToken.getAccount().getId());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+                .body(ApiResponse.success(response));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logoutUser(@CookieValue(name = "refreshToken", required = false) String refreshTokenString) {
+    public ResponseEntity<ApiResponse<Void>> logoutUser(@CookieValue(name = SecurityConstants.REFRESH_TOKEN_COOKIE_NAME, required = false) String refreshTokenString) {
         log.info("REST request to logout user");
         if (refreshTokenString != null && !refreshTokenString.isEmpty()) {
             refreshTokenService.revokeToken(refreshTokenString);
         }
-        
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0)
-                .sameSite("Lax")
-                .build();
+
+        ResponseCookie cookie = buildRefreshTokenCookie("", 0);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body("Đăng xuất thành công!");
+                .body(ApiResponse.success(null, "Đăng xuất thành công!"));
     }
-    
+
     @GetMapping("/me")
-    public ResponseEntity<AccountResponse> getCurrentUser(@AuthenticationPrincipal Account currentUser) {
+    public ResponseEntity<ApiResponse<AccountResponse>> getCurrentUser(@AuthenticationPrincipal Account currentUser) {
         log.info("REST request to get current user info: {}", currentUser.getEmail());
-        AccountResponse AccountResponse = userService.convertToBrief(currentUser);
-        return ResponseEntity.ok(AccountResponse);
+        AccountResponse accountResponse = userService.convertToBrief(currentUser);
+        return ResponseEntity.ok(ApiResponse.success(accountResponse));
     }
 
     @PutMapping("/password")
-    public ResponseEntity<String> changePassword(
+    public ResponseEntity<ApiResponse<Void>> changePassword(
             @Valid @RequestBody ChangePasswordRequest request,
             @AuthenticationPrincipal Account currentUser
     ) {
         log.info("REST request to change password for user: {}", currentUser.getEmail());
         authService.changePassword(currentUser, request);
-        return ResponseEntity.ok("Đổi mật khẩu thành công!");
+        return ResponseEntity.ok(ApiResponse.success(null, "Đổi mật khẩu thành công!"));
     }
-    
+
     @DeleteMapping("/me")
-    public ResponseEntity<String> deleteAccount(
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
             @Valid @RequestBody DeleteAccountRequest request,
             @AuthenticationPrincipal Account currentUser
     ) {
         log.info("REST request to delete account: {}", currentUser.getEmail());
         authService.deleteAccount(currentUser, request.getPassword());
-        return ResponseEntity.ok("Đã xóa tài khoản thành công!");
+        return ResponseEntity.ok(ApiResponse.success(null, "Đã xóa tài khoản thành công!"));
     }
 }
-
-

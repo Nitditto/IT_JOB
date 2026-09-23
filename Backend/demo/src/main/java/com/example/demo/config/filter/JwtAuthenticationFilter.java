@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.demo.constants.SecurityConstants;
 import com.example.demo.services.JwtService;
 
 import jakarta.servlet.FilterChain;
@@ -36,18 +37,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         
         // 1. Lấy header 'Authorization'
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader(SecurityConstants.AUTHORIZATION_HEADER);
         final String jwt;
         final String userEmail;
 
         // 2. Kiểm tra xem header có tồn tại và có bắt đầu bằng "Bearer " không
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(SecurityConstants.BEARER_PREFIX)) {
             filterChain.doFilter(request, response); // Nếu không có token, chuyển cho filter tiếp theo
             return;
         }
 
         // 3. Trích xuất token từ header (bỏ "Bearer ")
-        jwt = authHeader.substring(7);
+        jwt = authHeader.substring(SecurityConstants.BEARER_PREFIX.length());
 
         try {
             // 4. Giải mã token để lấy email (subject)

@@ -1,7 +1,9 @@
 package com.example.demo.services;
 
 import java.security.Principal;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.example.demo.dto.response.AccountResponse;
 import com.example.demo.dto.response.CompanyResponse;
@@ -19,6 +21,7 @@ public interface UserService {
     AccountResponse convertToBrief(Account account);
     Account getCurrentUser(Principal principal);
     Account getUserById(Long userID);
+    Map<Long, Account> getUsersByIds(Collection<Long> ids);
     List<Account> getUsersByRole(UserRole role);
     Account editUser(Long accountID, UserEditRequest request);
     Account editCompany(Long accountID, CompanyEditRequest request);
