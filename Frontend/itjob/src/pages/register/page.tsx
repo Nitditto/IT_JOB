@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { validateEmpty, validatePassword, validate, validateEmail } from '../../utils/validateForms';
-import axios from 'axios';
+import api from '@/utils/api';
 import { formReducer, handleFieldChange } from '../../utils/formUtils';
 import { motion } from 'framer-motion';
 import { UserPlus, Mail, Lock, User, ArrowRight } from 'lucide-react';
@@ -15,7 +15,6 @@ export default function RegisterPage() {
     }
     const [state, dispatch] = useReducer(formReducer(initialState), initialState)
     const { data, error, isLoading, status } = state;
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const formSubmission = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -29,10 +28,10 @@ export default function RegisterPage() {
         }
         dispatch({ type: "SUBMIT_START" });
         try {
-            await axios.post(`${BACKEND_URL}/auth/register`, { ...data, role: "ROLE_USER" })
+            await api.post(`/auth/register`, data)
             dispatch({ type: "SUBMIT_SUCCESS", payload: "Đăng kí thành công!" })
         } catch (error: any) {
-            dispatch({ type: "SUBMIT_FAILURE", payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!" })
+            dispatch({ type: "SUBMIT_FAILURE", payload: error.response?.data?.message || "Có lỗi đã xảy ra. Vui lòng thử lại!" })
         }
     }
 

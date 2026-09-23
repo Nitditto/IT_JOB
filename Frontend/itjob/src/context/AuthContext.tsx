@@ -1,6 +1,5 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import type { User } from '../types';
 import api from '../utils/api';
 
@@ -12,7 +11,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const verifyUserSession = async () => {
       try {
         // Get our csrf token
-        await axios.get(`${BACKEND_URL}/csrf`, { withCredentials: true });
+        await api.get(`/csrf`);
         console.log("CSRF token received");
 
         // Make a request to a backend endpoint that verifies the session
@@ -44,8 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       // Gọi API logout để server xóa HTTP-only Cookie
-      // Giả sử endpoint backend của bạn là /auth/logout (Method POST)
-      await api.post(`${BACKEND_URL}/auth/logout`);
+      await api.post(`/auth/logout`);
     } catch (error) {
       console.error("Logout failed on server:", error);
       // Dù API lỗi thì ở client vẫn phải xóa user để thoát ra

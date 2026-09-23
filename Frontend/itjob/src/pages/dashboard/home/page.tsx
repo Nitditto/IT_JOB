@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { generateDashboardInsight, type DashboardInsightContext } from "../../../utils/gemini";
 import { ProfileCompleteness } from "../../../components/dashboard/ProfileCompleteness";
-import axios from "axios";
 import api from "../../../utils/api";
 import { Link } from "react-router";
 import { motion } from "framer-motion";
@@ -11,8 +10,6 @@ import {
     Briefcase, Building2, FileText, TrendingUp, Sparkles, ArrowRight,
     Search, PlusCircle, Star, RefreshCw, Zap, Users, BarChart3
 } from "lucide-react";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const containerVariants = {
     hidden: { opacity: 0 },
@@ -54,9 +51,9 @@ export default function DashboardHomePage() {
     const fetchData = async () => {
         try {
             const [jobRes, companyRes, tagRes] = await Promise.all([
-                axios.get(`${BACKEND_URL}/job/count`),
-                axios.get(`${BACKEND_URL}/company/list`),
-                axios.get(`${BACKEND_URL}/job/tags`),
+                api.get(`/jobs/count`),
+                api.get(`/companies`),
+                api.get(`/jobs/tags`),
             ]);
             setJobCount(jobRes.data);
             setCompanyCount(companyRes.data?.length || 0);
@@ -65,7 +62,7 @@ export default function DashboardHomePage() {
             // Fetch user CVs if role is user
             if (isUser) {
                 try {
-                    const cvRes = await api.get(`${BACKEND_URL}/cv/list`);
+                    const cvRes = await api.get(`/cvs`);
                     setCvCount(Array.isArray(cvRes.data) ? cvRes.data.length : 0);
                 } catch { setCvCount(0); }
             }

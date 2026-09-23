@@ -4,7 +4,6 @@ import { Link, redirect, useNavigate, useParams } from "react-router";
 import api from "../../../../../utils/api";
 import { formReducer, handleFieldChange, handleFileChange } from "../../../../../utils/formUtils";
 import { validate, validateEmpty, validateEmptyList, validateLowerBound, validateUpperBound } from "../../../../../utils/validateForms";
-import axios from "axios";
 import type { Location } from "@/types";
 import { useFilePicker } from 'use-file-picker';
 import { TagSelect } from "@/components/togSelect/TagSelect";
@@ -22,7 +21,6 @@ export default function CompanyManageJobEditPage() {
   const navigate = useNavigate();
   const [location, setLocation] = useState<Location[]>([]); 
   const [allTags, setAllTags] = useState<TagOption[]>([]);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const defaultJob = {
     data: {
       name: "",
@@ -59,9 +57,9 @@ export default function CompanyManageJobEditPage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const locationRes = await axios.get<Array<Location>>(`${BACKEND_URL}/location`);
+        const locationRes = await api.get<Array<Location>>(`/locations`);
         setLocation(locationRes.data);
-        const tagsRes = await axios.get<TagDTO[]>(`${BACKEND_URL}/job/tags`);
+        const tagsRes = await api.get<TagDTO[]>(`/jobs/tags`);
         const sortedData = tagsRes.data.sort((a, b) => b.count - a.count);
         const mappedTags = sortedData.map(dto => ({
           value: dto.tag.toLowerCase(),
@@ -71,7 +69,7 @@ export default function CompanyManageJobEditPage() {
         if (id) { // Chỉ chạy nếu có id
           document.title = "Sửa đổi công việc";
 
-          const jobRes = await api.get(`/job/get/${id}`); 
+          const jobRes = await api.get(`/jobs/${id}`);
           const jobData = jobRes.data;
           
           dispatch({ type: 'CHANGE_FIELD', field: 'name', value: jobData.name  });
@@ -93,7 +91,7 @@ export default function CompanyManageJobEditPage() {
     }
 
     init();
-  },[BACKEND_URL, id, navigate]);
+  },[id, navigate]);
 
   
   
@@ -180,7 +178,7 @@ export default function CompanyManageJobEditPage() {
       type: "SUBMIT_START"
     })
     try {
-      await api.put(`/job/${id}`,{ ...data, jobID: id })
+      await api.put(`/jobs/${id}`,{ ...data, jobID: id })
       dispatch({
         type: "SUBMIT_SUCCESS",
         payload: "Cập nhật công việc thành công!"
@@ -190,7 +188,7 @@ export default function CompanyManageJobEditPage() {
     } catch (error: any) {
       dispatch({
         type: "SUBMIT_FAILURE",
-        payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!"
+        payload: error.response?.data?.message || "Có lỗi đã xảy ra. Vui lòng thử lại!"
       })
     }
   }

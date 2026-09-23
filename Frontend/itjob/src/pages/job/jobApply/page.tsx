@@ -101,7 +101,6 @@ const JobApplication = () => {
       const referralContent = refFiles.length > 0 ? refFiles[0].content : null; // Referral là tùy chọn
 
       const payload = {
-          jobID: id,
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
@@ -109,16 +108,13 @@ const JobApplication = () => {
           referral: referralContent // Base64 của Referral (hoặc null)
       };
 
-     // MỞ LẠI LỆNH GỌI API THẬT (BỎ setTimeout)
-      // Vì đã bảo vệ backend, lệnh này sẽ thành công nếu có token
-      // và thất bại (vào catch) nếu không có token
-      await api.post(`/cv/${id}/apply`, payload);
+      await api.post(`/jobs/${id}/cvs`, payload);
       await new Promise(resolve => setTimeout(resolve, 1500));
       navigate('./success');
     } catch (error: any) {
       console.error("Lỗi khi nộp CV:", error);
-      const message = error.response?.data || 'Đã có lỗi xảy ra. Vui lòng thử lại.';
-      alert(typeof message === 'string' ? message : JSON.stringify(message));
+      const message = error.response?.data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+      alert(message);
     } finally {
       setIsLoading(false);
     }

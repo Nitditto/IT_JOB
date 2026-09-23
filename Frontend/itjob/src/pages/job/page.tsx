@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import axios from 'axios';
 import translation from '@/utils/translation';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
@@ -32,7 +31,6 @@ const customSwiperStyles = `
 export default function JobDetailPage() {
     const { id } = useParams();
     const { user } = useAuth();
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [openLightbox, setOpenLightbox] = useState(false);
     const [photoIndex, setPhotoIndex] = useState(0);
     const [infoJob, setInfoJob] = useState({
@@ -40,7 +38,7 @@ export default function JobDetailPage() {
         address: "", location: {} as any, tags: Array<string>(), images: Array<string>(), description: ""
     })
     const [infoCompany, setInfoCompany] = useState({
-        id: 0, name: "", avatar: "", model: "", scale: "", startWork: 0, endWork: 0, overtime: false
+        id: 0, name: "", avatar: "", model: "", scale: "", startWork: 0, endWork: 0, hasOvertime: false
     })
     const [hasCV, setHasCV] = useState(false);
     const [matchResult, setMatchResult] = useState<JobMatchResult | null>(null);
@@ -51,13 +49,17 @@ export default function JobDetailPage() {
 
     useEffect(() => {
         const init = async () => {
-            const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`)
+            const jobRes = await api.get(`/jobs/${id}`)
             setInfoJob(jobRes.data);
-            const companyRes = await axios.get(`${BACKEND_URL}/company/${jobRes.data.companyID}`)
+            const companyRes = await api.get(`/companies/${jobRes.data.companyID}`)
             setInfoCompany(companyRes.data);
-            if (!!user) {
-                const cvRes = await api.get(`/cv/${id}`);
-                if (cvRes.status == 200) setHasCV(true);
+            if (user?.role === 'ROLE_USER') {
+                try {
+                    const cvRes = await api.get(`/jobs/${id}/cvs/me`);
+                    if (cvRes.status == 200) setHasCV(true);
+                } catch {
+                    // Chưa nộp CV cho job này -> giữ hasCV = false
+                }
             }
         }
         init();
@@ -235,7 +237,7 @@ export default function JobDetailPage() {
                                         { icon: <Building2 size={16} className="text-slate-400" />, label: "Mô hình", value: translation[infoCompany.model] },
                                         { icon: <Users size={16} className="text-slate-400" />, label: "Quy mô", value: translation[infoCompany.scale] },
                                         { icon: <Clock size={16} className="text-slate-400" />, label: "Thời gian", value: `Thứ ${infoCompany.startWork} - Thứ ${infoCompany.endWork}` },
-                                        { icon: <Briefcase size={16} className="text-slate-400" />, label: "OT", value: infoCompany.overtime ? "Có OT" : "Không có OT" },
+                                        { icon: <Briefcase size={16} className="text-slate-400" />, label: "OT", value: infoCompany.hasOvertime ? "Có OT" : "Không có OT" },
                                     ].map((item, idx) => (
                                         <div key={idx} className="flex items-center justify-between text-sm">
                                             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">

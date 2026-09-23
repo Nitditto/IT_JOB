@@ -13,7 +13,7 @@ interface JobItem {
     position: string;
     minSalary: number;
     maxSalary: number;
-    company: string;
+    companyName: string;
     companyAvatar: string;
     location: { name: string };
 }
@@ -35,7 +35,7 @@ export const RecommendedJobs = () => {
 
         const load = async () => {
             try {
-                const jobsRes = await api.get(`/job/list`);
+                const jobsRes = await api.get(`/jobs`);
                 const allJobs: JobItem[] = Array.isArray(jobsRes.data.data) 
                     ? jobsRes.data.data 
                     : (Array.isArray(jobsRes.data) ? jobsRes.data : []);
@@ -43,7 +43,7 @@ export const RecommendedJobs = () => {
                 const recs = await getJobRecommendations(
                     user.lookingfor || 'Tìm việc IT mới nhất',
                     (user.location as any)?.name || String(user.location || ''),
-                    allJobs.slice(0, 30).map(j => ({ id: j.id, name: j.name, tags: j.tags, position: j.position, minSalary: j.minSalary, maxSalary: j.maxSalary, company: j.company }))
+                    allJobs.slice(0, 30).map(j => ({ id: j.id, name: j.name, tags: j.tags, position: j.position, minSalary: j.minSalary, maxSalary: j.maxSalary, company: j.companyName }))
                 );
 
                 const results = recs.map(r => {
@@ -123,7 +123,7 @@ export const RecommendedJobs = () => {
                                             <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
                                                 {job.name}
                                             </h3>
-                                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">{job.company}</div>
+                                            <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">{job.companyName}</div>
                                             <div className="flex items-center gap-3 text-xs text-slate-500">
                                                 <span className="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400">
                                                     <DollarSign size={10} /> {job.minSalary.toLocaleString()} - {job.maxSalary.toLocaleString()}$

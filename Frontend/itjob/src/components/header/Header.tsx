@@ -4,7 +4,7 @@ import { HeaderMenu } from './HeaderMenu';
 import HeaderHoverItem from './HeaderHoverItem';
 import HeaderItem from './HeaderItem';
 import { useAuth } from '../../context/AuthContext';
-import axios from 'axios';
+import api from '../../utils/api';
 import { Moon, Sun, Menu, X, User, Settings, Briefcase, FileText, Building2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -15,7 +15,6 @@ export const Header = () => {
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 
   useEffect(() => {
@@ -28,9 +27,9 @@ export const Header = () => {
 
   const fetchTopCompanies = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/company/list?limit=3`);
+      const response = await api.get(`/companies?limit=3`);
       setTopCompanies(response.data);
-      const tagRes = await axios.get(`${BACKEND_URL}/job/tags`);
+      const tagRes = await api.get(`/jobs/tags`);
       setTagList(tagRes.data);
     } catch (error) {
       console.error("Lỗi:", error);

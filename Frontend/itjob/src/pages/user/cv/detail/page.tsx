@@ -1,7 +1,6 @@
 //Frontend\itjob\src\pages\company\cv\detail\page.tsx
 import {Link, useNavigate, useParams} from "react-router";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import api from "@/utils/api";
 import {DownloadCloud, Eye, FileText, Phone, User, X, XIcon } from "lucide-react";
@@ -18,17 +17,16 @@ interface CVDetail {
   jobName: string;
 }
 export default function CompanyManageCVDetailPage(){
-  const { id } = useParams(); 
+  const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  
+
   const [cvData, setCvData] = useState<CVDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const fetchCV = async () => {
       try {
-        const res = await api.get(`/cv/${id}`);
+        const res = await api.get(`/jobs/${id}/cvs/me`);
         setCvData(res.data);
         document.title = `CV - ${res.data.name}`;
       } catch (error) {
@@ -38,7 +36,7 @@ export default function CompanyManageCVDetailPage(){
       }
     };
     if (id) fetchCV();
-  }, [id, BACKEND_URL, navigate]);
+  }, [id, navigate]);
   const handleOpenFile = () => {
       if (!cvData?.cvFile) return;
       
@@ -59,17 +57,17 @@ export default function CompanyManageCVDetailPage(){
 
     try {
       // Gọi API xóa (dùng axios instance có kèm token/cookie để backend check role)
-      await api.delete(`/cv/${id}/delete`);
+      await api.delete(`/jobs/${id}/cvs`);
 
       // Thông báo thành công
       alert("Đã xóa thành công!"); // Hoặc dùng toast.success("Đã xóa!")
 
       // Load lại danh sách để mất job vừa xóa
       navigate("/");
-      
+
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
+      alert(error.response?.data?.message || "Có lỗi xảy ra khi xóa!");
     }
   }
  

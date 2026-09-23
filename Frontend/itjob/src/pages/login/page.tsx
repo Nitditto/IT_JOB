@@ -1,7 +1,6 @@
 import { useEffect, useReducer, useState } from 'react'
 import { Link, useSearchParams } from "react-router"
 import { validate, validateEmail, validateEmpty } from '../../utils/validateForms';
-import axios from 'axios';
 import { formReducer, handleFieldChange } from '../../utils/formUtils';
 import { motion } from 'framer-motion';
 import { User, Building2, Mail, Lock, ArrowRight } from 'lucide-react';
@@ -25,7 +24,6 @@ export default function LoginPage() {
 
     const [isUser, setIsUser] = useState(true);
     const [searchParams, setSearchParams] = useSearchParams();
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     useEffect(() => {
         document.title = 'Đăng nhập';
         let userType = searchParams.get("type");
@@ -54,7 +52,7 @@ export default function LoginPage() {
         dispatch({ type: "SUBMIT_START" });
 
         try {
-            let response = await axios.post(`${BACKEND_URL}/auth/login`, {
+            let response = await api.post(`/auth/login`, {
                 ...data
             })
             const { token } = response.data;

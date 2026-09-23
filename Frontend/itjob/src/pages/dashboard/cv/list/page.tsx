@@ -16,7 +16,7 @@ export default function UserManageCVListPage() {
   useEffect(()=>{
 
     const init = async () => {
-      const cvListRes = await api.get("/cv/list");
+      const cvListRes = await api.get("/cvs");
       setCVList(cvListRes.data);
     }
 
@@ -39,12 +39,12 @@ export default function UserManageCVListPage() {
     }
 
     try {
-      await api.delete(`/cv/${id}/delete`);
-      alert("Đã xóa thành công!"); 
+      await api.delete(`/jobs/${id}/cvs`);
+      alert("Đã xóa thành công!");
       navigate("/");
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
+      alert(error.response?.data?.message || "Có lỗi xảy ra khi xóa!");
     }
   }
 
