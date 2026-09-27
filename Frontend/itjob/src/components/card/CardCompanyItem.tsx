@@ -10,7 +10,7 @@ export const CardCompanyItem=({companyInfo}: {companyInfo: any})=>{
   useEffect(() => {
     const init = async () => {
       try {
-        const jobCountRes = await api.get(`/job/search?companyID=${companyInfo["id"]}`);
+        const jobCountRes = await api.get(`/jobs?companyID=${companyInfo["id"]}`);
         const jobsData = Array.isArray(jobCountRes.data.data)
           ? jobCountRes.data.data
           : Array.isArray(jobCountRes.data)

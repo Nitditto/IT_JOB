@@ -4,7 +4,6 @@ import { Link, redirect, useNavigate } from "react-router";
 import api from "../../../../../utils/api";
 import { formReducer, handleFieldChange, handleFileChange } from "../../../../../utils/formUtils";
 import { validate, validateEmpty, validateEmptyList, validateLowerBound, validateUpperBound } from "../../../../../utils/validateForms";
-import axios from "axios";
 import type { Location } from "@/types";
 import { useFilePicker } from 'use-file-picker';
 import { Button } from "@/components/ui/button";
@@ -21,15 +20,14 @@ export default function CompanyManageJobCreatePage() {
   const navigate = useNavigate();
   const [location, setLocation] = useState(Array<Location>);
   const [allTags, setAllTags] = useState<TagOption[]>([]);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const init = async () => {
       try {
-        const locationRes = await axios.get<Array<Location>>(`${BACKEND_URL}/location`);
+        const locationRes = await api.get<Array<Location>>(`/locations`);
         setLocation(locationRes.data);
 
-        const tagsRes = await axios.get<TagDTO[]>(`${BACKEND_URL}/job/tags`);
+        const tagsRes = await api.get<TagDTO[]>(`/jobs/tags`);
 
         const sortedData = tagsRes.data.sort((a, b) => b.count - a.count);
         const mappedTags = tagsRes.data.map(dto => ({
@@ -45,7 +43,7 @@ export default function CompanyManageJobCreatePage() {
     }
 
     init();
-  }, [BACKEND_URL])
+  }, [])
   const defaultJob = {
     data: {
       name: "",
@@ -73,7 +71,7 @@ export default function CompanyManageJobCreatePage() {
   }
   const [state, dispatch] = useReducer(formReducer(defaultJob), defaultJob)
   const { data, error, isLoading, status } = state;
-  const {openFilePicker, filesContent, loading, errors: fileErrors} =  useFilePicker({
+  const {openFilePicker, filesContent, loading, errors: fileErrors, clear} =  useFilePicker({
     readAs: 'DataURL', // <-- Yêu cầu nó đọc file sang Data URL (giống code cũ)
     accept: 'image/*',
     multiple: true,
@@ -164,7 +162,7 @@ export default function CompanyManageJobCreatePage() {
       type: "SUBMIT_START"
     })
     try {
-      await api.post("/job/create", data);
+      await api.post("/jobs", data);
       dispatch({
         type: "SUBMIT_SUCCESS",
         payload: "Tạo công việc mới thành công!"
@@ -174,7 +172,7 @@ export default function CompanyManageJobCreatePage() {
     } catch (error: any) {
       dispatch({
         type: "SUBMIT_FAILURE",
-        payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!"
+        payload: error.response?.data?.message || "Có lỗi đã xảy ra. Vui lòng thử lại!"
       })
     }
   }

@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.dto.JobCardDTO;
-import com.example.demo.dto.JobRecommendationDTO;
+import com.example.demo.dto.response.JobCardResponse;
+import com.example.demo.dto.response.JobRecommendationResponse;
 import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 
@@ -20,14 +20,15 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TfIdfRecommender {
+public class TfIdfRecommender implements JobRecommender {
 
-    private final JobServices jobServices;
+    private final JobService jobService;
 
     /**
      * Recommends jobs for a candidate based on TF-IDF and Cosine Similarity.
      */
-    public List<JobRecommendationDTO> recommendJobs(Account candidate, List<Job> jobs, int limit) {
+    @Override
+    public List<JobRecommendationResponse> recommendJobs(Account candidate, List<Job> jobs, int limit) {
         if (jobs == null || jobs.isEmpty() || candidate == null) {
             return new ArrayList<>();
         }
@@ -63,7 +64,7 @@ public class TfIdfRecommender {
         double[] candidateVector = calculateTfIdfVector(candidateTokens, vocabList, idfMap);
 
         // 7. Tính độ tương đồng Cosine Similarity cho từng Job
-        List<JobRecommendationDTO> recommendations = new ArrayList<>();
+        List<Map.Entry<Job, Double>> scoredJobs = new ArrayList<>();
         for (Job job : jobs) {
             List<String> jobTokens = jobTokensMap.get(job.getId());
             double[] jobVector = calculateTfIdfVector(jobTokens, vocabList, idfMap);
@@ -73,16 +74,25 @@ public class TfIdfRecommender {
             double matchPercentage = Math.round(similarity * 100.0 * 100.0) / 100.0;
 
             if (matchPercentage > 0) { // Chỉ gợi ý những việc có mức độ phù hợp > 0%
-                JobCardDTO card = jobServices.toCard(job);
-                recommendations.add(new JobRecommendationDTO(card, matchPercentage));
+                scoredJobs.add(Map.entry(job, matchPercentage));
             }
         }
 
-        // 8. Sắp xếp giảm dần theo mức độ phù hợp (% match) và giới hạn số lượng trả về
-        return recommendations.stream()
-                .sorted((a, b) -> Double.compare(b.getMatchPercentage(), a.getMatchPercentage()))
+        // 8. Sắp xếp giảm dần theo % match và giới hạn số lượng TRƯỚC khi build card,
+        // để chỉ cần 1 batch query cho đúng số job sẽ trả về (tránh N+1 khi build card)
+        List<Map.Entry<Job, Double>> topMatches = scoredJobs.stream()
+                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
                 .limit(limit)
                 .collect(Collectors.toList());
+
+        List<Job> topJobs = topMatches.stream().map(Map.Entry::getKey).collect(Collectors.toList());
+        List<JobCardResponse> topCards = jobService.toCardList(topJobs);
+
+        List<JobRecommendationResponse> recommendations = new ArrayList<>();
+        for (int i = 0; i < topMatches.size(); i++) {
+            recommendations.add(new JobRecommendationResponse(topCards.get(i), topMatches.get(i).getValue()));
+        }
+        return recommendations;
     }
 
     private String getCandidateText(Account candidate) {
@@ -195,3 +205,5 @@ public class TfIdfRecommender {
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 }
+
+

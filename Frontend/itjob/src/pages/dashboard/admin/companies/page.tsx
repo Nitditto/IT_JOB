@@ -15,7 +15,7 @@ export default function AdminCompanyListPage() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await api.get('/company/list')
+            const response = await api.get('/companies')
             // Đảm bảo lấy đúng mảng công ty từ phản hồi (hỗ trợ cả { data: [] } hoặc [])
             const companiesData: Company[] = Array.isArray(response.data.data)
                 ? response.data.data
@@ -28,7 +28,7 @@ export default function AdminCompanyListPage() {
                 companiesData.map(async (company) => {
                     try {
                         const jobRes = await api.get(
-                            `/job/search?companyID=${company.id}`
+                            `/jobs?companyID=${company.id}`
                         )
                         // Kết quả của /job/search thường trả về mảng trực tiếp trong response.data
                         const jobs = Array.isArray(jobRes.data.data)

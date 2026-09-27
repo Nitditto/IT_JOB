@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router';
 import { CheckCircle2 } from 'lucide-react'; // (Hoặc dùng ảnh của bạn)
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '@/utils/api';
 
 // Bạn có thể tạo các component Card công việc nhỏ này
 const SimilarJobCard = ({ link, title, company, logo }: any) => (
@@ -18,7 +18,6 @@ const SimilarJobCard = ({ link, title, company, logo }: any) => (
 
 export default function JobApplySuccess() {
   const { id } = useParams();
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const [jobData, setJobData] = useState({
   name: "",
   companyName: "",
@@ -30,11 +29,11 @@ const [jobData, setJobData] = useState({
 const [similarJobs, setSimilarJobs] = useState([]);
   useEffect(() => {
   const init = async () => {
-    const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`);
-    const companyRes = await axios.get(`${BACKEND_URL}/company/${jobRes.data["companyID"]}`)
+    const jobRes = await api.get(`/jobs/${id}`);
+    const companyRes = await api.get(`/companies/${jobRes.data["companyID"]}`)
     setJobData({...jobRes.data, companyName: companyRes.data["name"]});
 
-    const similarRes = await axios.get(`${BACKEND_URL}/job/search`, {
+    const similarRes = await api.get(`/jobs`, {
       params: {location: jobRes.data["location"]["abbreviation"]}
     })
     setSimilarJobs(similarRes.data);

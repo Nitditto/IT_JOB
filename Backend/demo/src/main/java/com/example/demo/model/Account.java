@@ -55,11 +55,12 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String avatar;
 
     private String phone;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -69,13 +70,14 @@ public class Account implements UserDetails {
 
     private String address;
 
-    @ManyToOne(fetch = FetchType.EAGER) // 1. Tell JPA to always load it
-    @Fetch(FetchMode.JOIN) // 2. Tell Hibernate to use a JOIN (avoids N+1)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 
+    @Enumerated(EnumType.STRING)
     private CompanyModel model;
 
+    @Enumerated(EnumType.STRING)
     private CompanyScale scale;
 
     private Long startWork;
@@ -127,3 +129,4 @@ public class Account implements UserDetails {
     }
 
 }
+

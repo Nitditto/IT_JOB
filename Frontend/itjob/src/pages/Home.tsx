@@ -17,7 +17,7 @@ export default function SearchHome() {
   useEffect(() => {
     const init = async () => {
       try {
-        const companyRes = await api.get("/company/list")
+        const companyRes = await api.get("/companies")
         const companiesData = Array.isArray(companyRes.data.data)
           ? companyRes.data.data
           : Array.isArray(companyRes.data)

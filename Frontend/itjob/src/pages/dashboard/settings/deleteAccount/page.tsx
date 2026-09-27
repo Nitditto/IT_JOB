@@ -44,8 +44,8 @@ export function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogP
     setIsLoading(true);
     try {
         // Gọi API xóa (Backend tự xử lý logic xóa DB)
-        await api.delete("/auth/delete", {
-            data: { password: formData.password } 
+        await api.delete("/auth/me", {
+            data: { password: formData.password }
         });
         
         // Xóa thành công -> Gọi logout để clear session/cookie

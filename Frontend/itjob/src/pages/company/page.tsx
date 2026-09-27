@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaBuilding, FaBusinessTime, FaClock, FaGlobe, FaLocationDot, FaPhone, FaUsers } from "react-icons/fa6";
 import { CardJobItem } from "../../components/card/CardJobItem";
 import { useParams, useSearchParams } from 'react-router';
-import axios from "axios";
+import api from "@/utils/api";
 import translation from "@/utils/translation";
 import { Pagination } from "@/components/pagination/Pagination";
 export default function CompanyDetailPage() {
@@ -25,14 +25,13 @@ export default function CompanyDetailPage() {
   })
   const [jobList, setJobList] = useState([])
   const [page, setPage] = useState(1);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  
+
   useEffect(()=>{
     const init = async () => {
       try {
-        const companyRes = await axios.get(`${BACKEND_URL}/company/${id}`);
+        const companyRes = await api.get(`/companies/${id}`);
         setInfo({...companyRes.data, location: companyRes.data["location"]["name"]});
-        const jobListRes = await axios.get(`${BACKEND_URL}/job/search?companyID=${id}`);
+        const jobListRes = await api.get(`/jobs?companyID=${id}`);
         setJobList(jobListRes.data);
         setPage(parseInt(searchParams.get("page") ?? "1"));
       } catch (error) {

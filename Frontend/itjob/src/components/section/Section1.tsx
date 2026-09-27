@@ -1,25 +1,24 @@
 import { Link } from "react-router";
 import { IoMdSearch } from "react-icons/io";
 import SearchBar from "./SearchBar";
-import axios from "axios";
+import api from "../../utils/api";
 import { useEffect, useState } from "react";
-import type { Location, Tag } from "../../types"; 
-import { motion } from "framer-motion";
+import type { Location, Tag } from "../../types";
+import { motion, type Variants } from "framer-motion";
 
 export const Section1 = () => {
     const [jobCount, setJobCount] = useState(0);
     const [location, setLocation] = useState<Location[]>([]);
     const [tags, setTags] = useState([]);
     const [companyList, setCompanyList] = useState([]);
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-    
+
     useEffect(() => {
       const init = async () => {
         try {
-          const jobCountRes = await axios.get(`${BACKEND_URL}/job/count`);
-          const locationRes = await axios.get(`${BACKEND_URL}/location`);
-          const tagRes = await axios.get(`${BACKEND_URL}/job/tags`);
-          const companyRes = await axios.get(`${BACKEND_URL}/company/list`);
+          const jobCountRes = await api.get(`/jobs/count`);
+          const locationRes = await api.get(`/locations`);
+          const tagRes = await api.get(`/jobs/tags`);
+          const companyRes = await api.get(`/companies`);
           setJobCount(jobCountRes.data);
           setLocation(locationRes.data);
           setTags(tagRes.data);
@@ -31,7 +30,7 @@ export const Section1 = () => {
       init();
     }, []);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1, 
@@ -42,7 +41,7 @@ export const Section1 = () => {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { 
       opacity: 1, 

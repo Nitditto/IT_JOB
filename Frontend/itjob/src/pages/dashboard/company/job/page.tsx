@@ -15,7 +15,7 @@ export default function CompanyJobList() {
   const [page, setPage] = useState(1);
   const fetchJobs = async () => {
     try {
-      const response = await api.get(`/job/search`, {
+      const response = await api.get(`/jobs`, {
         params: { companyID: user?.id },
       });
       setJobList(response.data);
@@ -42,16 +42,15 @@ export default function CompanyJobList() {
 
     try {
       // Gọi API xóa (dùng axios instance có kèm token/cookie để backend check role)
-      await api.delete(`/job/${jobId}`);
+      await api.delete(`/jobs/${jobId}`);
 
       // Thông báo thành công
       alert("Đã xóa thành công!");
-      navigate("/");
       fetchJobs();
-      
+
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data || "Có lỗi xảy ra khi xóa!");
+      alert(error.response?.data?.message || "Có lỗi xảy ra khi xóa!");
     }
   };
 

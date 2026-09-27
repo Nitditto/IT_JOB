@@ -11,19 +11,22 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.demo.services.JwtServices;
+import com.example.demo.constants.SecurityConstants;
+import com.example.demo.services.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtServices jwtServices;
+    private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -34,22 +37,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         
         // 1. Lấy header 'Authorization'
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader(SecurityConstants.AUTHORIZATION_HEADER);
         final String jwt;
         final String userEmail;
 
         // 2. Kiểm tra xem header có tồn tại và có bắt đầu bằng "Bearer " không
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith(SecurityConstants.BEARER_PREFIX)) {
             filterChain.doFilter(request, response); // Nếu không có token, chuyển cho filter tiếp theo
             return;
         }
 
         // 3. Trích xuất token từ header (bỏ "Bearer ")
-        jwt = authHeader.substring(7);
+        jwt = authHeader.substring(SecurityConstants.BEARER_PREFIX.length());
 
         try {
             // 4. Giải mã token để lấy email (subject)
-            userEmail = jwtServices.extractUsername(jwt);
+            userEmail = jwtService.extractUsername(jwt);
 
             // 5. Kiểm tra email có tồn tại và user chưa được xác thực trong SecurityContext
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -57,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 // 6. Kiểm tra xem token có hợp lệ không
-                if (jwtServices.isTokenValid(jwt, userDetails)) {
+                if (jwtService.isTokenValid(jwt, userDetails)) {
                     // Nếu hợp lệ, tạo đối tượng xác thực
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -73,8 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Log error or ignoring it so that unauthenticated access continues
-            System.err.println("JWT Parse error: " + e.getMessage());
+            log.error("JWT Parse error: {}", e.getMessage());
         }
         
         // Chuyển request và response cho filter tiếp theo trong chuỗi
