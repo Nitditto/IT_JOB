@@ -72,10 +72,10 @@ public class Job {
 
     @ElementCollection
     @CollectionTable(name = "job_images", joinColumns = @JoinColumn(name = "job_id"))
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private Set<String> images;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Default

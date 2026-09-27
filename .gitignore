@@ -1,2 +1,13 @@
-# Claude Code local config/skills (project-local tooling, not shared via git)
+# Environment variables & Secrets (CRITICAL: Do NOT commit .env files)
+.env
+.env.local
+.env.*.local
+*.env
+
+# Claude Code local config/skills
 .claude/
+
+# IDE & OS files
+.DS_Store
+.idea/
+.vscode/

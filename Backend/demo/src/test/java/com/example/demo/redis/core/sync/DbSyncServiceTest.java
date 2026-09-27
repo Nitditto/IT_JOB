@@ -95,7 +95,7 @@ class DbSyncServiceTest {
     }
 
     @Test
-    void syncNow_buildsMariaDbUpsertSql_andExecutesIt() {
+    void syncNow_buildsPostgresUpsertSql_andExecutesIt() {
         when(entityManager.createNativeQuery(anyString())).thenReturn(query);
         WidgetRedisLike widget = new WidgetRedisLike(1L, "Bolt", 42);
 
@@ -107,10 +107,9 @@ class DbSyncServiceTest {
 
         assertThat(sql)
                 .startsWith("INSERT INTO widgets")
-                .contains("ON DUPLICATE KEY UPDATE") // MariaDB syntax, KHÔNG phải Postgres "ON CONFLICT"
-                .doesNotContain("ON CONFLICT")
-                .doesNotContain("::jsonb") // Postgres-specific cast không cần cho MariaDB
-                .contains("qty = VALUES(qty)"); // @Column(name="qty") trên field `quantity`
+                .contains("ON CONFLICT (id) DO UPDATE SET") // Postgres syntax
+                .doesNotContain("ON DUPLICATE KEY UPDATE")
+                .contains("qty = EXCLUDED.qty"); // @Column(name="qty") trên field `quantity`
         verify(query).executeUpdate();
     }
 

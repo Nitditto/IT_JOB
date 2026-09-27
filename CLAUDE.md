@@ -8,7 +8,7 @@ IT_JOB — nền tảng tuyển dụng IT (job board): candidate nộp CV, compa
 
 ## Tech Stack
 
-- Backend: Java 17 + Spring Boot 3.5.5, MariaDB + Spring Data JPA, Spring Security + JWT (access + refresh token), Bucket4j (rate limit — vẫn in-memory, xem "Còn nợ" cuối file), Redis (read-through cache, xem phần Redis Caching Framework)
+- Backend: Java 17 + Spring Boot 3.5.5, PostgreSQL + Spring Data JPA, Spring Security + JWT (access + refresh token), Bucket4j (rate limit — vẫn in-memory, xem "Còn nợ" cuối file), Redis (read-through cache, xem phần Redis Caching Framework)
 - Frontend: React + Vite, Tailwind CSS 4
 - Build: Maven (backend), npm (frontend)
 
@@ -28,7 +28,7 @@ npm install
 npm run dev
 ```
 
-Backend chạy ở `localhost:8080`, Frontend ở `localhost:5173`. Backend cần MariaDB thật để chạy (đọc kết nối từ `.env`, không commit); Redis là optional theo thiết kế — app vẫn chạy đúng nếu Redis không sẵn sàng, chỉ mất phần cache (xem Redis Caching Framework).
+Backend chạy ở `localhost:8080`, Frontend ở `localhost:5173`. Backend cần PostgreSQL thật để chạy (đọc kết nối từ `.env`, không commit); Redis là optional theo thiết kế — app vẫn chạy đúng nếu Redis không sẵn sàng, chỉ mất phần cache (xem Redis Caching Framework).
 
 ## Architecture
 
@@ -69,7 +69,7 @@ Backend/demo/src/main/java/com/example/demo/
 ### Data Flow
 
 ```
-Request → Controller → Service (DTO ↔ Entity, business rule) → Repository → MariaDB
+Request → Controller → Service (DTO ↔ Entity, business rule) → Repository → PostgreSQL
                                         ↓ (đọc, entity có Redis cache — hiện chỉ Job)
                                   RedisXxxRepository → Redis (cache miss → JPA repo → tự cache lại)
 ```
@@ -87,10 +87,10 @@ Quy tắc phân biệt:
 
 ## Redis Caching Framework
 
-Mirror kiến trúc Redis của `util4dev-wiki-service` (annotation-driven, generic qua reflection), điều chỉnh 2 điểm khác biệt với MariaDB/entity của IT_JOB:
+Mirror kiến trúc Redis của `util4dev-wiki-service` (annotation-driven, generic qua reflection), tích hợp cho PostgreSQL/entity của IT_JOB:
 
-1. **UPSERT trong `DbSyncService`** dùng cú pháp MariaDB (`INSERT ... ON DUPLICATE KEY UPDATE`) thay vì Postgres `ON CONFLICT ... DO UPDATE`.
-2. **`Job.id` sinh bởi DB sequence**, không phải UUID client-generatable như entity mẫu của wiki-service (`Document`, `Workspace`...). Vì vậy `JobRedis` dùng `SyncStrategy.CACHE_ONLY` + `autoSync = false`: Redis chỉ là cache đọc (read-through), **MariaDB qua `JobRepository`/`JobServiceImpl` vẫn là nơi ghi duy nhất** — không dùng WRITE_BEHIND/WRITE_THROUGH cho `Job`. Lý do thêm: `Job.tags`/`Job.images` là `@ElementCollection` (bảng con riêng `job_tags`/`job_images`), UPSERT 1-bảng generic của `DbSyncService` không xử lý đúng trường hợp này — **chỉ dùng WRITE_BEHIND/WRITE_THROUGH cho entity map phẳng vào 1 bảng, không có `@ElementCollection`/`@OneToMany`.**
+1. **UPSERT trong `DbSyncService`** dùng cú pháp PostgreSQL (`INSERT ... ON CONFLICT (id) DO UPDATE SET ...`).
+2. **`Job.id` sinh bởi DB sequence**, không phải UUID client-generatable như entity mẫu của wiki-service (`Document`, `Workspace`...). Vì vậy `JobRedis` dùng `SyncStrategy.CACHE_ONLY` + `autoSync = false`: Redis chỉ là cache đọc (read-through), **PostgreSQL qua `JobRepository`/`JobServiceImpl` vẫn là nơi ghi duy nhất** — không dùng WRITE_BEHIND/WRITE_THROUGH cho `Job`. Lý do thêm: `Job.tags`/`Job.images` là `@ElementCollection` (bảng con riêng `job_tags`/`job_images`), UPSERT 1-bảng generic của `DbSyncService` không xử lý đúng trường hợp này — **chỉ dùng WRITE_BEHIND/WRITE_THROUGH cho entity map phẳng vào 1 bảng, không có `@ElementCollection`/`@OneToMany`.**
 
 ### Cách thêm 1 Redis entity mới (theo pattern `JobRedis`/`JobRedisRepository`)
 

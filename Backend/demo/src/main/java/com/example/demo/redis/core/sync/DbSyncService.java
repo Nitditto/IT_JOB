@@ -208,7 +208,7 @@ public class DbSyncService {
         }
     }
 
-    // ---- UPSERT (MariaDB: INSERT ... ON DUPLICATE KEY UPDATE) ----
+    // ---- UPSERT (PostgreSQL: INSERT ... ON CONFLICT (id) DO UPDATE SET) ----
 
     @SuppressWarnings("unchecked")
     private void executeUpsert(Class<?> jpaEntityClass, Object redisEntity, Object entityId) {
@@ -234,9 +234,9 @@ public class DbSyncService {
         String placeholders = columns.stream().map(c -> "?").collect(Collectors.joining(", "));
         String updateClause = columns.stream()
                 .filter(c -> !c.equalsIgnoreCase("id"))
-                .map(c -> c + " = VALUES(" + c + ")")
+                .map(c -> c + " = EXCLUDED." + c)
                 .collect(Collectors.joining(", "));
-        String sql = "INSERT INTO %s (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s".formatted(
+        String sql = "INSERT INTO %s (%s) VALUES (%s) ON CONFLICT (id) DO UPDATE SET %s".formatted(
                 tableName, String.join(", ", columns), placeholders, updateClause);
 
         var query = entityManager.createNativeQuery(sql);

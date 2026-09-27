@@ -3,51 +3,82 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.Frontend
+    container_name: itjob_frontend
     ports:
-      - 5173:5173
+      - "5173:5173"
     volumes:
       - ./Frontend/itjob:/frontend
       - /frontend/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - PROXY_TARGET=http://backend:8080
+      - PROXY_TARGET=http://backend:${BACKEND_PORT:-8080}
+    depends_on:
+      - backend
+
   backend:
     build:
       context: .
       dockerfile: Dockerfile.Backend
+    container_name: itjob_backend
     ports:
-      - 8080:8080
+      - "${BACKEND_PORT:-8080}:8080"
     volumes:
       - ./Backend/demo:/backend
     environment:
-      FRONTEND_URL: http://localhost:5173
-      SPRING_DATASOURCE_URL: jdbc:mariadb://database:3306/itjob
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: changeme
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.mariadb.jdbc.Driver
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://database:5432/it_job}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-itjob}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-ItJob_SecurePass!}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
+      ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   database:
-    image: mariadb
+    image: postgres:16-alpine
+    container_name: itjob_postgres
     environment:
-      MARIADB_ROOT_PASSWORD: changeme
-      MARIADB_DATABASE: itjob
-      MARIADB_USER: admin
-      MARIADB_PASSWORD: changeme
+      POSTGRES_DB: ${POSTGRES_DB:-it_job}
+      POSTGRES_USER: ${POSTGRES_USER:-itjob}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ItJob_SecurePass!}
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
     ports:
-      - 3306:3306
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-itjob} -d ${POSTGRES_DB:-it_job}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: itjob_redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   cloudflared-frontend:
     image: cloudflare/cloudflared:latest
     command: tunnel --url http://frontend:5173
     depends_on:
       - frontend
+
 volumes:
   db_data:
     driver: local
-
-# networks:
-#   itjob:
-#     driver: bridge
+  redis_data:
+    driver: local
