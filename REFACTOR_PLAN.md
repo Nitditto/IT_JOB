@@ -126,8 +126,8 @@ Password admin ban đầu hardcode thẳng trong source (`"xWWlpaAj1%#pS7"`) —
 
 ### 19. ✅ ĐÃ FIX — Redis Caching Framework đầy đủ (core + entity + repository), mirror wiki-service
 Đọc trực tiếp code thật của wiki-service (annotation, `AbstractRedisRepository`, `DbSyncService`, `SyncRecoveryService`) qua agent khảo sát, port sang IT_JOB với 2 điều chỉnh biết rõ lý do:
-1. UPSERT trong `DbSyncService` viết lại theo cú pháp MariaDB (`ON DUPLICATE KEY UPDATE`) thay Postgres (`ON CONFLICT`).
-2. `Job.id` sinh bởi DB sequence (khác UUID client-generatable của entity mẫu wiki-service) → `JobRedis` dùng `SyncStrategy.CACHE_ONLY` + `autoSync=false` (Redis chỉ cache đọc, MariaDB vẫn là nơi ghi duy nhất qua `JobServiceImpl` sẵn có) — xem lý do đầy đủ ở CLAUDE.md phần "Redis Caching Framework". Cũng vì `Job.tags`/`Job.images` là `@ElementCollection` (bảng con), UPSERT 1-bảng generic không xử lý đúng nếu dùng WRITE_BEHIND/WRITE_THROUGH.
+1. UPSERT trong `DbSyncService` dùng cú pháp PostgreSQL (`ON CONFLICT (id) DO UPDATE SET ...`).
+2. `Job.id` sinh bởi DB sequence (khác UUID client-generatable của entity mẫu wiki-service) → `JobRedis` dùng `SyncStrategy.CACHE_ONLY` + `autoSync=false` (Redis chỉ cache đọc, PostgreSQL vẫn là nơi ghi duy nhất qua `JobServiceImpl` sẵn có) — xem lý do đầy đủ ở CLAUDE.md phần "Redis Caching Framework". Cũng vì `Job.tags`/`Job.images` là `@ElementCollection` (bảng con), UPSERT 1-bảng generic không xử lý đúng nếu dùng WRITE_BEHIND/WRITE_THROUGH.
 
 File mới: `constants/{RedisConstants,SyncConstants,SyncStrategy,SyncOperation}`, `redis/core/annotation/{RedisEntity,RedisIndexed,RedisId,LinkedJpaEntity,RedisTransient,TimeToLive}`, `redis/core/entity/BaseRedisEntity`, `redis/core/repository/{RedisRepository,RedisCrudRepository,RedisJpaRepository,AbstractRedisRepository}`, `redis/core/sync/{SyncTask,SyncCallback,DbSyncService,SyncRecoveryService}`, `redis/core/config/RedisCoreConfig`, `redis/core/exception/{RedisEntityNotFoundException,RedisOptimisticLockingException,RedisSyncException}`, `redis/entity/JobRedis`, `redis/repository/JobRedisRepository`.
 

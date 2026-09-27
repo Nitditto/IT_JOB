@@ -55,11 +55,12 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String avatar;
 
     private String phone;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -73,8 +74,10 @@ public class Account implements UserDetails {
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 
+    @Enumerated(EnumType.STRING)
     private CompanyModel model;
 
+    @Enumerated(EnumType.STRING)
     private CompanyScale scale;
 
     private Long startWork;
