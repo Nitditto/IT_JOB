@@ -17,21 +17,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.response.ApiResponse;
-import com.example.demo.dto.response.CompanyResponse;
-import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.request.JobCreationRequest;
 import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
+import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.dto.response.CompanyResponse;
+import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.response.JobRecommendationResponse;
 import com.example.demo.dto.response.JobResponse;
+import com.example.demo.dto.response.JobStatsResponse;
 import com.example.demo.dto.response.TagResponse;
 import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 import com.example.demo.services.JobService;
-import com.example.demo.services.JobRecommender;
+import com.example.demo.services.JobViewService;
+import com.example.demo.services.RecommendationService;
 import com.example.demo.services.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +47,15 @@ public class JobController {
 
     private final JobService jobService;
     private final UserService userService;
-    private final JobRecommender jobRecommender;
+    private final RecommendationService recommendationService;
+    private final JobViewService jobViewService;
 
     @GetMapping("/recommendations")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ApiResponse<List<JobRecommendationResponse>>> getRecommendations(
             @AuthenticationPrincipal Account currentUser) {
-        log.info("REST request to get job recommendations for user: {}", currentUser.getEmail());
-        List<Job> allJobs = jobService.getAllJobs();
-        List<JobRecommendationResponse> recommendations = jobRecommender.recommendJobs(currentUser, allJobs, 10);
+        log.debug("REST request to get job recommendations for user ID: {}", currentUser != null ? currentUser.getId() : null);
+        List<JobRecommendationResponse> recommendations = recommendationService.getRecommendations(currentUser);
         return ResponseEntity.ok(ApiResponse.success(recommendations));
     }
 
@@ -86,9 +89,22 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<JobResponse>> getJobInfo(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<JobResponse>> getJobInfo(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Account account,
+            HttpServletRequest request) {
         log.info("REST request to get job detail: {}", id);
+        jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
         return ResponseEntity.ok(ApiResponse.success(jobService.getCachedJobResponse(id)));
+    }
+
+    @GetMapping("/{id}/stats")
+    @PreAuthorize("hasRole('COMPANY')")
+    public ResponseEntity<ApiResponse<JobStatsResponse>> getJobStats(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Account account) {
+        log.info("REST request for Company {} to get stats of Job {}", account.getId(), id);
+        return ResponseEntity.ok(ApiResponse.success(jobViewService.getStats(id, account.getId())));
     }
 
     @PutMapping("/{id}")
@@ -108,5 +124,13 @@ public class JobController {
         Long currentCompanyId = userService.getCurrentUser(principal).getId();
         jobService.deleteJob(id, currentCompanyId);
         return ResponseEntity.ok(ApiResponse.success(null, "Xóa công việc thành công!"));
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }
