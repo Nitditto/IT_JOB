@@ -4,30 +4,58 @@ import { Link } from "react-router";
 import { FaBriefcase, FaLocationDot, FaUserTie } from "react-icons/fa6";
 import translation from "@/utils/translation";
 import { DollarSign, Heart } from "lucide-react";
-import { useState } from "react";
-import { isBookmarked, toggleBookmark, type BookmarkedJob } from "@/utils/bookmarks";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { getApiErrorMessage, jobEngagementService } from "@/services/jobEngagementService";
 
 export const CardJobItem = ({ jobInfo }: { jobInfo: any }) => {
-  const [saved, setSaved] = useState(isBookmarked(jobInfo.id));
+  const { user } = useAuth();
+  const [saved, setSaved] = useState(false);
+  const [mutating, setMutating] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
-  const handleBookmark = (e: React.MouseEvent) => {
+  useEffect(() => {
+    let ignore = false;
+    const loadState = async () => {
+      if (!user || user.role !== "ROLE_USER" || !jobInfo.id) return;
+      try {
+        const state = await jobEngagementService.getJobState(jobInfo.id);
+        if (!ignore) setSaved(state.saved);
+      } catch {
+        if (!ignore) setSaved(false);
+      }
+    };
+    loadState();
+    return () => {
+      ignore = true;
+    };
+  }, [jobInfo.id, user]);
+
+  const handleBookmark = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const bm: BookmarkedJob = {
-      id: jobInfo.id,
-      name: jobInfo.name,
-      companyName: jobInfo.company,
-      companyAvatar: jobInfo.companyAvatar,
-      minSalary: jobInfo.minSalary,
-      maxSalary: jobInfo.maxSalary,
-      position: jobInfo.position,
-      workstyle: jobInfo.workstyle,
-      location: jobInfo.location?.name || '',
-      tags: jobInfo.tags || [],
-      savedAt: new Date().toISOString(),
-    };
-    const nowSaved = toggleBookmark(bm);
-    setSaved(nowSaved);
+    if (!user || user.role !== "ROLE_USER") {
+      setMessage("Đăng nhập tài khoản ứng viên để lưu việc.");
+      window.setTimeout(() => setMessage(null), 2500);
+      return;
+    }
+    setMutating(true);
+    try {
+      if (saved) {
+        await jobEngagementService.unsaveJob(jobInfo.id);
+        setSaved(false);
+        setMessage("Đã bỏ lưu.");
+      } else {
+        await jobEngagementService.saveJob(jobInfo.id);
+        setSaved(true);
+        setMessage("Đã lưu việc.");
+      }
+    } catch (err) {
+      setMessage(getApiErrorMessage(err, "Không thể cập nhật lưu việc."));
+    } finally {
+      setMutating(false);
+      window.setTimeout(() => setMessage(null), 2500);
+    }
   };
 
   return (
@@ -38,6 +66,7 @@ export const CardJobItem = ({ jobInfo }: { jobInfo: any }) => {
       {/* Bookmark heart */}
       <button
         onClick={handleBookmark}
+        disabled={mutating}
         className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm border ${saved
           ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-500 border-rose-100 dark:border-rose-900/50 scale-105'
           : 'bg-white dark:bg-slate-800 text-slate-300 dark:text-slate-600 border-slate-100 dark:border-slate-700 hover:text-rose-500'
@@ -45,6 +74,11 @@ export const CardJobItem = ({ jobInfo }: { jobInfo: any }) => {
       >
         <Heart size={18} fill={saved ? 'currentColor' : 'none'} strokeWidth={saved ? 0 : 2} />
       </button>
+      {message && (
+        <div className="absolute left-4 right-16 top-4 z-10 rounded-xl border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm">
+          {message}
+        </div>
+      )}
 
       <div className="p-6">
         <div className="flex flex-col items-center gap-6">
