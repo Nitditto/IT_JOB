@@ -1,5 +1,7 @@
 package com.example.demo.dto.response;
 
+import java.time.Instant;
+
 import com.example.demo.enums.CVStatus;
 import com.example.demo.enums.JobPosition;
 import com.example.demo.enums.JobWorkstyle;
@@ -18,6 +20,12 @@ public class CVResponse {
     private String email;
     private String cvFile;
     private String referral;
+    private String coverLetter;
+    private String portfolioUrl;
+    private Long expectedSalary;
+    private Instant availableFrom;
+    private Instant submittedAt;
+    private Instant updatedAt;
     private CVStatus status;
 
     private String jobName;

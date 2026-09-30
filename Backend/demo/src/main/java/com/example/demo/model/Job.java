@@ -7,6 +7,8 @@ import java.util.Set;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.example.demo.enums.JobPosition;
+import com.example.demo.enums.JobEmploymentType;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.enums.JobWorkstyle;
 
 import jakarta.persistence.CollectionTable;
@@ -50,8 +52,25 @@ public class Job {
 
     private Long companyID;
     private String name;
+    private String category;
+    private String industry;
+    private String salaryCurrency;
+    private Boolean salaryNegotiable;
     private Long minSalary;
     private Long maxSalary;
+    private Integer minExperienceYears;
+    private Integer maxExperienceYears;
+    private Integer vacancies;
+    private Instant deadline;
+    private Boolean urgent;
+    private Boolean featured;
+
+    @Enumerated(EnumType.STRING)
+    private JobEmploymentType employmentType;
+
+    @Default
+    @Enumerated(EnumType.STRING)
+    private JobStatus status = JobStatus.published;
 
     @Enumerated(EnumType.STRING)
     private JobPosition position;
@@ -77,6 +96,15 @@ public class Job {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(columnDefinition = "TEXT")
+    private String requirements;
+
+    @Column(columnDefinition = "TEXT")
+    private String benefits;
+
+    @Column(columnDefinition = "TEXT")
+    private String workingTime;
 
     @Default
     private Integer appliedCount = 0;

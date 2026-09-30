@@ -1,5 +1,7 @@
 package com.example.demo.dto.request;
 
+import java.time.Instant;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +19,9 @@ public class CVCreationRequest {
     private String cvFile;
 
     private String referral;
+    private String coverLetter;
+    private String portfolioUrl;
+    private Long expectedSalary;
+    private Instant availableFrom;
 }
 

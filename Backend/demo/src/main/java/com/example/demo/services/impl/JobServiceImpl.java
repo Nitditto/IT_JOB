@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.dto.response.JobCardResponse;
@@ -51,9 +52,26 @@ public class JobServiceImpl implements JobService {
         Job job = new Job();
         job.setCompanyID(company.getId());
         job.setName(request.getName());
+        job.setCategory(request.getCategory());
+        job.setIndustry(request.getIndustry());
+        job.setSalaryCurrency(request.getSalaryCurrency());
+        job.setSalaryNegotiable(request.getSalaryNegotiable());
         job.setMinSalary(request.getMinSalary());
         job.setMaxSalary(request.getMaxSalary());
+        job.setMinExperienceYears(request.getMinExperienceYears());
+        job.setMaxExperienceYears(request.getMaxExperienceYears());
+        job.setVacancies(request.getVacancies());
+        job.setDeadline(request.getDeadline());
+        job.setUrgent(request.getUrgent());
+        job.setFeatured(request.getFeatured());
+        job.setEmploymentType(request.getEmploymentType());
+        if (request.getStatus() != null) {
+            job.setStatus(request.getStatus());
+        }
         job.setDescription(request.getDescription());
+        job.setRequirements(request.getRequirements());
+        job.setBenefits(request.getBenefits());
+        job.setWorkingTime(request.getWorkingTime());
         
         if (request.getImages() != null) {
             job.setImages(new HashSet<>(request.getImages()));
@@ -93,14 +111,29 @@ public class JobServiceImpl implements JobService {
 
     private void applyEditFields(Job job, JobEditRequest jobEditRequest) {
         job.setName(jobEditRequest.getName());
+        job.setCategory(jobEditRequest.getCategory());
+        job.setIndustry(jobEditRequest.getIndustry());
+        job.setSalaryCurrency(jobEditRequest.getSalaryCurrency());
+        job.setSalaryNegotiable(jobEditRequest.getSalaryNegotiable());
         job.setMinSalary(jobEditRequest.getMinSalary());
         job.setMaxSalary(jobEditRequest.getMaxSalary());
+        job.setMinExperienceYears(jobEditRequest.getMinExperienceYears());
+        job.setMaxExperienceYears(jobEditRequest.getMaxExperienceYears());
+        job.setVacancies(jobEditRequest.getVacancies());
+        job.setDeadline(jobEditRequest.getDeadline());
+        job.setUrgent(jobEditRequest.getUrgent());
+        job.setFeatured(jobEditRequest.getFeatured());
         job.setPosition(jobEditRequest.getPosition());
         job.setWorkstyle(jobEditRequest.getWorkstyle());
+        job.setEmploymentType(jobEditRequest.getEmploymentType());
+        job.setStatus(jobEditRequest.getStatus());
         job.setAddress(jobEditRequest.getAddress());
         job.setLocation(locationRepository.findByAbbreviation(jobEditRequest.getLocation())
                 .orElseThrow(() -> new ResourceNotFoundException("Địa điểm không tồn tại!")));
         job.setDescription(jobEditRequest.getDescription());
+        job.setRequirements(jobEditRequest.getRequirements());
+        job.setBenefits(jobEditRequest.getBenefits());
+        job.setWorkingTime(jobEditRequest.getWorkingTime());
 
         job.setTags(jobEditRequest.getTags() != null ? new HashSet<>(jobEditRequest.getTags()) : new HashSet<>());
         job.setImages(jobEditRequest.getImages() != null ? new HashSet<>(jobEditRequest.getImages()) : new HashSet<>());
@@ -110,21 +143,37 @@ public class JobServiceImpl implements JobService {
     public JobResponse toResponse(Job job) {
         List<String> tags = job.getTags() != null ? new ArrayList<>(job.getTags()) : new ArrayList<>();
         List<String> images = job.getImages() != null ? new ArrayList<>(job.getImages()) : new ArrayList<>();
-        return new JobResponse(
-                job.getId(),
-                job.getCreatedAt(),
-                job.getCompanyID(),
-                job.getName(),
-                job.getMinSalary(),
-                job.getMaxSalary(),
-                job.getPosition(),
-                job.getWorkstyle(),
-                job.getLocation(),
-                job.getAddress(),
-                tags,
-                images,
-                job.getDescription(),
-                job.getAppliedCount());
+        JobResponse response = new JobResponse();
+        response.setId(job.getId());
+        response.setCreatedAt(job.getCreatedAt());
+        response.setCompanyID(job.getCompanyID());
+        response.setName(job.getName());
+        response.setCategory(job.getCategory());
+        response.setIndustry(job.getIndustry());
+        response.setSalaryCurrency(job.getSalaryCurrency());
+        response.setSalaryNegotiable(job.getSalaryNegotiable());
+        response.setMinSalary(job.getMinSalary());
+        response.setMaxSalary(job.getMaxSalary());
+        response.setMinExperienceYears(job.getMinExperienceYears());
+        response.setMaxExperienceYears(job.getMaxExperienceYears());
+        response.setVacancies(job.getVacancies());
+        response.setDeadline(job.getDeadline());
+        response.setUrgent(job.getUrgent());
+        response.setFeatured(job.getFeatured());
+        response.setPosition(job.getPosition());
+        response.setWorkstyle(job.getWorkstyle());
+        response.setEmploymentType(job.getEmploymentType());
+        response.setStatus(job.getStatus());
+        response.setLocation(job.getLocation());
+        response.setAddress(job.getAddress());
+        response.setTags(tags);
+        response.setImages(images);
+        response.setDescription(job.getDescription());
+        response.setRequirements(job.getRequirements());
+        response.setBenefits(job.getBenefits());
+        response.setWorkingTime(job.getWorkingTime());
+        response.setAppliedCount(job.getAppliedCount());
+        return response;
     }
 
     @Override
@@ -138,21 +187,37 @@ public class JobServiceImpl implements JobService {
     private JobResponse toResponse(JobRedis job) {
         List<String> tags = job.getTags() != null ? new ArrayList<>(job.getTags()) : new ArrayList<>();
         List<String> images = job.getImages() != null ? new ArrayList<>(job.getImages()) : new ArrayList<>();
-        return new JobResponse(
-                job.getId(),
-                job.getCreatedAt(),
-                job.getCompanyID(),
-                job.getName(),
-                job.getMinSalary(),
-                job.getMaxSalary(),
-                job.getPosition(),
-                job.getWorkstyle(),
-                job.getLocation(),
-                job.getAddress(),
-                tags,
-                images,
-                job.getDescription(),
-                job.getAppliedCount());
+        JobResponse response = new JobResponse();
+        response.setId(job.getId());
+        response.setCreatedAt(job.getCreatedAt());
+        response.setCompanyID(job.getCompanyID());
+        response.setName(job.getName());
+        response.setCategory(job.getCategory());
+        response.setIndustry(job.getIndustry());
+        response.setSalaryCurrency(job.getSalaryCurrency());
+        response.setSalaryNegotiable(job.getSalaryNegotiable());
+        response.setMinSalary(job.getMinSalary());
+        response.setMaxSalary(job.getMaxSalary());
+        response.setMinExperienceYears(job.getMinExperienceYears());
+        response.setMaxExperienceYears(job.getMaxExperienceYears());
+        response.setVacancies(job.getVacancies());
+        response.setDeadline(job.getDeadline());
+        response.setUrgent(job.getUrgent());
+        response.setFeatured(job.getFeatured());
+        response.setPosition(job.getPosition());
+        response.setWorkstyle(job.getWorkstyle());
+        response.setEmploymentType(job.getEmploymentType());
+        response.setStatus(job.getStatus());
+        response.setLocation(job.getLocation());
+        response.setAddress(job.getAddress());
+        response.setTags(tags);
+        response.setImages(images);
+        response.setDescription(job.getDescription());
+        response.setRequirements(job.getRequirements());
+        response.setBenefits(job.getBenefits());
+        response.setWorkingTime(job.getWorkingTime());
+        response.setAppliedCount(job.getAppliedCount());
+        return response;
     }
 
     @Override
@@ -179,11 +244,22 @@ public class JobServiceImpl implements JobService {
         card.setCompanyID(job.getCompanyID());
         card.setCompanyName(company.getName());
         card.setCompanyAvatar(company.getAvatar());
+        card.setCategory(job.getCategory());
+        card.setIndustry(job.getIndustry());
+        card.setSalaryCurrency(job.getSalaryCurrency());
+        card.setSalaryNegotiable(job.getSalaryNegotiable());
         card.setLocation(job.getLocation());
         card.setMinSalary(job.getMinSalary());
         card.setMaxSalary(job.getMaxSalary());
+        card.setMinExperienceYears(job.getMinExperienceYears());
+        card.setVacancies(job.getVacancies());
+        card.setDeadline(job.getDeadline());
+        card.setUrgent(job.getUrgent());
+        card.setFeatured(job.getFeatured());
         card.setPosition(job.getPosition());
         card.setWorkstyle(job.getWorkstyle());
+        card.setEmploymentType(job.getEmploymentType());
+        card.setStatus(job.getStatus());
 
         if (job.getTags() != null) {
             card.setTags(new ArrayList<>(job.getTags()));
@@ -227,7 +303,41 @@ public class JobServiceImpl implements JobService {
     @Override
     public List<Job> searchJobsByFilters(JobFilterRequest filters) {
         log.info("Searching jobs with filters: {}", filters);
-        return jobRepository.findAll(com.example.demo.repository.specification.JobSpecification.withFilters(filters));
+        return jobRepository.findAll(
+                com.example.demo.repository.specification.JobSpecification.withFilters(filters),
+                buildSort(filters));
+    }
+
+    private Sort buildSort(JobFilterRequest filters) {
+        if (filters == null || filters.getSortBy() == null || filters.getSortBy().isBlank()) {
+            return Sort.by(
+                    Sort.Order.desc("featured"),
+                    Sort.Order.desc("urgent"),
+                    Sort.Order.desc("createdAt"));
+        }
+
+        Sort.Direction direction = "asc".equalsIgnoreCase(filters.getSortDirection())
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        String property = switch (filters.getSortBy()) {
+            case "salary" -> "maxSalary";
+            case "deadline" -> "deadline";
+            case "applied" -> "appliedCount";
+            case "featured" -> "featured";
+            case "newest" -> "createdAt";
+            default -> "createdAt";
+        };
+
+        return Sort.by(direction, property);
+    }
+
+    @Override
+    public List<Job> findAllByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return jobRepository.findAllById(ids);
     }
 
     @Override

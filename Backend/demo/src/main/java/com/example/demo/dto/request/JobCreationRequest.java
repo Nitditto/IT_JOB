@@ -1,8 +1,11 @@
 package com.example.demo.dto.request;
 
+import java.time.Instant;
 import java.util.List;
 
+import com.example.demo.enums.JobEmploymentType;
 import com.example.demo.enums.JobPosition;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.enums.JobWorkstyle;
 
 import jakarta.validation.constraints.AssertTrue;
@@ -19,6 +22,10 @@ public class JobCreationRequest {
     
     @NotBlank(message = "Vui lòng nhập tên công việc!")
     private String name;
+    private String category;
+    private String industry;
+    private String salaryCurrency;
+    private Boolean salaryNegotiable;
 
     @NotNull(message = "Vui lòng nhập mức lương tối thiểu!")
     @Min(value=10, message = "Mức lương tối thiểu lớn hơn 10$!")
@@ -37,6 +44,14 @@ public class JobCreationRequest {
 
     @NotBlank(message = "Vui lòng chọn hình thức làm việc!")
     private JobWorkstyle workstyle;
+    private JobEmploymentType employmentType;
+    private JobStatus status;
+    private Integer minExperienceYears;
+    private Integer maxExperienceYears;
+    private Integer vacancies;
+    private Instant deadline;
+    private Boolean urgent;
+    private Boolean featured;
 
     private String address;
     private String location;
@@ -47,6 +62,9 @@ public class JobCreationRequest {
     private List<String> images;
 
     private String description;
+    private String requirements;
+    private String benefits;
+    private String workingTime;
 
     @AssertTrue(message = "Mức lương tối đa lớn hơn mức lương tối thiểu!")
     public boolean isPriceRangeValid() {

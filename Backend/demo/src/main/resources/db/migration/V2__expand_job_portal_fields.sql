@@ -1,0 +1,40 @@
+-- Expand core job portal data inspired by modern job boards.
+
+ALTER TABLE accounts
+    ADD COLUMN IF NOT EXISTS cover_image TEXT,
+    ADD COLUMN IF NOT EXISTS website VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS tax_code VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS industry VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS founded_year INTEGER,
+    ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE jobs
+    ADD COLUMN IF NOT EXISTS category VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS industry VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS salary_currency VARCHAR(10),
+    ADD COLUMN IF NOT EXISTS salary_negotiable BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS min_experience_years INTEGER,
+    ADD COLUMN IF NOT EXISTS max_experience_years INTEGER,
+    ADD COLUMN IF NOT EXISTS vacancies INTEGER,
+    ADD COLUMN IF NOT EXISTS deadline TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS urgent BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS employment_type VARCHAR(50),
+    ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'published',
+    ADD COLUMN IF NOT EXISTS requirements TEXT,
+    ADD COLUMN IF NOT EXISTS benefits TEXT,
+    ADD COLUMN IF NOT EXISTS working_time TEXT;
+
+ALTER TABLE cv
+    ADD COLUMN IF NOT EXISTS cover_letter TEXT,
+    ADD COLUMN IF NOT EXISTS portfolio_url VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS expected_salary BIGINT,
+    ADD COLUMN IF NOT EXISTS available_from TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS submitted_at TIMESTAMP WITH TIME ZONE,
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE;
+
+CREATE INDEX IF NOT EXISTS idx_jobs_category ON jobs(category);
+CREATE INDEX IF NOT EXISTS idx_jobs_industry ON jobs(industry);
+CREATE INDEX IF NOT EXISTS idx_jobs_employment_type ON jobs(employment_type);
+CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+CREATE INDEX IF NOT EXISTS idx_jobs_deadline ON jobs(deadline);

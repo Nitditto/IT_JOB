@@ -21,7 +21,7 @@ import com.example.demo.enums.UserRole;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
-import com.example.demo.model.Job;
+import com.example.demo.redis.repository.RecommendationRedisRepository;
 import com.example.demo.repository.AccountRepository;
 import com.example.demo.repository.JobRepository;
 import com.example.demo.services.LocationService;
@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final LocationService locationService;
     private final JobRepository jobRepository;
+    private final RecommendationRedisRepository recommendationRedisRepository;
 
     @Override
     @Transactional
@@ -85,7 +86,13 @@ public class UserServiceImpl implements UserService {
             account.getName(),
             account.getEmail(),
             account.getAvatar(),
+            account.getCoverImage(),
             account.getPhone(),
+            account.getWebsite(),
+            account.getTaxCode(),
+            account.getIndustry(),
+            account.getFoundedYear(),
+            account.getVerified(),
             account.getDescription(),
             account.getAddress(),
             account.getLocation(),
@@ -166,7 +173,9 @@ public class UserServiceImpl implements UserService {
             account.setLocation(locationService.getLocation(request.getLocation()));
         }
         
-        return accountRepository.save(account);
+        Account saved = accountRepository.save(account);
+        recommendationRedisRepository.evictUserRecommendations(accountID);
+        return saved;
     }
 
     @Override
@@ -179,8 +188,14 @@ public class UserServiceImpl implements UserService {
         account.setName(request.getName());
         account.setAddress(request.getAddress());
         account.setAvatar(request.getAvatar());
+        account.setCoverImage(request.getCoverImage());
         account.setDescription(request.getDescription());
         account.setEmail(request.getEmail());
+        account.setWebsite(request.getWebsite());
+        account.setTaxCode(request.getTaxCode());
+        account.setIndustry(request.getIndustry());
+        account.setFoundedYear(request.getFoundedYear());
+        account.setVerified(request.getVerified());
         
         if (request.getLocation() != null && !request.getLocation().trim().isEmpty()) {
             account.setLocation(locationService.getLocation(request.getLocation()));
