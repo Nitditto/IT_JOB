@@ -11,6 +11,8 @@ import {
     LogOut,
     Home,
     Heart,
+    BellRing,
+    Building2,
 } from 'lucide-react'
 import Sidebar from '../../components/side_bar/Sidebar'
 import { SidebarItem } from '../../components/side_bar/SidebarItem'
@@ -81,6 +83,16 @@ export default function DashboardLayout() {
                                 icon={<Heart size={20} />}
                                 text="Việc đã lưu"
                                 to="/dashboard/saved-jobs"
+                            />
+                            <SidebarItem
+                                icon={<Building2 size={20} />}
+                                text="Công ty theo dõi"
+                                to="/dashboard/following-companies"
+                            />
+                            <SidebarItem
+                                icon={<BellRing size={20} />}
+                                text="Thông báo việc làm"
+                                to="/dashboard/job-alerts"
                             />
                         </>
                     )}

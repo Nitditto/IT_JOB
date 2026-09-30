@@ -39,6 +39,14 @@ export default [
       file: "./pages/dashboard/saved-jobs/page.tsx"
     },
     {
+      path: "following-companies",
+      file: "./pages/dashboard/following-companies/page.tsx"
+    },
+    {
+      path: "job-alerts",
+      file: "./pages/dashboard/job-alerts/page.tsx"
+    },
+    {
       path: "list",
       file: "./pages/dashboard/list/page.tsx"
     },

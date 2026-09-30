@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import translation from "../../../../utils/translation";
 import { Globe } from "lucide-react";
 import api from "@/utils/api";
+import { JobStatsStrip } from "@/components/jobs/JobStatsStrip";
 
 export default function CompanyJobList() {
   const navigate = useNavigate();
@@ -141,6 +142,7 @@ export default function CompanyJobList() {
                         </div>
                       )}
                     </div>
+                    <JobStatsStrip jobId={value.id} />
                   </div>
 
                   {/* Actions Bar */}

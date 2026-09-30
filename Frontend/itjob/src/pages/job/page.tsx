@@ -4,8 +4,9 @@ import translation from '@/utils/translation';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Briefcase, UserCircle, Globe, DollarSign, Building2, Clock, Users, ArrowRight, Sparkles, Brain, Target, CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Briefcase, UserCircle, Globe, DollarSign, Building2, Clock, Users, ArrowRight, Sparkles, Brain, Target, CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Heart, BellPlus } from 'lucide-react';
 import { analyzeJobMatch, generateInterviewQuestions, type JobMatchResult } from '@/utils/gemini';
+import { getApiErrorMessage, jobEngagementService } from '@/services/jobEngagementService';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -41,6 +42,11 @@ export default function JobDetailPage() {
         id: 0, name: "", avatar: "", model: "", scale: "", startWork: 0, endWork: 0, hasOvertime: false
     })
     const [hasCV, setHasCV] = useState(false);
+    const [jobSaved, setJobSaved] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
+    const [followingCompany, setFollowingCompany] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
+    const [feedback, setFeedback] = useState<string | null>(null);
     const [matchResult, setMatchResult] = useState<JobMatchResult | null>(null);
     const [matchLoading, setMatchLoading] = useState(false);
     const [interviewQuestions, setInterviewQuestions] = useState('');
@@ -55,16 +61,76 @@ export default function JobDetailPage() {
             setInfoCompany(companyRes.data);
             if (user?.role === 'ROLE_USER') {
                 try {
-                    const cvRes = await api.get(`/jobs/${id}/cvs/me`);
-                    if (cvRes.status == 200) setHasCV(true);
+                    const stateRes = await jobEngagementService.getJobState(Number(id));
+                    setHasCV(stateRes.applied);
+                    setJobSaved(stateRes.saved);
                 } catch {
                     // Chưa nộp CV cho job này -> giữ hasCV = false
+                }
+                try {
+                    const follows = await jobEngagementService.getFollowedCompanies();
+                    setFollowingCompany(follows.some((item) => item.company.id === jobRes.data.companyID));
+                } catch {
+                    setHasCV(false);
+                    setJobSaved(false);
+                    setFollowingCompany(false);
                 }
             }
         }
         init();
         document.title = 'Chi tiết công việc'
     }, [id, user])
+
+    const showFeedback = (message: string) => {
+        setFeedback(message);
+        window.setTimeout(() => setFeedback(null), 2800);
+    };
+
+    const toggleSaved = async () => {
+        if (!id || user?.role !== "ROLE_USER") {
+            showFeedback("Đăng nhập tài khoản ứng viên để lưu việc.");
+            return;
+        }
+        setSaveLoading(true);
+        try {
+            if (jobSaved) {
+                await jobEngagementService.unsaveJob(Number(id));
+                setJobSaved(false);
+                showFeedback("Đã bỏ lưu công việc.");
+            } else {
+                await jobEngagementService.saveJob(Number(id));
+                setJobSaved(true);
+                showFeedback("Đã lưu công việc.");
+            }
+        } catch (err) {
+            showFeedback(getApiErrorMessage(err, "Không thể cập nhật lưu việc."));
+        } finally {
+            setSaveLoading(false);
+        }
+    };
+
+    const toggleFollowCompany = async () => {
+        if (user?.role !== "ROLE_USER") {
+            showFeedback("Đăng nhập tài khoản ứng viên để theo dõi công ty.");
+            return;
+        }
+        setFollowLoading(true);
+        try {
+            if (followingCompany) {
+                await jobEngagementService.unfollowCompany(infoCompany.id);
+                setFollowingCompany(false);
+                showFeedback("Đã bỏ theo dõi công ty.");
+            } else {
+                await jobEngagementService.followCompany(infoCompany.id);
+                setFollowingCompany(true);
+                showFeedback("Đã theo dõi công ty.");
+            }
+        } catch (err) {
+            showFeedback(getApiErrorMessage(err, "Không thể cập nhật theo dõi công ty."));
+        } finally {
+            setFollowLoading(false);
+        }
+    };
 
     const actionButton = hasCV ? (
         <Link to={`/job/${id}/mycv`}
@@ -86,6 +152,11 @@ export default function JobDetailPage() {
     return (
         <>
             <style>{customSwiperStyles}</style>
+            {feedback && (
+                <div className="fixed right-5 top-20 z-50 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-lg">
+                    {feedback}
+                </div>
+            )}
             <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pb-16">
                 {/* Job Header */}
                 <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-700 dark:from-indigo-900 dark:via-indigo-950 dark:to-violet-950 py-10">
@@ -212,6 +283,16 @@ export default function JobDetailPage() {
                         <div className="flex-1 space-y-5">
                             {/* Apply Button (desktop) */}
                             <div className="hidden lg:block">{actionButton}</div>
+                            {user?.role === "ROLE_USER" && (
+                                <button
+                                    onClick={toggleSaved}
+                                    disabled={saveLoading}
+                                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-bold transition-all disabled:opacity-60 ${jobSaved ? "border-rose-200 bg-rose-50 text-rose-600" : "border-slate-200 bg-white text-slate-700 hover:border-rose-200 hover:text-rose-600"}`}
+                                >
+                                    <Heart size={16} fill={jobSaved ? "currentColor" : "none"} />
+                                    {jobSaved ? "Đã lưu công việc" : "Lưu công việc"}
+                                </button>
+                            )}
 
                             {/* Company Card */}
                             <motion.div
@@ -232,6 +313,16 @@ export default function JobDetailPage() {
                                         </Link>
                                     </div>
                                 </div>
+                                {user?.role === "ROLE_USER" && (
+                                    <button
+                                        onClick={toggleFollowCompany}
+                                        disabled={followLoading}
+                                        className={`mt-5 flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-bold transition disabled:opacity-60 ${followingCompany ? "border-indigo-200 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"}`}
+                                    >
+                                        <BellPlus size={16} />
+                                        {followingCompany ? "Đang theo dõi công ty" : "Theo dõi công ty"}
+                                    </button>
+                                )}
                                 <div className="mt-5 space-y-3">
                                     {[
                                         { icon: <Building2 size={16} className="text-slate-400" />, label: "Mô hình", value: translation[infoCompany.model] },
