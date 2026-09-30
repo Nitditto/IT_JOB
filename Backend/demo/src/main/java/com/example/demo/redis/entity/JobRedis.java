@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.demo.constants.SyncStrategy;
+import com.example.demo.enums.JobEmploymentType;
 import com.example.demo.enums.JobPosition;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.enums.JobWorkstyle;
 import com.example.demo.model.Job;
 import com.example.demo.model.Location;
@@ -48,15 +50,30 @@ public class JobRedis extends BaseRedisEntity<Long> {
     private Long companyID;
 
     private String name;
+    private String category;
+    private String industry;
+    private String salaryCurrency;
+    private Boolean salaryNegotiable;
     private Long minSalary;
     private Long maxSalary;
+    private Integer minExperienceYears;
+    private Integer maxExperienceYears;
+    private Integer vacancies;
+    private Instant deadline;
+    private Boolean urgent;
+    private Boolean featured;
     private JobPosition position;
     private JobWorkstyle workstyle;
+    private JobEmploymentType employmentType;
+    private JobStatus status;
     private Location location;
     private String address;
     private List<String> tags;
     private List<String> images;
     private String description;
+    private String requirements;
+    private String benefits;
+    private String workingTime;
     private Integer appliedCount;
     private Instant createdAt;
 
@@ -68,15 +85,30 @@ public class JobRedis extends BaseRedisEntity<Long> {
                 .id(job.getId())
                 .companyID(job.getCompanyID())
                 .name(job.getName())
+                .category(job.getCategory())
+                .industry(job.getIndustry())
+                .salaryCurrency(job.getSalaryCurrency())
+                .salaryNegotiable(job.getSalaryNegotiable())
                 .minSalary(job.getMinSalary())
                 .maxSalary(job.getMaxSalary())
+                .minExperienceYears(job.getMinExperienceYears())
+                .maxExperienceYears(job.getMaxExperienceYears())
+                .vacancies(job.getVacancies())
+                .deadline(job.getDeadline())
+                .urgent(job.getUrgent())
+                .featured(job.getFeatured())
                 .position(job.getPosition())
                 .workstyle(job.getWorkstyle())
+                .employmentType(job.getEmploymentType())
+                .status(job.getStatus())
                 .location(job.getLocation())
                 .address(job.getAddress())
                 .tags(job.getTags() != null ? new ArrayList<>(job.getTags()) : new ArrayList<>())
                 .images(job.getImages() != null ? new ArrayList<>(job.getImages()) : new ArrayList<>())
                 .description(job.getDescription())
+                .requirements(job.getRequirements())
+                .benefits(job.getBenefits())
+                .workingTime(job.getWorkingTime())
                 .appliedCount(job.getAppliedCount())
                 .createdAt(job.getCreatedAt())
                 .build();

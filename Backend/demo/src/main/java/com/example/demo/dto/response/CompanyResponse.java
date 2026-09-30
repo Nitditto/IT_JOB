@@ -15,7 +15,13 @@ public class CompanyResponse {
     private String name;
     private String email;
     private String avatar;
+    private String coverImage;
     private String phone;
+    private String website;
+    private String taxCode;
+    private String industry;
+    private Integer foundedYear;
+    private Boolean verified;
     private String description;
     private String address;
     private Location location;

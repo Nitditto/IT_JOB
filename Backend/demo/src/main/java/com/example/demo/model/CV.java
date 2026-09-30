@@ -1,5 +1,10 @@
 package com.example.demo.model;
 
+import java.time.Instant;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.example.demo.enums.CVStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -50,6 +55,20 @@ public class CV {
 
     @Column(columnDefinition = "TEXT")
     private String referral;
+
+    @Column(columnDefinition = "TEXT")
+    private String coverLetter;
+
+    private String portfolioUrl;
+    private Long expectedSalary;
+    private Instant availableFrom;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Instant submittedAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
 
     @Enumerated(EnumType.STRING)
     private CVStatus status = CVStatus.PENDING;

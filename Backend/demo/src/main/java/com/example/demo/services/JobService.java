@@ -27,6 +27,7 @@ public interface JobService {
     List<Job> getAllJobs();
     List<TagResponse> getAllTags();
     List<Job> searchJobsByFilters(JobFilterRequest filters);
+    List<Job> findAllByIds(List<Long> ids);
     void deleteJob(Long jobId, Long companyId);
 }
 

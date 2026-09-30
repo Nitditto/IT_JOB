@@ -58,7 +58,15 @@ public class Account implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String avatar;
 
+    @Column(columnDefinition = "TEXT")
+    private String coverImage;
+
     private String phone;
+    private String website;
+    private String taxCode;
+    private String industry;
+    private Integer foundedYear;
+    private Boolean verified;
 
     @Column(columnDefinition = "TEXT")
     private String description;

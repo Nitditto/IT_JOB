@@ -63,6 +63,10 @@ public class CVServiceImpl implements CVService {
         cv.setEmail(request.getEmail());
         cv.setCvFile(request.getCvFile());
         cv.setReferral(request.getReferral());
+        cv.setCoverLetter(request.getCoverLetter());
+        cv.setPortfolioUrl(request.getPortfolioUrl());
+        cv.setExpectedSalary(request.getExpectedSalary());
+        cv.setAvailableFrom(request.getAvailableFrom());
         cv.setStatus(CVStatus.PENDING);
 
         int currentCount = job.getAppliedCount() != null ? job.getAppliedCount() : 0;
@@ -86,6 +90,10 @@ public class CVServiceImpl implements CVService {
         cv.setEmail(request.getEmail());
         cv.setCvFile(request.getCvFile());
         cv.setReferral(request.getReferral());
+        cv.setCoverLetter(request.getCoverLetter());
+        cv.setPortfolioUrl(request.getPortfolioUrl());
+        cv.setExpectedSalary(request.getExpectedSalary());
+        cv.setAvailableFrom(request.getAvailableFrom());
         cv.setStatus(request.getStatus());
         return cvRepository.save(cv);
     }
@@ -169,6 +177,12 @@ public class CVServiceImpl implements CVService {
             cv.getEmail(),
             cv.getCvFile(),
             cv.getReferral(),
+            cv.getCoverLetter(),
+            cv.getPortfolioUrl(),
+            cv.getExpectedSalary(),
+            cv.getAvailableFrom(),
+            cv.getSubmittedAt(),
+            cv.getUpdatedAt(),
             cv.getStatus(),
             cv.getJob().getName(),
             company.getName(),
