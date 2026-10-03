@@ -14,7 +14,7 @@ import com.example.demo.model.Job;
 
 public interface JobService {
     Job createJob(JobCreationRequest request, CompanyResponse company);
-    Job editJob(JobEditRequest jobEditRequest);
+    Job editJob(JobEditRequest jobEditRequest, Long companyId);
     JobResponse toResponse(Job job);
     /** Đọc qua Redis cache (read-through, xem {@code JobRedisRepository}) — chỉ dùng cho
      *  endpoint đọc thuần (GET job detail), KHÔNG dùng khi cần entity JPA-managed để tiếp tục

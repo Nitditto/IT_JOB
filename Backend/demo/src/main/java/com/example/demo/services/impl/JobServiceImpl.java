@@ -94,13 +94,18 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional
-    public Job editJob(JobEditRequest jobEditRequest) {
+    public Job editJob(final JobEditRequest jobEditRequest, final Long companyId) {
         log.info("Editing Job with ID {}", jobEditRequest.getJobID());
         Job job = jobRepository.findById(jobEditRequest.getJobID())
                 .orElseThrow(() -> {
                     log.warn("Job Edit failed: Job {} not found", jobEditRequest.getJobID());
                     return new ResourceNotFoundException("Công việc không tồn tại!");
                 });
+
+        if (!job.getCompanyID().equals(companyId)) {
+            log.warn("Job edit failed: Company {} is not the owner of Job {}", companyId, job.getId());
+            throw new AccessDeniedException("Bạn không có quyền sửa công việc này!");
+        }
 
         applyEditFields(job, jobEditRequest);
 

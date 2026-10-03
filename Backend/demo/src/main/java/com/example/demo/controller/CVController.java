@@ -21,6 +21,7 @@ import com.example.demo.dto.request.CVCreationRequest;
 import com.example.demo.dto.response.ApiResponse;
 import com.example.demo.dto.response.CVResponse;
 import com.example.demo.dto.request.CVEditRequest;
+import com.example.demo.dto.request.UpdateCvStatusCommand;
 import com.example.demo.enums.CVStatus;
 import com.example.demo.model.Account;
 import com.example.demo.model.CV;
@@ -77,9 +78,9 @@ public class CVController {
     // Nhà tuyển dụng lấy danh sách CV ứng tuyển vào Job của mình
     @GetMapping("/jobs/{jobID}/cvs")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<ApiResponse<List<CVResponse>>> getJobCVs(@PathVariable("jobID") Long jobID) {
+    public ResponseEntity<ApiResponse<List<CVResponse>>> getJobCVs(@PathVariable("jobID") Long jobID, @AuthenticationPrincipal Account company) {
         log.info("REST request for Company to get all CVs for Job {}", jobID);
-        List<CVResponse> cvs = cvService.toDTOList(cvService.getCVByJobID(jobID));
+        List<CVResponse> cvs = cvService.toDTOList(cvService.getCVByJobID(jobID, company.getId()));
         return ResponseEntity.ok(ApiResponse.success(cvs));
     }
 
@@ -97,10 +98,11 @@ public class CVController {
     @PreAuthorize("hasRole('COMPANY')")
     public ResponseEntity<ApiResponse<CVResponse>> getCVDetailForCompany(
             @PathVariable Long jobId,
-            @PathVariable Long accountId
+            @PathVariable Long accountId,
+            @AuthenticationPrincipal Account company
     ) {
         log.info("REST request for Company to get CV detail for Job {} and Candidate {}", jobId, accountId);
-        CV cv = cvService.getCVDetail(jobId, accountId);
+        CV cv = cvService.getCVDetailForCompany(jobId, accountId, company.getId());
         return ResponseEntity.ok(ApiResponse.success(cvService.toDTO(cv)));
     }
 
@@ -110,10 +112,11 @@ public class CVController {
     public ResponseEntity<ApiResponse<Void>> updateStatus(
             @PathVariable Long jobId,
             @PathVariable Long accountId,
-            @RequestParam("status") CVStatus status
+            @RequestParam("status") CVStatus status,
+            @AuthenticationPrincipal Account company
     ) {
         log.info("REST request for Company to update CV status for Job {} and Candidate {} to {}", jobId, accountId, status);
-        cvService.updateCVStatus(jobId, accountId, status);
+        cvService.updateCVStatus(new UpdateCvStatusCommand(jobId, accountId, company.getId(), status));
         return ResponseEntity.ok(ApiResponse.success(null, "Cập nhật trạng thái CV thành công!"));
     }
 }
