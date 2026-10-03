@@ -57,6 +57,14 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    void optimisticLock_mapsTo409Conflict() {
+        ResponseEntity<ApiResponse<Void>> response = handler.handleOptimisticLock(
+                new org.springframework.orm.ObjectOptimisticLockingFailureException(com.example.demo.model.CV.class, 1L));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
     void unauthorized_mapsTo401() {
         ResponseEntity<ApiResponse<Void>> response = handler.handleUnauthorized(new UnauthorizedException("Refresh token hết hạn"));
 

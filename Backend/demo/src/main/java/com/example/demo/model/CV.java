@@ -19,6 +19,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -72,5 +73,8 @@ public class CV {
 
     @Enumerated(EnumType.STRING)
     private CVStatus status = CVStatus.PENDING;
+
+    @Version
+    private Long version;
 }
 

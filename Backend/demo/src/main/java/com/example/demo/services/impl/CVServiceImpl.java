@@ -14,6 +14,7 @@ import com.example.demo.dto.response.CVResponse;
 import com.example.demo.dto.request.CVEditRequest;
 import com.example.demo.dto.request.UpdateCvStatusCommand;
 import com.example.demo.enums.CVStatus;
+import com.example.demo.enums.CvActor;
 import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -23,6 +24,7 @@ import com.example.demo.model.CVId;
 import com.example.demo.model.Job;
 import com.example.demo.repository.CVRepository;
 import com.example.demo.services.CVService;
+import com.example.demo.services.CvStatusTransitions;
 import com.example.demo.services.JobService;
 import com.example.demo.services.UserService;
 
@@ -145,6 +147,14 @@ public class CVServiceImpl implements CVService {
                 command.actorCompanyId(), command.jobId(), command.candidateId(), command.newStatus());
         this.getOwnedJob(command.jobId(), command.actorCompanyId());
         final CV cv = this.getCVDetail(command.jobId(), command.candidateId());
+        if (cv.getStatus() == command.newStatus()) {
+            return cv;
+        }
+        if (!CvStatusTransitions.isAllowed(CvActor.COMPANY, cv.getStatus(), command.newStatus())) {
+            log.warn("Rejected CV status transition {} -> {}", cv.getStatus(), command.newStatus());
+            throw new BusinessException(
+                    "Không thể chuyển trạng thái CV từ " + cv.getStatus() + " sang " + command.newStatus() + "!");
+        }
         cv.setStatus(command.newStatus());
         return cvRepository.save(cv);
     }

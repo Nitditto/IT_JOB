@@ -22,9 +22,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * chỉ dùng {@code StringRedisSerializer} cho key/value, việc chuyển đổi entity ↔ JSON do
  * {@code AbstractRedisRepository} tự làm bằng {@code redisObjectMapper}.
  *
- * {@code redisObjectMapper} KHÔNG đánh {@code @Primary} — Spring Boot's ObjectMapper mặc định
- * (đã tự {@code @Primary}) vẫn là bean dùng cho JSON response của REST API; bean này chỉ được
- * inject qua {@code @Qualifier("redisObjectMapper")} ở nơi cần.
+ * {@code redisObjectMapper} KHÔNG đánh {@code @Primary}. Vì nó là một bean {@code ObjectMapper},
+ * Spring Boot không tự tạo ObjectMapper mặc định nữa — mapper chính cho REST API được khai báo
+ * trong {@code JacksonConfig}. Bean này chỉ inject qua {@code @Qualifier("redisObjectMapper")}.
  */
 @Configuration
 public class RedisCoreConfig {

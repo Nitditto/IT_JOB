@@ -105,7 +105,7 @@ Mirror kiến trúc Redis của `util4dev-wiki-service` (annotation-driven, gene
 
 ### Cấu hình
 
-`spring.data.redis.*` trong `application.properties`, đọc từ env (`REDIS_HOST`, `REDIS_PORT`...). `RedisCoreConfig.redisObjectMapper()` là bean `ObjectMapper` RIÊNG cho Redis (JSON thuần, không nhúng type metadata) — **không** đánh `@Primary` (ObjectMapper mặc định của Spring Boot cho JSON response REST API vẫn giữ primary), mọi nơi cần bean này phải `@Qualifier("redisObjectMapper")` tường minh.
+`spring.data.redis.*` trong `application.properties`, đọc từ env (`REDIS_HOST`, `REDIS_PORT`...). `RedisCoreConfig.redisObjectMapper()` là bean `ObjectMapper` RIÊNG cho Redis (JSON thuần, không nhúng type metadata) — **không** đánh `@Primary`. Vì là bean `ObjectMapper`, Spring Boot không còn tự tạo mapper mặc định — mapper chính cho REST API khai báo ở `config/JacksonConfig` (`@Primary`, dựng từ `Jackson2ObjectMapperBuilder`). Mọi nơi cần bean Redis phải `@Qualifier("redisObjectMapper")` tường minh; `lombok.config` đã bật chép `@Qualifier` sang constructor do Lombok sinh.
 
 ## Constants
 
