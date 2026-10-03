@@ -11,3 +11,7 @@
 .DS_Store
 .idea/
 .vscode/
+
+# Local-only planning docs
+REFACTOR_PLAN.md
+ROADMAP.md
