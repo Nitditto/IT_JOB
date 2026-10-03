@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.request.CVCreationRequest;
 import com.example.demo.dto.response.CVResponse;
 import com.example.demo.dto.request.CVEditRequest;
+import com.example.demo.dto.request.UpdateCvStatusCommand;
 import com.example.demo.enums.CVStatus;
+import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
@@ -94,7 +96,6 @@ public class CVServiceImpl implements CVService {
         cv.setPortfolioUrl(request.getPortfolioUrl());
         cv.setExpectedSalary(request.getExpectedSalary());
         cv.setAvailableFrom(request.getAvailableFrom());
-        cv.setStatus(request.getStatus());
         return cvRepository.save(cv);
     }
 
@@ -118,12 +119,9 @@ public class CVServiceImpl implements CVService {
     }
 
     @Override
-    public List<CV> getCVByJobID(Long jobID) {
-        log.info("Fetching CVs for job {}", jobID);
-        Job job = jobService.getJobByID(jobID)
-                .orElseThrow(() -> new ResourceNotFoundException("Job không tồn tại"));
-        
-        return cvRepository.findByJob(job);
+    public List<CV> getCVByJobID(final Long jobID, final Long companyId) {
+        log.info("Fetching CVs for job {} by company {}", jobID, companyId);
+        return cvRepository.findByJob(this.getOwnedJob(jobID, companyId));
     }
 
     @Override
@@ -135,15 +133,30 @@ public class CVServiceImpl implements CVService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public CV updateCVStatus(Long jobId, Long accountId, CVStatus newStatus) {
-        log.info("Updating CV status for Job {} and Account {} to {}", jobId, accountId, newStatus);
-        CVId id = new CVId(accountId, jobId);
-        CV cv = cvRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy CV!"));
+    public CV getCVDetailForCompany(final Long jobId, final Long accountId, final Long companyId) {
+        this.getOwnedJob(jobId, companyId);
+        return this.getCVDetail(jobId, accountId);
+    }
 
-        cv.setStatus(newStatus);
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CV updateCVStatus(final UpdateCvStatusCommand command) {
+        log.info("Company {} updating CV status for Job {} and Account {} to {}",
+                command.actorCompanyId(), command.jobId(), command.candidateId(), command.newStatus());
+        this.getOwnedJob(command.jobId(), command.actorCompanyId());
+        final CV cv = this.getCVDetail(command.jobId(), command.candidateId());
+        cv.setStatus(command.newStatus());
         return cvRepository.save(cv);
+    }
+
+    private Job getOwnedJob(final Long jobId, final Long companyId) {
+        final Job job = jobService.getJobByID(jobId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job không tồn tại"));
+        if (!job.getCompanyID().equals(companyId)) {
+            log.warn("Company {} is not the owner of Job {}", companyId, jobId);
+            throw new AccessDeniedException("Bạn không có quyền truy cập CV của công việc này!");
+        }
+        return job;
     }
     
     @Override

@@ -12,6 +12,7 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,10 +40,10 @@ public class JobCreationRequest {
     private Long maxSalary;
 
 
-    @NotBlank(message = "Vui lòng chọn vị trí công việc!")
+    @NotNull(message = "Vui lòng chọn vị trí công việc!")
     private JobPosition position;
 
-    @NotBlank(message = "Vui lòng chọn hình thức làm việc!")
+    @NotNull(message = "Vui lòng chọn hình thức làm việc!")
     private JobWorkstyle workstyle;
     private JobEmploymentType employmentType;
     private JobStatus status;
@@ -58,7 +59,7 @@ public class JobCreationRequest {
 
     private List<String> tags;
 
-    @NotBlank(message = "Vui lòng chọn ảnh minh họa!")
+    @NotEmpty(message = "Vui lòng chọn ảnh minh họa!")
     private List<String> images;
 
     private String description;
