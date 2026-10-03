@@ -13,7 +13,7 @@ interface CVDetail {
   email: string;
   cvFile: string; // Base64 string
   referral: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: "PENDING" | "APPROVED" | "REJECTED" | "INTERVIEW_SCHEDULED" | "INTERVIEW_DONE" | "OFFERED" | "WITHDRAWN";
   jobName: string;
 }
 export default function CompanyManageCVDetailPage(){

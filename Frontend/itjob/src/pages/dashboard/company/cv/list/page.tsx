@@ -22,7 +22,7 @@ interface CVData {
     email: string;
     cvFile: string;
     referral: string;
-    status: "PENDING" | "APPROVED" | "REJECTED";
+    status: "PENDING" | "APPROVED" | "REJECTED" | "INTERVIEW_SCHEDULED" | "INTERVIEW_DONE" | "OFFERED" | "WITHDRAWN";
 
 }
 
