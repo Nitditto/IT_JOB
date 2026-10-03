@@ -2,8 +2,6 @@ package com.example.demo.dto.request;
 
 import java.time.Instant;
 
-import com.example.demo.enums.CVStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +17,5 @@ public class CVEditRequest {
     private String portfolioUrl;
     private Long expectedSalary;
     private Instant availableFrom;
-    private CVStatus status;
 }
 

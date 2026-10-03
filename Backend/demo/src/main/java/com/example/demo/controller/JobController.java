@@ -109,11 +109,11 @@ public class JobController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('COMPANY')")
-    public ResponseEntity<ApiResponse<JobResponse>> editJob(@PathVariable Long id, @Valid @RequestBody JobEditRequest jobEditRequest) {
+    public ResponseEntity<ApiResponse<JobResponse>> editJob(@PathVariable Long id, @Valid @RequestBody JobEditRequest jobEditRequest, @AuthenticationPrincipal Account account) {
         log.info("REST request to edit job ID: {}", id);
         // Đảm bảo ID trong path và body khớp nhau
         jobEditRequest.setJobID(id);
-        Job updatedJob = jobService.editJob(jobEditRequest);
+        Job updatedJob = jobService.editJob(jobEditRequest, account.getId());
         return ResponseEntity.ok(ApiResponse.success(jobService.toResponse(updatedJob)));
     }
 
