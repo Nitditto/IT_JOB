@@ -111,7 +111,6 @@ class CVOwnershipTest {
 
         assertThrows(ResourceNotFoundException.class, () -> this.cvService.getCVByJobID(JOB_ID, OWNER_ID));
     }
-
     @Test
     void updateCVStatusRejectsTransitionOutOfFinalStatus() {
         final CV cv = new CV();
