@@ -13,6 +13,7 @@ import com.example.demo.dto.request.CVCreationRequest;
 import com.example.demo.dto.response.CVResponse;
 import com.example.demo.dto.request.CVEditRequest;
 import com.example.demo.dto.request.UpdateCvStatusCommand;
+import com.example.demo.enums.CVStatus;
 import com.example.demo.enums.CvActor;
 import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.BusinessException;
