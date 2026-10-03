@@ -8,7 +8,7 @@ import react from "@vitejs/plugin-react"
 export default defineConfig({
   plugins: [
     reactRouter(),
-  tailwindcss(),
+    tailwindcss(),
   ],
   resolve: {
     alias: {
@@ -18,9 +18,16 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    allowedHosts: true,
     watch: {
       usePolling: true,
-      
     },
+    proxy: {
+      '/api': {
+        target: process.env.PROXY_TARGET || 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   }
 })

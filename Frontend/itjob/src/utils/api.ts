@@ -4,7 +4,7 @@ import axios from 'axios';
 
 // Tạo một instance Axios với cấu hình chung
 const api = axios.create({
-  baseURL: 'http://localhost:8080', // URL backend của bạn
+  baseURL: '/api', // URL backend của bạn
   withCredentials: true, // Nếu bạn dùng cookie
   withXSRFToken: true,
   xsrfCookieName: "XSRF-TOKEN",
@@ -26,6 +26,21 @@ api.interceptors.request.use(
   },
   (error) => {
     // Xử lý lỗi nếu có
+    return Promise.reject(error);
+  }
+);
+
+// Backend giờ bọc mọi response thành công trong ApiResponse<T>
+// ({ success, data, message, timestamp }). Unwrap ở đây để code cũ
+// đọc `res.data` (mong đợi payload thật) không phải sửa lại từng chỗ gọi.
+api.interceptors.response.use(
+  (response) => {
+    if (response.data && typeof response.data === 'object' && 'success' in response.data) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
+  (error) => {
     return Promise.reject(error);
   }
 );

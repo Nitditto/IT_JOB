@@ -4,3 +4,4 @@ public enum CompanyModel {
     product,
     service
 }
+

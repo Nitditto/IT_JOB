@@ -2,12 +2,13 @@ package com.example.demo.model;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import com.example.demo.enums.JobPosition;
+import com.example.demo.enums.JobEmploymentType;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.enums.JobWorkstyle;
 
 import jakarta.persistence.CollectionTable;
@@ -24,8 +25,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,7 +36,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "jobs")
 @NoArgsConstructor
-@Getter @Setter @AllArgsConstructor @Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class Job {
 
     @Id
@@ -41,13 +47,30 @@ public class Job {
     private Long id;
 
     @CreationTimestamp
-    @Column(name="createdAt", updatable = false)
+    @Column(name = "createdAt", updatable = false)
     private Instant createdAt;
 
     private Long companyID;
     private String name;
+    private String category;
+    private String industry;
+    private String salaryCurrency;
+    private Boolean salaryNegotiable;
     private Long minSalary;
     private Long maxSalary;
+    private Integer minExperienceYears;
+    private Integer maxExperienceYears;
+    private Integer vacancies;
+    private Instant deadline;
+    private Boolean urgent;
+    private Boolean featured;
+
+    @Enumerated(EnumType.STRING)
+    private JobEmploymentType employmentType;
+
+    @Default
+    @Enumerated(EnumType.STRING)
+    private JobStatus status = JobStatus.published;
 
     @Enumerated(EnumType.STRING)
     private JobPosition position;
@@ -55,9 +78,7 @@ public class Job {
     @Enumerated(EnumType.STRING)
     private JobWorkstyle workstyle;
 
-    
-    @ManyToOne(fetch = FetchType.EAGER) // 1. Tell JPA to always load it
-    @Fetch(FetchMode.JOIN) // 2. Tell Hibernate to use a JOIN (avoids N+1)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_abbreviation")
     private Location location;
 
@@ -66,15 +87,28 @@ public class Job {
     @ElementCollection
     @CollectionTable(name = "job_tags", joinColumns = @JoinColumn(name = "job_id"))
     @Column(name = "tag")
-    private List<String> tags;
-
+    private Set<String> tags;
 
     @ElementCollection
     @CollectionTable(name = "job_images", joinColumns = @JoinColumn(name = "job_id"))
-    @Lob
-    private List<String> images;
+    @Column(columnDefinition = "TEXT")
+    private Set<String> images;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
+    private String requirements;
+
+    @Column(columnDefinition = "TEXT")
+    private String benefits;
+
+    @Column(columnDefinition = "TEXT")
+    private String workingTime;
+
+    @Default
+    private Integer appliedCount = 0;
+
+    @Version
+    private Long version;
 }

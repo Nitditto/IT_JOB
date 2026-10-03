@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/utils/api";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useFilePicker } from "use-file-picker";
 import { useNavigate } from "react-router";
+import type { Location } from "@/types";
 
 const DAYS_OF_WEEK = [
   { value: 2, label: "Thứ 2" },
@@ -18,7 +18,6 @@ export default function CompanyManageProfilePage() {
   const navigate = useNavigate();
   const { user } = useAuth(); 
   const [locations, setLocations] = useState<Location[]>([]);
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [status, setStatus] = useState({ message: "", isError: false });
 
   const [formData, setFormData] = useState({
@@ -44,12 +43,12 @@ export default function CompanyManageProfilePage() {
   useEffect(() => {
     const init = async () => {
       try {
-        const locRes = await axios.get<Location[]>(`${BACKEND_URL}/location`);
+        const locRes = await api.get<Location[]>(`/locations`);
         setLocations(locRes.data);
 
         if (user?.id) {
            // Lấy thông tin chi tiết công ty
-           const res = await api.get(`/company/${user.id}`);
+           const res = await api.get(`/companies/${user.id}`);
            const info = res.data;
            
            setFormData({
@@ -74,7 +73,7 @@ export default function CompanyManageProfilePage() {
     };
     init();
     document.title = "Thông tin công ty";
-  }, [user, BACKEND_URL]);
+  }, [user]);
   // 2. Cập nhật avatar khi chọn file
   useEffect(() => {
     if (filesContent.length > 0) {
@@ -98,7 +97,7 @@ export default function CompanyManageProfilePage() {
         };
 
         // Gửi payload này đi (thay vì formData gốc)
-        await api.put("/edit/company", payload);
+        await api.put("/companies/me", payload);
         setStatus({ message: "Cập nhật thông tin thành công!", isError: false });
         setTimeout(() => {
             // Reload trang settings để cập nhật lại context (avatar, tên...)

@@ -1,0 +1,22 @@
+package com.example.demo.dto.request;
+
+import com.example.demo.enums.UserStatus;
+import com.example.demo.model.Location;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter @AllArgsConstructor
+public class UserEditRequest {
+    private String name;
+    private String email;
+    private String avatar;
+    private String phone;
+    private String description;
+    private UserStatus status;
+    private String lookingfor;
+    private String address;
+    private String location;
+}
+

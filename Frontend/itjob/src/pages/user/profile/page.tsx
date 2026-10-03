@@ -39,7 +39,7 @@ export default function UserDetailPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const res = await api.get(`/user/${id}`); 
+        const res = await api.get(`/users/${id}`);
         setUserInfo(res.data);
         document.title = `Hồ sơ: ${res.data.name}`;
       } catch (error) {

@@ -10,7 +10,6 @@ import {
     FaUserTie,
 } from 'react-icons/fa6'
 import { useEffect, useState } from 'react'
-import axios from 'axios';
 import translation from '@/utils/translation';
 import api from '@/utils/api';
 import { Pagination } from '@/components/pagination/Pagination';
@@ -41,8 +40,7 @@ interface JobData {
 
 export default function CompanyManageCVListPage() {
     const { id } = useParams();
-    const { searchParams, setSearchParams } = useSearchParams();
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const [searchParams, setSearchParams] = useSearchParams();
     const [page, setPage] = useState(1);
     const [cvList, setCvList] = useState<CVData[]>([]);
     const [jobInfo, setJobInfo] = useState<JobData | null>(null);
@@ -53,11 +51,11 @@ export default function CompanyManageCVListPage() {
             if (!id) return;
             try {
                 // Lấy thông tin Job
-                const jobRes = await axios.get(`${BACKEND_URL}/job/get/${id}`);
+                const jobRes = await api.get(`/jobs/${id}`);
                 setJobInfo(jobRes.data);
 
                 // Lấy danh sách CV (Cần Token)
-                const cvRes = await api.get(`/cv/${id}/list`);
+                const cvRes = await api.get(`/jobs/${id}/cvs`);
                 setCvList(cvRes.data);
                 setPage(parseInt(searchParams.get("page") ?? "1"));
             } catch (error) {
@@ -67,14 +65,14 @@ export default function CompanyManageCVListPage() {
             }
         }
         fetchData();
-    }, [id, BACKEND_URL]);
+    }, [id, searchParams]);
 
     const handleQuickUpdate = async (cv: CVData, newStatus: "APPROVED" | "REJECTED") => {
         if (!confirm(`Bạn muốn ${newStatus === 'APPROVED' ? 'NHẬN' : 'TỪ CHỐI'} hồ sơ của ${cv.name}?`)) return;
 
         try {
-            await api.put(
-                `/cv/company/status/${cv.jobID}/${cv.accountID}`,
+            await api.patch(
+                `/jobs/${cv.jobID}/cvs/accounts/${cv.accountID}/status`,
                 null,
                 { params: { status: newStatus } }
             );

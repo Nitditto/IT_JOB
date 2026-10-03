@@ -53,9 +53,20 @@
     	</dependency>
 
 		<dependency>
-        	<groupId>org.mariadb.jdbc</groupId>
-        	<artifactId>mariadb-java-client</artifactId>
+        	<groupId>org.postgresql</groupId>
+        	<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
     	</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -98,7 +109,31 @@
     		<version>0.11.5</version>
     		<scope>runtime</scope>
 		</dependency>
- </dependencies>
+		
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>8.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
+		<!-- Bắt buộc để spring.data.redis.lettuce.pool.* có tác dụng (Lettuce pooling cần commons-pool2,
+		     không tự có transitively qua starter-data-redis). -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-pool2</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.redisson</groupId>
+			<artifactId>redisson-spring-boot-starter</artifactId>
+			<version>3.27.2</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>

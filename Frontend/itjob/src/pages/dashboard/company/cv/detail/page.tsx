@@ -1,7 +1,6 @@
 //Frontend\itjob\src\pages\company\cv\detail\page.tsx
 import {Link, useNavigate, useParams} from "react-router";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import api from "@/utils/api";
 import { Check, DownloadCloud, Eye, FileText, Phone, User, X } from "lucide-react";
@@ -16,17 +15,16 @@ interface CVDetail {
   jobName: string;
 }
 export default function CompanyManageCVDetailPage(){
-  const { jobId, accountId } = useParams(); 
+  const { jobId, accountId } = useParams();
   const navigate = useNavigate();
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  
+
   const [cvData, setCvData] = useState<CVDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   useEffect(() => {
     const fetchCV = async () => {
       try {
-        const res = await api.get(`/cv/company/detail/${jobId}/${accountId}`);
+        const res = await api.get(`/jobs/${jobId}/cvs/accounts/${accountId}`);
         setCvData(res.data);
         document.title = `CV - ${res.data.name}`;
       } catch (error) {
@@ -36,7 +34,7 @@ export default function CompanyManageCVDetailPage(){
       }
     };
     if (jobId && accountId) fetchCV();
-  }, [jobId, accountId, BACKEND_URL, navigate]);
+  }, [jobId, accountId, navigate]);
   const handleOpenFile = () => {
       if (!cvData?.cvFile) return;
       
@@ -56,10 +54,10 @@ export default function CompanyManageCVDetailPage(){
     
     setIsLoading(true);
     try {
-        await api.put(
-            `/cv/company/status/${jobId}/${accountId}`, 
-            null, 
-            { params: { status: newStatus } } 
+        await api.patch(
+            `/jobs/${jobId}/cvs/accounts/${accountId}/status`,
+            null,
+            { params: { status: newStatus } }
         );
         
         // Cập nhật UI local

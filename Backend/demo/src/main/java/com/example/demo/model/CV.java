@@ -1,8 +1,14 @@
 package com.example.demo.model;
 
+import java.time.Instant;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.example.demo.enums.CVStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,12 +50,27 @@ public class CV {
 
     private String email;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String cvFile;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String referral;
+
+    @Column(columnDefinition = "TEXT")
+    private String coverLetter;
+
+    private String portfolioUrl;
+    private Long expectedSalary;
+    private Instant availableFrom;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Instant submittedAt;
+
+    @UpdateTimestamp
+    private Instant updatedAt;
 
     @Enumerated(EnumType.STRING)
     private CVStatus status = CVStatus.PENDING;
 }
+

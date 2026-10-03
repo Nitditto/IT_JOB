@@ -1,16 +1,18 @@
-import { Link, Navigate, Outlet } from 'react-router'
+import { Navigate, Outlet } from 'react-router'
 import { useEffect } from 'react'
 import {
     LifeBuoy,
-    Receipt,
     Boxes,
     Package,
     UserCircle,
-    BarChart,
     LayoutDashboard,
     Settings,
     BarChart3,
     LogOut,
+    Home,
+    Heart,
+    BellRing,
+    Building2,
 } from 'lucide-react'
 import Sidebar from '../../components/side_bar/Sidebar'
 import { SidebarItem } from '../../components/side_bar/SidebarItem'
@@ -50,22 +52,19 @@ export default function DashboardLayout() {
             </div>
         )
     }
-    const role = user?.role;
-    const isAdmin = role === "ROLE_ADMIN";
-    const isCompany = role === "ROLE_COMPANY";
-    const isUser = role === "ROLE_USER";
+    const role = user?.role
+    const isAdmin = role === 'ROLE_ADMIN'
+    const isCompany = role === 'ROLE_COMPANY'
+    const isUser = role === 'ROLE_USER'
     return isAuthenticated ? (
         <>
-            <div className="ml-0 flex flex-1 justify-center">
+            <div className="flex h-screen w-full overflow-hidden bg-slate-50">
                 <Sidebar>
-                    {(isAdmin ) && (
-                        <SidebarItem
-                            icon={<LayoutDashboard size={20} />}
-                            text="Dashboard"
-                            to="/dashboard"
-                            alert
-                        />
-                    )}
+                    <SidebarItem
+                        icon={<Home size={20} />}
+                        text="Tổng quan"
+                        to="/dashboard/home"
+                    />
                     {(isAdmin || isCompany) && (
                         <SidebarItem
                             icon={<BarChart3 size={20} />}
@@ -73,30 +72,45 @@ export default function DashboardLayout() {
                             to="/dashboard/company/job"
                         />
                     )}
-                    {(isUser) && (
-                        <SidebarItem
-                            icon={<UserCircle size={20} />}
-                            text="Xem CV đã nộp"
-                            to="/dashboard/cv" // (Có thể bạn cần sửa link này cho User)
-                        />
+                    {isUser && (
+                        <>
+                            <SidebarItem
+                                icon={<UserCircle size={20} />}
+                                text="Xem CV đã nộp"
+                                to="/dashboard/cv"
+                            />
+                            <SidebarItem
+                                icon={<Heart size={20} />}
+                                text="Việc đã lưu"
+                                to="/dashboard/saved-jobs"
+                            />
+                            <SidebarItem
+                                icon={<Building2 size={20} />}
+                                text="Công ty theo dõi"
+                                to="/dashboard/following-companies"
+                            />
+                            <SidebarItem
+                                icon={<BellRing size={20} />}
+                                text="Thông báo việc làm"
+                                to="/dashboard/job-alerts"
+                            />
+                        </>
                     )}
                     {isAdmin && (
                         <>
                             <SidebarItem
                                 icon={<Boxes size={20} />}
                                 text="Chi tiết công ty"
-                                to=''
-                                alert
+                                to="/dashboard/admin/companies"
                             />
                             <SidebarItem
                                 icon={<Package size={20} />}
                                 text="Đăng ký công ty"
-                                to=''
-                                alert
+                                to="/dashboard/admin/register"
                             />
                         </>
                     )}
-                    <hr className="my-3" />
+                    <hr className="my-3 border-slate-200" />
 
                     <SidebarItem
                         icon={<Settings size={20} />}
@@ -112,9 +126,11 @@ export default function DashboardLayout() {
                         }}
                     />
                 </Sidebar>
-                <div className="flex-2">
+
+                {/* Main Content Area - Scolls Independently */}
+                <main className="relative h-full w-full flex-1 overflow-y-auto">
                     <Outlet />
-                </div>
+                </main>
             </div>
         </>
     ) : (

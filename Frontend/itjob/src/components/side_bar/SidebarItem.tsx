@@ -25,9 +25,11 @@ export function SidebarItem({ icon, text, to, onClick, alert=false, style }:Side
   }, [isActive, text])
   const itemContent = (
     <>
-      {icon}
+      <div className="flex-shrink-0 flex items-center justify-center">
+        {icon}
+      </div>
       <span
-        className={`overflow-hidden transition-all ${
+        className={`overflow-hidden transition-all whitespace-nowrap ${
           expanded ? "w-52 ml-3" : "w-0"
         }`}
       >
@@ -51,7 +53,7 @@ export function SidebarItem({ icon, text, to, onClick, alert=false, style }:Side
     <div
       className={`
         absolute z-[999] left-full rounded-md px-2 py-1 ml-6
-        bg-indigo-100 text-indigo-800 text-sm 
+        bg-indigo-100 text-indigo-800 text-sm whitespace-nowrap
         invisible opacity-20 -translate-x-3 transition-all
         group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
       `}
@@ -69,8 +71,8 @@ export function SidebarItem({ icon, text, to, onClick, alert=false, style }:Side
             ${baseClassName}
             ${
               isActive
-                ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-indigo-800"
-                : "hover:bg-indigo-50 text-gray-600"
+                ? "bg-indigo-50/80 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold"
+                : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }
           `}
         >
@@ -83,7 +85,7 @@ export function SidebarItem({ icon, text, to, onClick, alert=false, style }:Side
           onClick={onClick}
           className={`
             ${baseClassName}
-            hover:bg-indigo-50 text-gray-600
+            hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200
           `}
           style={style} // Áp dụng style (ví dụ: màu đỏ)
         >

@@ -5,3 +5,4 @@ public enum  CVStatus {
   APPROVED,
   REJECTED
 }
+
