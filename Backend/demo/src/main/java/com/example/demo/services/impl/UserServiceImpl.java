@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     public Account register(RegistrationRequest request, UserRole role) {
         log.info("Registering new user with email: {} and role: {}", request.getEmail(), role);
         
-        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (accountRepository.existsByEmailIgnoreCase(request.getEmail())) {
             log.warn("Registration failed: Email {} already in use", request.getEmail());
             throw new BadRequestException("Email đã được sử dụng!");
         }
@@ -58,7 +59,12 @@ public class UserServiceImpl implements UserService {
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
         account.setPassword(encryptedPassword);
 
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount;
+        try {
+            savedAccount = accountRepository.saveAndFlush(account);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException("Email đã được sử dụng!");
+        }
         log.info("User {} registered successfully with ID {}", savedAccount.getEmail(), savedAccount.getId());
         return savedAccount;
     }
