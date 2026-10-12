@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -31,5 +32,12 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
 
     @Query("SELECT j.companyID, COUNT(j) FROM Job j WHERE j.companyID IN :companyIds GROUP BY j.companyID")
     List<Object[]> countByCompanyIds(@Param("companyIds") List<Long> companyIds);
-}
 
+    @Modifying
+    @Query("UPDATE Job j SET j.appliedCount = COALESCE(j.appliedCount, 0) + 1 WHERE j.id = :id")
+    int incrementAppliedCount(@Param("id") Long id);
+
+    @Modifying
+    @Query("UPDATE Job j SET j.appliedCount = j.appliedCount - 1 WHERE j.id = :id AND j.appliedCount > 0")
+    int decrementAppliedCount(@Param("id") Long id);
+}
