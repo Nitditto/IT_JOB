@@ -124,6 +124,8 @@ public class CVServiceImpl implements CVService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy CV để xóa!"));
 
         cvRepository.delete(cv);
+        jobRepository.decrementAppliedCount(jobID);
+        jobService.evictCachedJob(jobID);
         log.info("CV deleted successfully for Account {} on Job {}", accountID, jobID);
     }
 
