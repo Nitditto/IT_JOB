@@ -64,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void changePassword(Account user, ChangePasswordRequest request) {
         log.info("Attempting password change for user: {}", user.getEmail());
 
@@ -79,6 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         accountRepository.save(user);
+        refreshTokenService.revokeAllTokens(user);
         log.info("Password changed successfully for user: {}", user.getEmail());
     }
 

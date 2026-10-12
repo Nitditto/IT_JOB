@@ -119,4 +119,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             log.debug("Refresh token revoked");
         });
     }
+
+    @Override
+    @Transactional
+    public void revokeAllTokens(final Account account) {
+        final List<RefreshToken> activeTokens = this.refreshTokenRepository.findAllByAccountAndRevokedFalse(account);
+        for (final RefreshToken token : activeTokens) {
+            token.setRevoked(true);
+        }
+        this.refreshTokenRepository.saveAll(activeTokens);
+    }
 }
