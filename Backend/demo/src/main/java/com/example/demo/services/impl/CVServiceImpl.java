@@ -186,7 +186,12 @@ public class CVServiceImpl implements CVService {
 
         List<CVResponse> responses = new ArrayList<>();
         for (CV cv : cvs) {
-            responses.add(buildResponse(cv, companyById.get(cv.getJob().getCompanyID())));
+            final Account company = companyById.get(cv.getJob().getCompanyID());
+            if (company == null) {
+                log.warn("Skipping CV for Job {}: company {} no longer exists", cv.getJob().getId(), cv.getJob().getCompanyID());
+                continue;
+            }
+            responses.add(buildResponse(cv, company));
         }
         return responses;
     }

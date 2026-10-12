@@ -236,7 +236,12 @@ public class JobServiceImpl implements JobService {
 
         List<JobCardResponse> cards = new ArrayList<>();
         for (Job job : jobs) {
-            cards.add(buildCard(job, companyById.get(job.getCompanyID())));
+            final Account company = companyById.get(job.getCompanyID());
+            if (company == null) {
+                log.warn("Skipping Job {}: company {} no longer exists", job.getId(), job.getCompanyID());
+                continue;
+            }
+            cards.add(buildCard(job, company));
         }
         return cards;
     }
