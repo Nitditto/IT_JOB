@@ -73,10 +73,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = UnauthorizedException.class)
     public RefreshToken rotateRefreshToken(String oldTokenString) {
         log.info("Attempting to rotate refresh token");
-        RefreshToken oldToken = refreshTokenRepository.findByToken(oldTokenString)
+        RefreshToken oldToken = refreshTokenRepository.findByTokenForUpdate(oldTokenString)
                 .orElseThrow(() -> {
                     log.warn("Rotate failed: refresh token not found");
                     return new ResourceNotFoundException("Refresh token not found.");
