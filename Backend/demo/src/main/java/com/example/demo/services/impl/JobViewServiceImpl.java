@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JobViewServiceImpl implements JobViewService {
 
     private static final long VIEW_DEDUP_HOURS = 1;
+    private static final int MAX_IP_LENGTH = 45;
 
     private final JobViewRepository jobViewRepository;
     private final JobService jobService;
@@ -47,7 +48,7 @@ public class JobViewServiceImpl implements JobViewService {
         JobView view = new JobView();
         view.setJob(job);
         view.setAccount(account);
-        view.setIpAddress(ipAddress);
+        view.setIpAddress(ipAddress != null && ipAddress.length() > MAX_IP_LENGTH ? ipAddress.substring(0, MAX_IP_LENGTH) : ipAddress);
         view.setUserAgent(userAgent);
         jobViewRepository.save(view);
         log.debug("Recorded view for Job {}", jobId);

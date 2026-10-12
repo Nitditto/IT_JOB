@@ -94,7 +94,11 @@ public class JobController {
             @AuthenticationPrincipal Account account,
             HttpServletRequest request) {
         log.info("REST request to get job detail: {}", id);
-        jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
+        try {
+            jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
+        } catch (RuntimeException ex) {
+            log.warn("Failed to record view for job {}: {}", id, ex.getMessage());
+        }
         return ResponseEntity.ok(ApiResponse.success(jobService.getCachedJobResponse(id)));
     }
 
