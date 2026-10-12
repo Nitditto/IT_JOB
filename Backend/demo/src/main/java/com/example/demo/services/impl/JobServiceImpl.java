@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.data.domain.Sort;
 
 import com.example.demo.dto.response.CompanyResponse;
@@ -87,7 +89,7 @@ public class JobServiceImpl implements JobService {
         }
 
         Job savedJob = jobRepository.save(job);
-        jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob));
+        this.runAfterCommit(() -> this.jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob)));
         log.info("Job {} created successfully with ID {}", savedJob.getName(), savedJob.getId());
         return savedJob;
     }
@@ -110,7 +112,7 @@ public class JobServiceImpl implements JobService {
         applyEditFields(job, jobEditRequest);
 
         Job savedJob = jobRepository.save(job);
-        jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob));
+        this.runAfterCommit(() -> this.jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob)));
         return savedJob;
     }
 
@@ -142,6 +144,24 @@ public class JobServiceImpl implements JobService {
 
         job.setTags(jobEditRequest.getTags() != null ? new HashSet<>(jobEditRequest.getTags()) : new HashSet<>());
         job.setImages(jobEditRequest.getImages() != null ? new HashSet<>(jobEditRequest.getImages()) : new HashSet<>());
+    }
+
+    @Override
+    public void evictCachedJob(final Long jobId) {
+        this.runAfterCommit(() -> this.jobRedisRepository.deleteById(jobId));
+    }
+
+    private void runAfterCommit(final Runnable action) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            action.run();
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                action.run();
+            }
+        });
     }
 
     @Override
@@ -367,7 +387,7 @@ public class JobServiceImpl implements JobService {
 
         cvRepository.deleteAllByJobId(jobId);
         jobRepository.delete(job);
-        jobRedisRepository.deleteById(jobId);
+        this.runAfterCommit(() -> this.jobRedisRepository.deleteById(jobId));
         log.info("Job {} deleted successfully", jobId);
     }
 }

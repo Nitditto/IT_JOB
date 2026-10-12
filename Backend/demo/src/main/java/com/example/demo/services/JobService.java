@@ -24,6 +24,7 @@ public interface JobService {
     long getJobCount();
     List<Job> getJobByCompanyID(Long companyId);
     Optional<Job> getJobByID(Long jobID);
+    void evictCachedJob(Long jobId);
     List<Job> getAllJobs();
     List<TagResponse> getAllTags();
     List<Job> searchJobsByFilters(JobFilterRequest filters);
