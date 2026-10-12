@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -124,5 +125,38 @@ class EndpointSmokeIntegrationTest extends BasePostgresIntegrationTest {
         this.mockMvc.perform(get("/jobs/" + this.jobId + "/stats").with(user(this.company))).andExpect(status().isOk());
         this.mockMvc.perform(get("/jobs?companyID=" + ((Account) this.company).getId()).with(user(this.company)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void writeFlowsWork() throws Exception {
+        final String createBody = "{\"name\":\"Java Dev\",\"minSalary\":1000,\"maxSalary\":2000,\"position\":\"junior\","
+                + "\"workstyle\":\"remote\",\"location\":\"HN\",\"tags\":[\"java\"],\"images\":[\"a.png\"]}";
+        this.mockMvc.perform(post("/jobs").with(user(this.company)).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(createBody)).andExpect(status().isCreated());
+        final String editBody = "{\"name\":\"Backend Developer\",\"minSalary\":1000,\"maxSalary\":3000,\"status\":\"published\","
+                + "\"location\":\"HN\",\"tags\":[\"java\"],\"images\":[\"a.png\"]}";
+        this.mockMvc.perform(put("/jobs/" + this.jobId).with(user(this.company)).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(editBody)).andExpect(status().isOk());
+        this.mockMvc.perform(put("/users/me").with(user(this.candidate)).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"New Name\",\"email\":\"" + ((Account) this.candidate).getEmail() + "\",\"location\":\"SG\"}"))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(put("/companies/me").with(user(this.company)).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"ACME\",\"email\":\"" + ((Account) this.company).getEmail() + "\",\"location\":\"SG\"}"))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(get("/users/" + ((Account) this.candidate).getId()).with(user(this.candidate))).andExpect(status().isOk());
+        this.mockMvc.perform(get("/companies/" + ((Account) this.company).getId())).andExpect(status().isOk());
+    }
+
+    @Test
+    void followAndAlertFlowsWork() throws Exception {
+        final Long companyId = ((Account) this.company).getId();
+        this.mockMvc.perform(post("/companies/" + companyId + "/follow").with(user(this.candidate)).with(csrf()))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(get("/companies/following").with(user(this.candidate))).andExpect(status().isOk());
+        this.mockMvc.perform(get("/companies/" + companyId + "/followers/count").with(user(this.candidate)))
+                .andExpect(status().isOk());
+        this.mockMvc.perform(post("/job-alerts").with(user(this.candidate)).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"Java alert\",\"tags\":[\"java\"]}")).andExpect(status().isCreated());
+        this.mockMvc.perform(get("/job-alerts").with(user(this.candidate))).andExpect(status().isOk());
     }
 }
