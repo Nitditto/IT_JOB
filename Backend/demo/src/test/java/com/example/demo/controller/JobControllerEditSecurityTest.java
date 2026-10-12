@@ -38,7 +38,7 @@ import com.example.demo.services.UserService;
 @Import(ControllerSecurityTestConfig.class)
 class JobControllerEditSecurityTest {
 
-    private static final String EDIT_BODY = "{\"name\":\"Backend Dev\"}";
+    private static final String EDIT_BODY = "{\"name\":\"Backend Dev\",\"minSalary\":1000,\"maxSalary\":2000,\"status\":\"published\"}";
 
     @Autowired
     private MockMvc mockMvc;
