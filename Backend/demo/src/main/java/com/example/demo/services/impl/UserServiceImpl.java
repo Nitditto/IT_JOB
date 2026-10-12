@@ -202,7 +202,6 @@ public class UserServiceImpl implements UserService {
         account.setTaxCode(request.getTaxCode());
         account.setIndustry(request.getIndustry());
         account.setFoundedYear(request.getFoundedYear());
-        account.setVerified(request.getVerified());
         
         if (request.getLocation() != null && !request.getLocation().trim().isEmpty()) {
             account.setLocation(locationService.getLocation(request.getLocation()));
