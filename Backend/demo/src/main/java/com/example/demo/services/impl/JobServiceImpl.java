@@ -21,6 +21,7 @@ import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.TagResponse;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
@@ -333,6 +334,10 @@ public class JobServiceImpl implements JobService {
     @Override
     public List<Job> searchJobsByFilters(JobFilterRequest filters) {
         log.info("Searching jobs with filters: {}", filters);
+        if (filters != null && filters.getCompanyID() == null
+                && (filters.getStatus() == null || filters.getStatus().isEmpty())) {
+            filters.setStatus(List.of(JobStatus.published.name()));
+        }
         return jobRepository.findAll(
                 com.example.demo.repository.specification.JobSpecification.withFilters(filters),
                 buildSort(filters));
