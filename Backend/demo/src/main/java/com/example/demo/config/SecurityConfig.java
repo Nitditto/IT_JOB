@@ -100,7 +100,6 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/tags").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/*").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/locations").permitAll()
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/users/*").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies/*").permitAll()
                 // Yêu cầu auth cho các endpoint còn lại

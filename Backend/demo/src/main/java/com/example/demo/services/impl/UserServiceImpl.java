@@ -144,6 +144,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Account getCompanyById(final Long companyID) {
+        final Account account = this.getUserById(companyID);
+        if (account.getRole() != UserRole.ROLE_COMPANY) {
+            throw new ResourceNotFoundException("Công ty", "id", companyID);
+        }
+        return account;
+    }
+
+    @Override
     public Map<Long, Account> getUsersByIds(Collection<Long> ids) {
         log.info("Fetching {} users by IDs", ids.size());
         Map<Long, Account> accountsById = new HashMap<>();

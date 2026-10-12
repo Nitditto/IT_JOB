@@ -21,6 +21,7 @@ public interface UserService {
     AccountResponse convertToBrief(Account account);
     Account getCurrentUser(Principal principal);
     Account getUserById(Long userID);
+    Account getCompanyById(Long companyID);
     Map<Long, Account> getUsersByIds(Collection<Long> ids);
     List<Account> getUsersByRole(UserRole role);
     Account editUser(Long accountID, UserEditRequest request);

@@ -43,7 +43,7 @@ public class UserController {
     @GetMapping("/companies/{id}")
     public ResponseEntity<ApiResponse<CompanyResponse>> getCompany(@PathVariable Long id) {
         log.info("REST request to get company: {}", id);
-        CompanyResponse company = userService.convertToCompany(userService.getUserById(id));
+        CompanyResponse company = userService.convertToCompany(userService.getCompanyById(id));
         return ResponseEntity.ok(ApiResponse.success(company));
     }
 
