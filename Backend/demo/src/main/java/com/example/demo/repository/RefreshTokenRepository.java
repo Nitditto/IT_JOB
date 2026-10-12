@@ -17,11 +17,11 @@ import com.example.demo.model.RefreshToken;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 
-    Optional<RefreshToken> findByToken(String token);
+    Optional<RefreshToken> findByTokenHash(String tokenHash);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select t from RefreshToken t where t.token = :token")
-    Optional<RefreshToken> findByTokenForUpdate(@Param("token") String token);
+    @Query("select t from RefreshToken t where t.tokenHash = :tokenHash")
+    Optional<RefreshToken> findByTokenHashForUpdate(@Param("tokenHash") String tokenHash);
 
     List<RefreshToken> findAllByAccountAndRevokedFalse(Account account);
 }

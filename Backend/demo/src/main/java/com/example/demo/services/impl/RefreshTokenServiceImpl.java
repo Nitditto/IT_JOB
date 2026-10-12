@@ -15,6 +15,7 @@ import com.example.demo.model.Account;
 import com.example.demo.model.RefreshToken;
 import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.services.RefreshTokenService;
+import com.example.demo.util.TokenHasher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public Optional<RefreshToken> findByToken(String token) {
         log.debug("Finding refresh token");
-        return refreshTokenRepository.findByToken(token);
+        return refreshTokenRepository.findByTokenHash(TokenHasher.sha256Hex(token));
     }
 
     @Override
@@ -46,9 +47,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         }
         refreshTokenRepository.saveAll(activeTokens);
 
+        final String rawToken = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.builder()
                 .account(account)
-                .token(UUID.randomUUID().toString())
+                .token(rawToken)
+                .tokenHash(TokenHasher.sha256Hex(rawToken))
                 .expiryDate(Instant.now().plusMillis(refreshExpiration))
                 .revoked(false)
                 .build();
@@ -76,7 +79,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional(noRollbackFor = UnauthorizedException.class)
     public RefreshToken rotateRefreshToken(String oldTokenString) {
         log.info("Attempting to rotate refresh token");
-        RefreshToken oldToken = refreshTokenRepository.findByTokenForUpdate(oldTokenString)
+        RefreshToken oldToken = refreshTokenRepository.findByTokenHashForUpdate(TokenHasher.sha256Hex(oldTokenString))
                 .orElseThrow(() -> {
                     log.warn("Rotate failed: refresh token not found");
                     return new ResourceNotFoundException("Refresh token not found.");
@@ -97,9 +100,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         oldToken.setRevoked(true);
         refreshTokenRepository.save(oldToken);
 
+        final String rawToken = UUID.randomUUID().toString();
         RefreshToken newToken = RefreshToken.builder()
                 .account(oldToken.getAccount())
-                .token(UUID.randomUUID().toString())
+                .token(rawToken)
+                .tokenHash(TokenHasher.sha256Hex(rawToken))
                 .expiryDate(Instant.now().plusMillis(refreshExpiration))
                 .revoked(false)
                 .build();
@@ -113,7 +118,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public void revokeToken(String tokenString) {
         log.debug("Revoking refresh token");
-        refreshTokenRepository.findByToken(tokenString).ifPresent(token -> {
+        refreshTokenRepository.findByTokenHash(TokenHasher.sha256Hex(tokenString)).ifPresent(token -> {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
             log.debug("Refresh token revoked");
