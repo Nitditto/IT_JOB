@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AdminInitialCreation implements CommandLineRunner {
+    private static final String ADMIN_EMAIL = "admin@it.job";
+
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -26,12 +28,12 @@ public class AdminInitialCreation implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (accountRepository.findByName("admin").isEmpty()) {
+        if (!accountRepository.existsByEmailIgnoreCase(ADMIN_EMAIL)) {
             String initialPassword = resolveInitialPassword();
 
             Account admin = new Account();
             admin.setName("admin");
-            admin.setEmail("admin@it.job");
+            admin.setEmail(ADMIN_EMAIL);
             admin.setPassword(passwordEncoder.encode(initialPassword));
             admin.setRole(UserRole.ROLE_ADMIN);
 
