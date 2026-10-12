@@ -1,6 +1,8 @@
 package com.example.demo.services.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -55,10 +57,26 @@ public class SavedJobServiceImpl implements SavedJobService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SavedJobResponse> getSavedJobs(Account account) {
-        return savedJobRepository.findByAccountOrderByCreatedAtDesc(account).stream()
-                .map(this::toResponse)
-                .toList();
+        final List<SavedJob> savedJobs = this.savedJobRepository.findByAccountOrderByCreatedAtDesc(account);
+        if (savedJobs.isEmpty()) {
+            return new ArrayList<>();
+        }
+        final List<Job> jobs = new ArrayList<>(savedJobs.size());
+        for (final SavedJob savedJob : savedJobs) {
+            jobs.add(savedJob.getJob());
+        }
+        final Map<Long, JobCardResponse> cardByJobId = new HashMap<>();
+        for (final JobCardResponse card : this.jobService.toCardList(jobs)) {
+            cardByJobId.put(card.getId(), card);
+        }
+        final List<SavedJobResponse> responses = new ArrayList<>(savedJobs.size());
+        for (final SavedJob savedJob : savedJobs) {
+            responses.add(new SavedJobResponse(
+                    savedJob.getId(), savedJob.getCreatedAt(), cardByJobId.get(savedJob.getJob().getId())));
+        }
+        return responses;
     }
 
     @Override
