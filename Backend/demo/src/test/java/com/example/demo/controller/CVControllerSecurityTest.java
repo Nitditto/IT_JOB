@@ -130,7 +130,7 @@ class CVControllerSecurityTest {
     @Test
     void editCvIgnoresStatusInPayload() throws Exception {
         when(this.cvService.editCV(any(CVEditRequest.class), eq(CANDIDATE_ID), eq(1L))).thenReturn(new CV());
-        final String body = "{\"name\":\"A\",\"phone\":\"0123\",\"email\":\"a@b.com\",\"status\":\"APPROVED\"}";
+        final String body = "{\"name\":\"A\",\"phone\":\"0123456789\",\"cvFile\":\"cv.pdf\",\"email\":\"a@b.com\",\"status\":\"APPROVED\"}";
 
         this.mockMvc.perform(put("/jobs/1/cvs")
                         .contentType(MediaType.APPLICATION_JSON)
