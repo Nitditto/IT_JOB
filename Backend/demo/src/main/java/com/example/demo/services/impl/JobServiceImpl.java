@@ -22,6 +22,7 @@ import com.example.demo.dto.request.JobFilterRequest;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.TagResponse;
 import com.example.demo.enums.JobStatus;
+import com.example.demo.enums.UserRole;
 import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
@@ -208,6 +209,22 @@ public class JobServiceImpl implements JobService {
         JobRedis cached = jobRedisRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job", "id", jobId));
         return toResponse(cached);
+    }
+
+    @Override
+    public JobResponse getVisibleJobResponse(final Long jobId, final Account viewer) {
+        final JobResponse job = this.getCachedJobResponse(jobId);
+        if (job.getStatus() == JobStatus.published || this.canViewUnpublished(job, viewer)) {
+            return job;
+        }
+        throw new ResourceNotFoundException("Job", "id", jobId);
+    }
+
+    private boolean canViewUnpublished(final JobResponse job, final Account viewer) {
+        if (viewer == null) {
+            return false;
+        }
+        return viewer.getRole() == UserRole.ROLE_ADMIN || viewer.getId().equals(job.getCompanyID());
     }
 
     private JobResponse toResponse(JobRedis job) {

@@ -10,6 +10,7 @@ import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.TagResponse;
+import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 
 public interface JobService {
@@ -20,6 +21,7 @@ public interface JobService {
      *  endpoint đọc thuần (GET job detail), KHÔNG dùng khi cần entity JPA-managed để tiếp tục
      *  mutate/save (ví dụ tăng appliedCount) — dùng {@link #getJobByID} cho trường hợp đó. */
     JobResponse getCachedJobResponse(Long jobId);
+    JobResponse getVisibleJobResponse(Long jobId, Account viewer);
     List<JobCardResponse> toCardList(List<Job> jobs);
     long getJobCount();
     List<Job> getJobByCompanyID(Long companyId);

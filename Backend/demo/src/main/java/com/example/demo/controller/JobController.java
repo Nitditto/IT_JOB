@@ -27,6 +27,7 @@ import com.example.demo.dto.response.JobRecommendationResponse;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.JobStatsResponse;
 import com.example.demo.dto.response.TagResponse;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 import com.example.demo.services.JobService;
@@ -94,12 +95,15 @@ public class JobController {
             @AuthenticationPrincipal Account account,
             HttpServletRequest request) {
         log.info("REST request to get job detail: {}", id);
-        try {
-            jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
-        } catch (RuntimeException ex) {
-            log.warn("Failed to record view for job {}: {}", id, ex.getMessage());
+        final JobResponse job = jobService.getVisibleJobResponse(id, account);
+        if (job.getStatus() == JobStatus.published) {
+            try {
+                jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
+            } catch (RuntimeException ex) {
+                log.warn("Failed to record view for job {}: {}", id, ex.getMessage());
+            }
         }
-        return ResponseEntity.ok(ApiResponse.success(jobService.getCachedJobResponse(id)));
+        return ResponseEntity.ok(ApiResponse.success(job));
     }
 
     @GetMapping("/{id}/stats")
