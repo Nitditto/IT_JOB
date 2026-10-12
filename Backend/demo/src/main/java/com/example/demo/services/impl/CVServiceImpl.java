@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -50,8 +51,9 @@ public class CVServiceImpl implements CVService {
     public CV addCV(CVCreationRequest request, Long accountID, Long jobID) {
         log.info("Account {} is applying for Job {}", accountID, jobID);
         CVId id = new CVId(accountID, jobID);
-        
-        if (cvRepository.existsById(id)) {
+
+        final Optional<CV> existing = cvRepository.findById(id);
+        if (existing.isPresent() && existing.get().getStatus() != CVStatus.WITHDRAWN) {
             log.warn("Apply failed: Account {} already applied for Job {}", accountID, jobID);
             throw new BusinessException("Bạn đã ứng tuyển công việc này rồi!");
         }
@@ -62,22 +64,15 @@ public class CVServiceImpl implements CVService {
                     log.warn("Apply failed: Job {} not found", jobID);
                     return new ResourceNotFoundException("Công việc không tồn tại!");
                 });
-
         this.assertAcceptingApplications(job);
 
-        CV cv = new CV();
-        cv.setId(id);
-        cv.setAccount(account);
-        cv.setJob(job);
-        cv.setName(request.getName());
-        cv.setPhone(request.getPhone());
-        cv.setEmail(request.getEmail());
-        cv.setCvFile(request.getCvFile());
-        cv.setReferral(request.getReferral());
-        cv.setCoverLetter(request.getCoverLetter());
-        cv.setPortfolioUrl(request.getPortfolioUrl());
-        cv.setExpectedSalary(request.getExpectedSalary());
-        cv.setAvailableFrom(request.getAvailableFrom());
+        final CV cv = existing.orElseGet(CV::new);
+        if (existing.isEmpty()) {
+            cv.setId(id);
+            cv.setAccount(account);
+            cv.setJob(job);
+        }
+        this.fillApplication(cv, request);
         cv.setStatus(CVStatus.PENDING);
 
         CV savedCv;
@@ -90,6 +85,18 @@ public class CVServiceImpl implements CVService {
         jobService.evictCachedJob(jobID);
         log.info("CV applied successfully for Account {} on Job {}", accountID, jobID);
         return savedCv;
+    }
+
+    private void fillApplication(final CV cv, final CVCreationRequest request) {
+        cv.setName(request.getName());
+        cv.setPhone(request.getPhone());
+        cv.setEmail(request.getEmail());
+        cv.setCvFile(request.getCvFile());
+        cv.setReferral(request.getReferral());
+        cv.setCoverLetter(request.getCoverLetter());
+        cv.setPortfolioUrl(request.getPortfolioUrl());
+        cv.setExpectedSalary(request.getExpectedSalary());
+        cv.setAvailableFrom(request.getAvailableFrom());
     }
 
     @Override
@@ -118,15 +125,30 @@ public class CVServiceImpl implements CVService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteCV(Long jobID, Long accountID) {
-        log.info("Deleting CV for Account {} on Job {}", accountID, jobID);
+        log.info("Withdrawing CV for Account {} on Job {}", accountID, jobID);
         CVId id = new CVId(accountID, jobID);
         CV cv = cvRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy CV để xóa!"));
 
-        cvRepository.delete(cv);
+        if (cv.getStatus() == CVStatus.WITHDRAWN) {
+            return;
+        }
+        if (cv.getStatus() == CVStatus.PENDING) {
+            cvRepository.delete(cv);
+        } else {
+            this.markWithdrawn(cv);
+        }
         jobRepository.decrementAppliedCount(jobID);
         jobService.evictCachedJob(jobID);
-        log.info("CV deleted successfully for Account {} on Job {}", accountID, jobID);
+        log.info("CV withdrawn successfully for Account {} on Job {}", accountID, jobID);
+    }
+
+    private void markWithdrawn(final CV cv) {
+        if (!CvStatusTransitions.isAllowed(CvActor.CANDIDATE, cv.getStatus(), CVStatus.WITHDRAWN)) {
+            throw new BusinessException("Không thể rút CV ở trạng thái " + cv.getStatus() + "!");
+        }
+        cv.setStatus(CVStatus.WITHDRAWN);
+        cvRepository.save(cv);
     }
 
     @Override

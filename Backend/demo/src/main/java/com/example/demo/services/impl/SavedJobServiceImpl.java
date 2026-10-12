@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.response.SavedJobResponse;
 import com.example.demo.dto.response.UserJobStateResponse;
+import com.example.demo.enums.CVStatus;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.model.CVId;
@@ -83,7 +84,9 @@ public class SavedJobServiceImpl implements SavedJobService {
     public UserJobStateResponse getUserJobState(Long jobId, Account account) {
         Job job = getJob(jobId);
         boolean saved = savedJobRepository.existsByAccountAndJob(account, job);
-        boolean applied = cvRepository.existsById(new CVId(account.getId(), jobId));
+        boolean applied = cvRepository.findById(new CVId(account.getId(), jobId))
+                .map(cv -> cv.getStatus() != CVStatus.WITHDRAWN)
+                .orElse(false);
         return new UserJobStateResponse(jobId, saved, applied);
     }
 
