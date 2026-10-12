@@ -84,8 +84,7 @@ public class JobController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<JobCardResponse>>> search(@ModelAttribute JobFilterRequest filters) {
         log.info("REST request to search jobs with filters: {}", filters);
-        List<Job> filteredJobs = jobService.searchJobsByFilters(filters);
-        List<JobCardResponse> cards = jobService.toCardList(filteredJobs);
+        List<JobCardResponse> cards = jobService.searchJobCards(filters);
         return ResponseEntity.ok(ApiResponse.success(cards));
     }
 

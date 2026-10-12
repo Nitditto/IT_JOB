@@ -360,6 +360,12 @@ public class JobServiceImpl implements JobService {
                 buildSort(filters));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<JobCardResponse> searchJobCards(final JobFilterRequest filters) {
+        return this.toCardList(this.searchJobsByFilters(filters));
+    }
+
     private Sort buildSort(JobFilterRequest filters) {
         if (filters == null || filters.getSortBy() == null || filters.getSortBy().isBlank()) {
             return Sort.by(

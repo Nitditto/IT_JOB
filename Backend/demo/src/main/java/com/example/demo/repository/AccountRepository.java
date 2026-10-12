@@ -13,6 +13,15 @@ import com.example.demo.model.Account;
 
 public interface AccountRepository extends JpaRepository<Account, Long>{
 
+    @Override
+    @EntityGraph(attributePaths = {"location"})
+    Optional<Account> findById(Long id);
+
+    @Override
+    @EntityGraph(attributePaths = {"location"})
+    List<Account> findAllById(Iterable<Long> ids);
+
+    @EntityGraph(attributePaths = {"location"})
     Optional<Account> findByEmail(String email);
     Optional<Account> findByName(String name);
 

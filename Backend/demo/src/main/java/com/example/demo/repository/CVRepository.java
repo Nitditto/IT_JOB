@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,10 @@ import com.example.demo.model.CVId;
 import com.example.demo.model.Job;
 
 public interface CVRepository extends JpaRepository<CV, CVId>{
+    @Override
+    @EntityGraph(attributePaths = {"job"})
+    Optional<CV> findById(CVId id);
+
     @EntityGraph(attributePaths = {"job"})
     List<CV> findByAccount(Account account);
     @EntityGraph(attributePaths = {"job"})

@@ -35,7 +35,7 @@ public class JobRedisRepository extends AbstractRedisRepository<JobRedis, Long> 
 
     @Override
     protected Optional<JobRedis> loadFromDb(Long id) {
-        return jobRepository.findById(id).map(JobRedis::fromJpaEntity);
+        return jobRepository.findDetailedById(id).map(JobRedis::fromJpaEntity);
     }
 
     @Override

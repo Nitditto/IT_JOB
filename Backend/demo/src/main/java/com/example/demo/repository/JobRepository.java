@@ -29,6 +29,9 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     @EntityGraph(attributePaths = {"location"})
     Optional<Job> findById(Long id);
 
+    @EntityGraph(attributePaths = {"location", "tags", "images"})
+    Optional<Job> findDetailedById(Long id);
+
     @Query("SELECT new com.example.demo.dto.response.TagResponse(t, COUNT(t)) " +
     "FROM Job j JOIN j.tags t " +
     "GROUP BY t "+

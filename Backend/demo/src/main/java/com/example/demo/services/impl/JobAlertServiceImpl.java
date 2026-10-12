@@ -57,6 +57,7 @@ public class JobAlertServiceImpl implements JobAlertService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<JobAlertResponse> getAlerts(Account account) {
         return jobAlertRepository.findByAccountOrderByCreatedAtDesc(account).stream()
                 .map(this::toResponse)
@@ -64,6 +65,7 @@ public class JobAlertServiceImpl implements JobAlertService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<JobCardResponse> previewMatches(Long alertId, Account account) {
         JobAlert alert = getOwnedAlert(alertId, account);
         return jobService.toCardList(jobService.searchJobsByFilters(toFilter(alert)));
