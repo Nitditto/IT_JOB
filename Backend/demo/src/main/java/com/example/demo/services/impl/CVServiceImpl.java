@@ -99,6 +99,9 @@ public class CVServiceImpl implements CVService {
         CVId id = new CVId(accountID, jobID);
         CV cv = cvRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy CV để sửa!"));
+        if (cv.getStatus() != CVStatus.PENDING) {
+            throw new BusinessException("Chỉ có thể sửa CV khi đang ở trạng thái chờ duyệt!");
+        }
 
         cv.setName(request.getName());
         cv.setPhone(request.getPhone());
