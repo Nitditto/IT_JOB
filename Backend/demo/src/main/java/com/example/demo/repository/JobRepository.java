@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,10 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     @Override
     @EntityGraph(attributePaths = {"location"})
     List<Job> findAll();
+
+    @Override
+    @EntityGraph(attributePaths = {"location"})
+    Optional<Job> findById(Long id);
 
     @Query("SELECT new com.example.demo.dto.response.TagResponse(t, COUNT(t)) " +
     "FROM Job j JOIN j.tags t " +
