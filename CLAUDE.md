@@ -64,7 +64,7 @@ Backend/demo/src/main/java/com/example/demo/
 
 **Service** — toàn bộ business logic. `@Transactional` cho mọi method có write. Convert Entity ↔ DTO — controller không được trả raw Entity ra ngoài (luôn qua `*Response` DTO, xem "API Response").
 
-**Repository** — chỉ data access. Extend `JpaRepository<Entity, Long>` (+ `JpaSpecificationExecutor` khi cần filter động). `@EntityGraph` cho mọi query trả list/single có field quan hệ, để tránh N+1.
+**Repository** — chỉ data access. `spring.jpa.open-in-view=false`: mọi đọc quan hệ lazy phải nằm trong `@Transactional(readOnly = true)` của service hoặc được nạp sẵn bằng `@EntityGraph` (xem `AccountRepository`, `JobRepository.findDetailedById`), nếu không sẽ `LazyInitializationException`/lỗi serialize proxy. Extend `JpaRepository<Entity, Long>` (+ `JpaSpecificationExecutor` khi cần filter động). `@EntityGraph` cho mọi query trả list/single có field quan hệ, để tránh N+1.
 
 ### Data Flow
 
@@ -218,7 +218,7 @@ Frontend: response interceptor ở [`utils/api.ts`](Frontend/itjob/src/utils/api
 
 - **Pagination**: chưa có `Pageable`/`Page<T>` ở backend — list API trả toàn bộ dữ liệu, frontend tự cắt trang. Cần đổi contract response (breaking change FE), để riêng 1 đợt.
 - **Rate limiter vẫn in-memory** (`RateLimitingFilter` dùng `ConcurrentHashMap`) — sai nếu chạy nhiều instance. Đã có Redis trong project (dùng cho cache Job) nhưng CHƯA migrate Bucket4j sang Redis backend (`bucket4j-redis`) — làm khi có ý định scale ngang thật.
-- **Test tự động**: chỉ có `DemoApplicationTests.contextLoads()` — chưa có test cho N+1 fix, Redis framework, exception mapping. Nên viết trước khi refactor thêm để có lưới an toàn.
+- **Test tự động**: đã có integration test dùng Testcontainers (Postgres + Redis, cần Docker; `src/test/resources/docker-java.properties` ghim API version cho Docker Engine mới) cho refresh token, vòng đời CV, smoke HTTP và đếm query. Còn thiếu test cho Redis framework ở mức tích hợp và các service ít dùng.
 - **`company-register` frontend** gọi endpoint yêu cầu `ROLE_ADMIN` — cần quyết định business (mở public hay bỏ flow), xem REFACTOR_PLAN.md.
 
 ## Reference Documentation
