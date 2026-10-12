@@ -20,6 +20,7 @@ import com.example.demo.dto.response.UserResponse;
 import com.example.demo.dto.request.UserEditRequest;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.redis.repository.RecommendationRedisRepository;
@@ -170,7 +171,7 @@ public class UserServiceImpl implements UserService {
         account.setAddress(request.getAddress());
         account.setAvatar(request.getAvatar());
         account.setDescription(request.getDescription());
-        account.setEmail(request.getEmail());
+        this.changeEmailIfAvailable(account, request.getEmail());
         account.setLookingfor(request.getLookingfor());
         account.setStatus(request.getStatus());
         account.setPhone(request.getPhone());
@@ -196,7 +197,7 @@ public class UserServiceImpl implements UserService {
         account.setAvatar(request.getAvatar());
         account.setCoverImage(request.getCoverImage());
         account.setDescription(request.getDescription());
-        account.setEmail(request.getEmail());
+        this.changeEmailIfAvailable(account, request.getEmail());
         account.setWebsite(request.getWebsite());
         account.setTaxCode(request.getTaxCode());
         account.setIndustry(request.getIndustry());
@@ -215,6 +216,16 @@ public class UserServiceImpl implements UserService {
         account.setHasOvertime(request.getHasOvertime());
         
         return accountRepository.save(account);
+    }
+
+    private void changeEmailIfAvailable(final Account account, final String newEmail) {
+        if (account.getEmail().equalsIgnoreCase(newEmail)) {
+            return;
+        }
+        if (this.accountRepository.existsByEmailIgnoreCase(newEmail)) {
+            throw new BusinessException("Email đã được sử dụng!");
+        }
+        account.setEmail(newEmail);
     }
 
     @Override
