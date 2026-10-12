@@ -26,7 +26,16 @@ import jakarta.servlet.http.HttpServletResponse;
 public class RateLimitingFilter implements Filter {
 
     // Cache lưu trữ các Bucket theo IP và Loại Endpoint
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    private final Map<String, TrackedBucket> cache = new ConcurrentHashMap<>();
+
+    private static final class TrackedBucket {
+        private final Bucket bucket;
+        private volatile long lastAccessNanos = System.nanoTime();
+
+        private TrackedBucket(final Bucket bucket) {
+            this.bucket = bucket;
+        }
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -43,10 +52,12 @@ public class RateLimitingFilter implements Filter {
         String cacheKey = ip + ":" + limitType;
 
         // Lấy hoặc tạo mới Bucket cho IP này
-        Bucket bucket = cache.computeIfAbsent(cacheKey, k -> createNewBucket(limitType));
+        this.evictIdleBucketsIfFull();
+        TrackedBucket tracked = cache.computeIfAbsent(cacheKey, k -> new TrackedBucket(createNewBucket(limitType)));
+        tracked.lastAccessNanos = System.nanoTime();
 
         // Thử tiêu thụ 1 token
-        if (bucket.tryConsume(1)) {
+        if (tracked.bucket.tryConsume(1)) {
             chain.doFilter(request, response);
         } else {
             // Vượt quá giới hạn -> Trả về lỗi 429 Too Many Requests
@@ -57,11 +68,16 @@ public class RateLimitingFilter implements Filter {
     }
 
     private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader(RateLimitConstants.FORWARDED_FOR_HEADER);
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
+        // Không tin X-Forwarded-For do client gửi: forward-headers-strategy=framework đã xử lý proxy tin cậy
+        return request.getRemoteAddr();
+    }
+
+    private void evictIdleBucketsIfFull() {
+        if (cache.size() < RateLimitConstants.MAX_TRACKED_CLIENTS) {
+            return;
         }
-        return xfHeader.split(",")[0]; // Lấy IP gốc đầu tiên nếu đi qua Proxy/Load Balancer
+        final long now = System.nanoTime();
+        cache.values().removeIf(tracked -> now - tracked.lastAccessNanos > RateLimitConstants.BUCKET_IDLE_NANOS);
     }
 
     private String getLimitType(String uri) {

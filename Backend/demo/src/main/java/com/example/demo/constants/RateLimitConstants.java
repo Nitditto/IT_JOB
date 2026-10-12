@@ -13,5 +13,6 @@ public final class RateLimitConstants {
     public static final int UPLOAD_CAPACITY_PER_MINUTE = 10;
     public static final int GENERAL_CAPACITY_PER_MINUTE = 100;
 
-    public static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    public static final int MAX_TRACKED_CLIENTS = 100_000;
+    public static final long BUCKET_IDLE_NANOS = java.util.concurrent.TimeUnit.MINUTES.toNanos(10);
 }
