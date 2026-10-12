@@ -42,12 +42,6 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(LoginRequest request) {
         log.info("Attempting login for user: {}", request.getEmail());
         
-        Account user = accountRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    log.warn("Login failed: User not found with email: {}", request.getEmail());
-                    return new ResourceNotFoundException("Tài khoản không tồn tại!");
-                });
-
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
@@ -56,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Account user = (Account) userDetails;
         String token = jwtService.generateToken(userDetails);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
