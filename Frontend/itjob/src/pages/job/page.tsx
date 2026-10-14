@@ -5,7 +5,8 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Briefcase, UserCircle, Globe, DollarSign, Building2, Clock, Users, ArrowRight, Sparkles, Brain, Target, CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Heart, BellPlus } from 'lucide-react';
-import { analyzeJobMatch, generateInterviewQuestions, type JobMatchResult } from '@/utils/gemini';
+import { generateInterviewQuestions } from '@/utils/gemini';
+import { computeJobMatch, type JobMatchResult } from '@/utils/jobMatch';
 import { getApiErrorMessage, jobEngagementService } from '@/services/jobEngagementService';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -352,7 +353,7 @@ export default function JobDetailPage() {
                                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
                                             <Target size={16} className="text-white" />
                                         </div>
-                                        <h3 className="font-bold text-base text-slate-900 dark:text-white">AI Đánh giá phù hợp</h3>
+                                        <h3 className="font-bold text-base text-slate-900 dark:text-white">Đánh giá mức độ phù hợp</h3>
                                     </div>
 
                                     {matchResult ? (
@@ -374,7 +375,7 @@ export default function JobDetailPage() {
                                                     <div className={`text-sm font-semibold ${matchResult.score >= 70 ? 'text-emerald-600' : matchResult.score >= 40 ? 'text-amber-600' : 'text-red-500'}`}>
                                                         {matchResult.score >= 70 ? '🎯 Rất phù hợp' : matchResult.score >= 40 ? '⚡ Khá phù hợp' : '📚 Cần phát triển thêm'}
                                                     </div>
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Dựa trên kỹ năng & kinh nghiệm</p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">So khớp kỹ năng của vị trí với hồ sơ của bạn</p>
                                                 </div>
                                             </div>
 
@@ -421,9 +422,11 @@ export default function JobDetailPage() {
                                             onClick={async () => {
                                                 setMatchLoading(true);
                                                 try {
-                                                    const result = await analyzeJobMatch(
-                                                        [], user.lookingfor || '', infoJob.name, infoJob.tags, infoJob.position, infoJob.workstyle
-                                                    );
+                                                    const profile = await api.get<{ lookingfor?: string; description?: string }>(`/users/${user.id}`);
+                                                    const result = computeJobMatch({
+                                                        profileText: `${profile.data.lookingfor ?? ''} ${profile.data.description ?? ''}`,
+                                                        jobTags: infoJob.tags,
+                                                    });
                                                     setMatchResult(result);
                                                 } catch { } finally { setMatchLoading(false); }
                                             }}
