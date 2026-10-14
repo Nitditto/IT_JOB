@@ -48,6 +48,8 @@ public class RateLimitingFilter implements Filter {
     private String getLimitType(final String uri) {
         if (uri.startsWith("/auth/login") || uri.startsWith("/auth/register")) {
             return RateLimitConstants.AUTH_LIMIT_TYPE;
+        } else if (uri.startsWith("/ai/")) {
+            return RateLimitConstants.AI_LIMIT_TYPE;
         } else if (uri.contains("/apply") || uri.contains("/upload")) {
             return RateLimitConstants.UPLOAD_LIMIT_TYPE;
         }

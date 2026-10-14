@@ -94,6 +94,7 @@ public class SecurityConfig {
                     "/csrf", 
                     "/auth/register", 
                     "/auth/register/company",
+                    "/ai/generate",
                     "/auth/login", 
                     "/auth/refresh",
                     "/auth/logout"
