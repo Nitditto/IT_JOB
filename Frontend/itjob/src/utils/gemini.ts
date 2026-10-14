@@ -1,10 +1,20 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-// Lưu ý: Trong thực tế, KHÔNG NÊN để lộ API Key ở phía Frontend (Client-side).
-// Tuy nhiên để demo nhanh nghiệm thu, ta tạm đặt qua biến môi trường hoặc cấu hình.
-// Nên tạo một file .env và thêm VITE_GEMINI_API_KEY=your_api_key_here
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+import api from "./api";
 
-const genAI = new GoogleGenerativeAI(API_KEY);
+interface InlineData {
+    data: string;
+    mimeType: string;
+}
+
+interface ChatTurn {
+    role: 'user' | 'model';
+    text: string;
+}
+
+// Gọi Gemini qua backend (POST /ai/generate) — API key chỉ nằm ở server, không lộ ra trình duyệt.
+const generateText = async (prompt: string, inlineData?: InlineData, history?: ChatTurn[]): Promise<string> => {
+    const res = await api.post<{ text: string }>('/ai/generate', { prompt, inlineData, history });
+    return res.data.text;
+};
 
 const safeParseJSON = (text: string) => {
     try {
@@ -30,16 +40,11 @@ const safeParseJSON = (text: string) => {
 };
 
 export const generateCVSuggestion = async (promptText: string): Promise<string> => {
-    if (!API_KEY) {
-        throw new Error("Vui lòng cấu hình GEMINI_API_KEY trong file .env");
-    }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-        const result = await model.generateContent(promptText);
-        const response = await result.response;
-        return response.text();
+        const resultText = await generateText(promptText);
+        return resultText;
     } catch (error) {
         console.error("Lỗi khi gọi Gemini API:", error);
         throw error;
@@ -109,34 +114,20 @@ Quy tắc:
 4. Sử dụng emoji phù hợp để tạo sự thân thiện
 5. Khi nói về lương, luôn nói rõ đơn vị (VNĐ) và khoảng (range)`;
 
+// Backend giới hạn 40 lượt lịch sử, trừ 2 lượt mở đầu (system prompt + lời chào).
+const MAX_CHAT_HISTORY_TURNS = 38;
+
 export const chatWithAI = async (
     userMessage: string,
     history: ChatMessage[]
 ): Promise<string> => {
-    if (!API_KEY) {
-        throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
-    }
-
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-        const chat = model.startChat({
-            history: [
-                {
-                    role: 'user',
-                    parts: [{ text: CHATBOT_SYSTEM_PROMPT }],
-                },
-                {
-                    role: 'model',
-                    parts: [{ text: 'Xin chào! 👋 Tôi là IT.JOB AI, trợ lý tư vấn nghề nghiệp IT của bạn. Tôi sẵn sàng hỗ trợ bạn!' }],
-                },
-                ...history,
-            ],
-        });
-
-        const result = await chat.sendMessage(userMessage);
-        const response = await result.response;
-        return response.text();
+        const turns: ChatTurn[] = [
+            { role: 'user', text: CHATBOT_SYSTEM_PROMPT },
+            { role: 'model', text: 'Xin chào! 👋 Tôi là IT.JOB AI, trợ lý tư vấn nghề nghiệp IT của bạn. Tôi sẵn sàng hỗ trợ bạn!' },
+            ...history.slice(-MAX_CHAT_HISTORY_TURNS).map(message => ({ role: message.role, text: message.parts[0].text })),
+        ];
+        return await generateText(userMessage, undefined, turns);
     } catch (error) {
         console.error("Lỗi khi gọi Gemini Chat API:", error);
         throw error;
@@ -144,12 +135,8 @@ export const chatWithAI = async (
 };
 
 export const evaluateCVPDF = async (file: File): Promise<any> => {
-    if (!API_KEY) {
-        throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
-    }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const generativePart = await fileToGenerativePart(file);
 
         const prompt = `
@@ -172,9 +159,8 @@ Trả về nội dung HOÀN TOÀN DƯỚI DẠNG JSON hợp lệ theo format sau
 Chỉ trả về JSON.
         `;
 
-        const result = await model.generateContent([prompt, generativePart]);
-        const response = await result.response;
-        return safeParseJSON(response.text());
+        const resultText = await generateText(prompt, generativePart.inlineData);
+        return safeParseJSON(resultText);
     } catch (error) {
         console.error("Lỗi khi đánh giá PDF:", error);
         throw error;
@@ -195,9 +181,6 @@ export interface DashboardInsightContext {
 }
 
 export const generateDashboardInsight = async (context: DashboardInsightContext): Promise<string> => {
-    if (!API_KEY) {
-        throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY trong file .env");
-    }
 
     const rolePrompts: Record<string, string> = {
         'ROLE_USER': `Bạn là tư vấn viên nghề nghiệp IT. Dựa trên dữ liệu nền tảng:
@@ -225,11 +208,9 @@ Hãy đưa ra 3 nhận xét ngắn gọn (mỗi ý 1-2 câu) về tình hình n�
     };
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const prompt = rolePrompts[context.role] || rolePrompts['ROLE_USER'];
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        const resultText = await generateText(prompt);
+        return resultText;
     } catch (error) {
         console.error("Lỗi khi tạo Dashboard Insight:", error);
         throw error;
@@ -252,7 +233,6 @@ export const analyzeJobMatch = async (
     jobPosition: string,
     jobWorkstyle: string
 ): Promise<JobMatchResult> => {
-    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
 
     const prompt = `Bạn là chuyên gia tuyển dụng IT. Hãy phân tích mức độ phù hợp giữa ứng viên và công việc.
 
@@ -276,9 +256,8 @@ Trả về JSON hợp lệ (không markdown wrap):
 Chỉ trả về JSON, viết bằng tiếng Việt.`;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        const resultText = await generateText(prompt);
+        const text = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     } catch (error) {
         console.error("Lỗi AI Job Match:", error);
@@ -293,7 +272,6 @@ export const generateInterviewQuestions = async (
     jobPosition: string,
     companyName: string
 ): Promise<string> => {
-    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
 
     const prompt = `Bạn là chuyên gia phỏng vấn IT senior. Hãy tạo bộ câu hỏi phỏng vấn cho vị trí sau:
 
@@ -310,9 +288,8 @@ Hãy tạo 10 câu hỏi phỏng vấn chia theo 3 nhóm:
 Mỗi câu hỏi kèm gợi ý trả lời ngắn (1-2 câu). Sử dụng emoji. Trả lời bằng tiếng Việt.`;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        return result.response.text();
+        const resultText = await generateText(prompt);
+        return resultText;
     } catch (error) {
         console.error("Lỗi AI Interview Prep:", error);
         throw error;
@@ -324,7 +301,6 @@ export const getSmartSearchSuggestions = async (
     naturalQuery: string,
     availableTags: string[]
 ): Promise<string[]> => {
-    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
 
     const prompt = `Bạn là trợ lý tìm việc IT thông minh. Người dùng nhập: "${naturalQuery}"
 
@@ -335,9 +311,8 @@ Trả về JSON array các string, ví dụ: ["React Developer", "Frontend", "Ja
 Chỉ trả về JSON array, không giải thích.`;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        const resultText = await generateText(prompt);
+        const text = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     } catch (error) {
         console.error("Lỗi AI Smart Search:", error);
@@ -363,7 +338,6 @@ export const fetchMarketCompanies = async (): Promise<MarketCompany[]> => {
         try { return JSON.parse(cached); } catch { /* ignore */ }
     }
 
-    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
 
     const prompt = `Bạn là chuyên gia thị trường IT Việt Nam. Hãy liệt kê 12 công ty công nghệ hàng đầu tại Việt Nam đang tuyển dụng nhiều nhất.
 
@@ -382,9 +356,8 @@ Trả về JSON array (không markdown wrap), mỗi object có:
 Chỉ trả về JSON array.`;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const companies = safeParseJSON(result.response.text());
+        const resultText = await generateText(prompt);
+        const companies = safeParseJSON(resultText);
         sessionStorage.setItem('market_companies', JSON.stringify(companies));
         return companies;
     } catch (error) {
@@ -409,7 +382,6 @@ export const generateSalaryInsights = async (): Promise<SalaryInsight[]> => {
         try { return JSON.parse(cached); } catch { /* ignore */ }
     }
 
-    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
 
     const prompt = `Bạn là chuyên gia lương IT Việt Nam. Hãy cung cấp dữ liệu lương cho 8 vị trí IT phổ biến nhất.
 
@@ -426,9 +398,8 @@ Salary là USD/tháng. Bao gồm: Frontend, Backend, Fullstack, DevOps, Data Eng
 Chỉ trả về JSON array.`;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const data = safeParseJSON(result.response.text());
+        const resultText = await generateText(prompt);
+        const data = safeParseJSON(resultText);
         sessionStorage.setItem('salary_insights', JSON.stringify(data));
         return data;
     } catch (error) {
@@ -443,7 +414,6 @@ export const getJobRecommendations = async (
     userLocation: string,
     jobs: Array<{ id: number; name: string; tags: string[]; position: string; minSalary: number; maxSalary: number; company: string }>
 ): Promise<Array<{ jobId: number; reason: string }>> => {
-    if (!API_KEY) throw new Error("Vui lòng cấu hình VITE_GEMINI_API_KEY");
 
     const jobList = jobs.slice(0, 20).map(j =>
         `ID:${j.id} | ${j.name} | ${j.tags.join(',')} | ${j.position} | ${j.minSalary}-${j.maxSalary}$ | ${j.company}`
@@ -463,9 +433,8 @@ Trả về JSON array (không markdown wrap):
 Chỉ trả về JSON array.`;
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(prompt);
-        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        const resultText = await generateText(prompt);
+        const text = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
         return JSON.parse(text);
     } catch (error) {
         console.error("Lỗi AI Job Recommendations:", error);
