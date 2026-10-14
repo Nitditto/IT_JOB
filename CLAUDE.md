@@ -8,7 +8,7 @@ IT_JOB — nền tảng tuyển dụng IT (job board): candidate nộp CV, compa
 
 ## Tech Stack
 
-- Backend: Java 17 + Spring Boot 3.5.5, PostgreSQL + Spring Data JPA, Spring Security + JWT (access + refresh token), Bucket4j (rate limit — vẫn in-memory, xem "Còn nợ" cuối file), Redis (read-through cache, xem phần Redis Caching Framework)
+- Backend: Java 17 + Spring Boot 3.5.5, PostgreSQL + Spring Data JPA, Spring Security + JWT (access + refresh token), Bucket4j + Redis (rate limit — `RateLimiter` interface, bật Redis bằng `RATE_LIMIT_STORE=redis`), Redis (read-through cache, xem phần Redis Caching Framework)
 - Frontend: React + Vite, Tailwind CSS 4
 - Build: Maven (backend), npm (frontend)
 
@@ -216,8 +216,7 @@ Frontend: response interceptor ở [`utils/api.ts`](Frontend/itjob/src/utils/api
 
 ## Còn nợ (chưa làm, biết rõ và có lý do hoãn — không phải bỏ quên)
 
-- **Pagination**: chưa có `Pageable`/`Page<T>` ở backend — list API trả toàn bộ dữ liệu, frontend tự cắt trang. Cần đổi contract response (breaking change FE), để riêng 1 đợt.
-- **Rate limiter vẫn in-memory** (`RateLimitingFilter` dùng `ConcurrentHashMap`) — sai nếu chạy nhiều instance. Đã có Redis trong project (dùng cho cache Job) nhưng CHƯA migrate Bucket4j sang Redis backend (`bucket4j-redis`) — làm khi có ý định scale ngang thật.
+- **Pagination**: `GET /jobs` đã hỗ trợ `page`/`size` tuỳ chọn (không truyền = trả toàn bộ như cũ; có truyền thì trả thêm header `X-Total-Count`/`X-Total-Pages`). Frontend chưa dùng, các list API khác chưa có.
 - **Test tự động**: đã có integration test dùng Testcontainers (Postgres + Redis, cần Docker; `src/test/resources/docker-java.properties` ghim API version cho Docker Engine mới) cho refresh token, vòng đời CV, smoke HTTP và đếm query. Còn thiếu test cho Redis framework ở mức tích hợp và các service ít dùng.
 - **`company-register` frontend** gọi endpoint yêu cầu `ROLE_ADMIN` — cần quyết định business (mở public hay bỏ flow), xem REFACTOR_PLAN.md.
 

@@ -15,4 +15,14 @@ public final class RateLimitConstants {
 
     public static final int MAX_TRACKED_CLIENTS = 100_000;
     public static final long BUCKET_IDLE_NANOS = java.util.concurrent.TimeUnit.MINUTES.toNanos(10);
+
+    public static final String REDIS_KEY_PREFIX = "ratelimit:";
+
+    public static int capacityFor(final String limitType) {
+        return switch (limitType) {
+            case AUTH_LIMIT_TYPE -> AUTH_CAPACITY_PER_MINUTE;
+            case UPLOAD_LIMIT_TYPE -> UPLOAD_CAPACITY_PER_MINUTE;
+            default -> GENERAL_CAPACITY_PER_MINUTE;
+        };
+    }
 }

@@ -7,10 +7,18 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.demo.ratelimit.InMemoryRateLimiter;
+import com.example.demo.ratelimit.RateLimiter;
+
 @TestConfiguration
 @EnableWebSecurity
 @EnableMethodSecurity
 class ControllerSecurityTestConfig {
+
+    @Bean
+    RateLimiter rateLimiter() {
+        return new InMemoryRateLimiter();
+    }
 
     @Bean
     SecurityFilterChain testFilterChain(final HttpSecurity http) throws Exception {
