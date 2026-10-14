@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.constants.PaginationConstants;
+import org.springframework.data.domain.Page;
 import com.example.demo.dto.request.JobCreationRequest;
 import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
@@ -84,8 +86,14 @@ public class JobController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<JobCardResponse>>> search(@ModelAttribute JobFilterRequest filters) {
         log.info("REST request to search jobs with filters: {}", filters);
-        List<JobCardResponse> cards = jobService.searchJobCards(filters);
-        return ResponseEntity.ok(ApiResponse.success(cards));
+        if (filters.getPage() == null) {
+            return ResponseEntity.ok(ApiResponse.success(jobService.searchJobCards(filters)));
+        }
+        final Page<JobCardResponse> page = jobService.searchJobCardsPage(filters);
+        return ResponseEntity.ok()
+                .header(PaginationConstants.TOTAL_COUNT_HEADER, String.valueOf(page.getTotalElements()))
+                .header(PaginationConstants.TOTAL_PAGES_HEADER, String.valueOf(page.getTotalPages()))
+                .body(ApiResponse.success(page.getContent()));
     }
 
     @GetMapping("/{id}")

@@ -3,6 +3,8 @@ package com.example.demo.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.request.JobCreationRequest;
@@ -31,6 +33,7 @@ public interface JobService {
     List<TagResponse> getAllTags();
     List<Job> searchJobsByFilters(JobFilterRequest filters);
     List<JobCardResponse> searchJobCards(JobFilterRequest filters);
+    Page<JobCardResponse> searchJobCardsPage(JobFilterRequest filters);
     List<Job> findAllByIds(List<Long> ids);
     void deleteJob(Long jobId, Long companyId);
 }

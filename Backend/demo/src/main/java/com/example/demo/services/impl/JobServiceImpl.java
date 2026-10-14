@@ -12,8 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.example.demo.constants.PaginationConstants;
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.request.JobCreationRequest;
@@ -32,6 +37,7 @@ import com.example.demo.redis.repository.JobRedisRepository;
 import com.example.demo.repository.CVRepository;
 import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.LocationRepository;
+import com.example.demo.repository.specification.JobSpecification;
 import com.example.demo.services.JobService;
 import com.example.demo.services.UserService;
 
@@ -348,13 +354,17 @@ public class JobServiceImpl implements JobService {
         return jobRepository.findAllTags();
     }
 
-    @Override
-    public List<Job> searchJobsByFilters(JobFilterRequest filters) {
-        log.info("Searching jobs with filters: {}", filters);
+    private void applyDefaultStatus(final JobFilterRequest filters) {
         if (filters != null && filters.getCompanyID() == null
                 && (filters.getStatus() == null || filters.getStatus().isEmpty())) {
             filters.setStatus(List.of(JobStatus.published.name()));
         }
+    }
+
+    @Override
+    public List<Job> searchJobsByFilters(JobFilterRequest filters) {
+        log.info("Searching jobs with filters: {}", filters);
+        this.applyDefaultStatus(filters);
         return jobRepository.findAll(
                 com.example.demo.repository.specification.JobSpecification.withFilters(filters),
                 buildSort(filters));
@@ -364,6 +374,18 @@ public class JobServiceImpl implements JobService {
     @Transactional(readOnly = true)
     public List<JobCardResponse> searchJobCards(final JobFilterRequest filters) {
         return this.toCardList(this.searchJobsByFilters(filters));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<JobCardResponse> searchJobCardsPage(final JobFilterRequest filters) {
+        this.applyDefaultStatus(filters);
+        final Pageable pageable = PageRequest.of(
+                Math.max(filters.getPage(), 0),
+                Math.min(Math.max(filters.getSize() == null ? PaginationConstants.DEFAULT_PAGE_SIZE : filters.getSize(), 1), PaginationConstants.MAX_PAGE_SIZE),
+                this.buildSort(filters));
+        final Page<Job> jobs = this.jobRepository.findAll(JobSpecification.withFilters(filters), pageable);
+        return new PageImpl<>(this.toCardList(jobs.getContent()), pageable, jobs.getTotalElements());
     }
 
     private Sort buildSort(JobFilterRequest filters) {
