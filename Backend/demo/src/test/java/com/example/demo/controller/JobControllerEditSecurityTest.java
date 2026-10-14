@@ -31,6 +31,7 @@ import com.example.demo.model.Account;
 import com.example.demo.services.JobService;
 import com.example.demo.services.JobViewService;
 import com.example.demo.services.RecommendationService;
+import com.example.demo.services.SalaryStatsService;
 import com.example.demo.services.UserService;
 
 @WebMvcTest(controllers = JobController.class, excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE,
@@ -51,6 +52,9 @@ class JobControllerEditSecurityTest {
 
     @MockitoBean
     private RecommendationService recommendationService;
+
+    @MockitoBean
+    private SalaryStatsService salaryStatsService;
 
     @MockitoBean
     private JobViewService jobViewService;
