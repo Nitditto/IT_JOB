@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { chatWithAI, type ChatMessage } from "../../utils/gemini";
+import { describeAiError } from "../../utils/aiError";
 
 interface UIMessage {
     id: string;
@@ -80,7 +81,7 @@ export default function AIChatbot() {
             const errorMsg: UIMessage = {
                 id: (Date.now() + 1).toString(),
                 role: 'ai',
-                text: '❌ Xin lỗi, tôi gặp sự cố kết nối. Vui lòng thử lại sau nhé!',
+                text: describeAiError(error),
                 timestamp: new Date(),
             };
             setMessages(prev => [...prev, errorMsg]);

@@ -6,6 +6,7 @@ import api from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Briefcase, UserCircle, Globe, DollarSign, Building2, Clock, Users, ArrowRight, Sparkles, Brain, Target, CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Heart, BellPlus } from 'lucide-react';
 import { generateInterviewQuestions } from '@/utils/gemini';
+import { describeAiError } from '@/utils/aiError';
 import { computeJobMatch, type JobMatchResult } from '@/utils/jobMatch';
 import { getApiErrorMessage, jobEngagementService } from '@/services/jobEngagementService';
 
@@ -457,7 +458,10 @@ export default function JobDetailPage() {
                                         try {
                                             const qs = await generateInterviewQuestions(infoJob.name, infoJob.tags, infoJob.position, infoCompany.name);
                                             setInterviewQuestions(qs);
-                                        } catch { } finally { setInterviewLoading(false); }
+                                        } catch (error) {
+                                            setInterviewQuestions(describeAiError(error));
+                                            setShowInterview(true);
+                                        } finally { setInterviewLoading(false); }
                                     }}
                                     className="w-full p-5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                 >

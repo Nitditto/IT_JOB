@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { FaCloudUploadAlt, FaFilePdf, FaCheckCircle, FaExclamationTriangle, FaMagic } from "react-icons/fa";
 import { Link } from "react-router";
 import { evaluateCVPDF } from "@/utils/gemini";
+import { describeAiError } from "@/utils/aiError";
 
 function getScoreLabel(score: number): { label: string; color: string } {
     if (score >= 81) return { label: "Xuất sắc", color: "text-emerald-600" };
@@ -65,7 +66,7 @@ export default function CVUploadReviewPage() {
             setAnalysisResult(result);
         } catch (error: any) {
             console.error(error);
-            alert("Lỗi khi dùng AI phân tích đánh giá: " + (error.message || "Vui lòng xem lại API Key."));
+            alert(describeAiError(error));
         } finally {
             setIsAnalyzing(false);
         }
