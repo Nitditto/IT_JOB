@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.constants.PaginationConstants;
@@ -28,6 +29,7 @@ import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.response.JobRecommendationResponse;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.JobStatsResponse;
+import com.example.demo.dto.response.SalaryStatResponse;
 import com.example.demo.dto.response.TagResponse;
 import com.example.demo.enums.JobStatus;
 import com.example.demo.model.Account;
@@ -35,6 +37,7 @@ import com.example.demo.model.Job;
 import com.example.demo.services.JobService;
 import com.example.demo.services.JobViewService;
 import com.example.demo.services.RecommendationService;
+import com.example.demo.services.SalaryStatsService;
 import com.example.demo.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JobController {
 
     private final JobService jobService;
+    private final SalaryStatsService salaryStatsService;
     private final UserService userService;
     private final RecommendationService recommendationService;
     private final JobViewService jobViewService;
@@ -69,6 +73,13 @@ public class JobController {
         CompanyResponse company = userService.convertToCompany(userService.getCurrentUser(principal));
         Job createdJob = jobService.createJob(jobRequest, company);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(jobService.toResponse(createdJob)));
+    }
+
+    @GetMapping("/stats/salary")
+    public ResponseEntity<ApiResponse<List<SalaryStatResponse>>> getSalaryStats(
+            @RequestParam(defaultValue = "8") final int limit) {
+        log.info("REST request to get salary stats by tag (limit {})", limit);
+        return ResponseEntity.ok(ApiResponse.success(salaryStatsService.getTopSalaryStatsByTag(limit)));
     }
 
     @GetMapping("/count")

@@ -101,6 +101,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/count").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/tags").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/stats/salary").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/*").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/locations").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies").permitAll()
