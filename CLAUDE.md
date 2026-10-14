@@ -218,7 +218,7 @@ Frontend: response interceptor ở [`utils/api.ts`](Frontend/itjob/src/utils/api
 
 - **Pagination**: `GET /jobs` đã hỗ trợ `page`/`size` tuỳ chọn (không truyền = trả toàn bộ như cũ; có truyền thì trả thêm header `X-Total-Count`/`X-Total-Pages`). Frontend chưa dùng, các list API khác chưa có.
 - **Test tự động**: đã có integration test dùng Testcontainers (Postgres + Redis, cần Docker; `src/test/resources/docker-java.properties` ghim API version cho Docker Engine mới) cho refresh token, vòng đời CV, smoke HTTP và đếm query. Còn thiếu test cho Redis framework ở mức tích hợp và các service ít dùng.
-- **`company-register` frontend** gọi endpoint yêu cầu `ROLE_ADMIN` — cần quyết định business (mở public hay bỏ flow), xem REFACTOR_PLAN.md.
+- **`POST /auth/register/company` đã mở public** (theo quyết định business): ai cũng tự đăng ký được tài khoản công ty, không có bước admin duyệt. Nếu sau này cần chống đăng ký rác, thêm trạng thái chờ duyệt thay vì đóng lại endpoint. Endpoint nằm dưới rate limit loại AUTH (5 request/phút/IP).
 
 ## Reference Documentation
 

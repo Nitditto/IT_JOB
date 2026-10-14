@@ -93,6 +93,7 @@ public class SecurityConfig {
                     "/", 
                     "/csrf", 
                     "/auth/register", 
+                    "/auth/register/company",
                     "/auth/login", 
                     "/auth/refresh",
                     "/auth/logout"

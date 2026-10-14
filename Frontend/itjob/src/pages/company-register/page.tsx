@@ -29,10 +29,6 @@ export default function CompanyRegisterPage() {
         }
         dispatch({ type: "SUBMIT_START" });
         try {
-            // LƯU Ý: backend hiện chỉ cho ROLE_ADMIN gọi /auth/register/company
-            // (xem @PreAuthorize ở AuthController#registerCompany). Trang public này
-            // sẽ luôn nhận 403 cho tới khi có quyết định: mở endpoint này public,
-            // hoặc bỏ flow tự đăng ký công ty (chuyển hẳn qua admin tạo tài khoản).
             await api.post(`/auth/register/company`, data)
             dispatch({ type: "SUBMIT_SUCCESS", payload: "Đăng ký tài khoản Nhà Tuyển Dụng thành công!" })
             setTimeout(() => { navigate('/login') }, 1000);
