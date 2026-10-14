@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
-import { generateDashboardInsight, type DashboardInsightContext } from "../../../utils/gemini";
+import { buildDashboardTips } from "../../../utils/dashboardTips";
 import { ProfileCompleteness } from "../../../components/dashboard/ProfileCompleteness";
 import api from "../../../utils/api";
 import { Link } from "react-router";
@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import type { Tag } from "../../../types";
 import {
     Briefcase, Building2, FileText, TrendingUp, Sparkles, ArrowRight,
-    Search, PlusCircle, Star, RefreshCw, Zap, Users, BarChart3
+    Search, PlusCircle, Star, Zap, Users, BarChart3
 } from "lucide-react";
 
 const containerVariants = {
@@ -21,21 +21,12 @@ const itemVariants = {
     show: { opacity: 1, y: 0, transition: { type: "spring" as const, damping: 20, stiffness: 200 } }
 };
 
-function formatText(text: string) {
-    return text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\n/g, '<br/>');
-}
-
 export default function DashboardHomePage() {
     const { user } = useAuth();
     const [jobCount, setJobCount] = useState(0);
     const [companyCount, setCompanyCount] = useState(0);
     const [cvCount, setCvCount] = useState(0);
     const [tags, setTags] = useState<Tag[]>([]);
-    const [aiInsight, setAiInsight] = useState<string | null>(null);
-    const [isLoadingInsight, setIsLoadingInsight] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
 
     const role = user?.role || "ROLE_USER";
@@ -74,35 +65,15 @@ export default function DashboardHomePage() {
         }
     };
 
-    const fetchAIInsight = async () => {
-        setIsLoadingInsight(true);
-        try {
-            const context: DashboardInsightContext = {
-                role: role as DashboardInsightContext['role'],
-                userName: user?.name,
-                jobCount,
-                companyCount,
-                cvCount,
-                topTags: tags.slice(0, 5).map(t => t.tag),
-                userProfile: isUser ? {
-                    lookingfor: user?.lookingfor,
-                    status: user?.status,
-                } : undefined,
-            };
-            const insight = await generateDashboardInsight(context);
-            setAiInsight(insight);
-        } catch (error) {
-            setAiInsight("❌ Không thể tải được gợi ý AI lúc này. Vui lòng thử lại sau.");
-        } finally {
-            setIsLoadingInsight(false);
-        }
-    };
-
-    useEffect(() => {
-        if (isLoaded && jobCount > 0) {
-            fetchAIInsight();
-        }
-    }, [isLoaded]);
+    const tips = isLoaded && jobCount > 0
+        ? buildDashboardTips({
+            role: role as "ROLE_USER" | "ROLE_COMPANY" | "ROLE_ADMIN",
+            jobCount,
+            companyCount,
+            cvCount,
+            topTags: tags.slice(0, 5).map(t => t.tag),
+        })
+        : [];
 
     const now = new Date();
     const greeting = now.getHours() < 12 ? "Chào buổi sáng" : now.getHours() < 18 ? "Chào buổi chiều" : "Chào buổi tối";
@@ -189,7 +160,7 @@ export default function DashboardHomePage() {
                 {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* AI Insight Card — takes 2 cols */}
+                    {/* Insight Card — takes 2 cols */}
                     <motion.div
                         variants={itemVariants}
                         className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
@@ -197,34 +168,16 @@ export default function DashboardHomePage() {
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                             <h2 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 text-base">
                                 <Sparkles size={18} className="text-violet-500" />
-                                AI Insights
+                                Gợi ý cho bạn
                             </h2>
-                            <button
-                                onClick={fetchAIInsight}
-                                disabled={isLoadingInsight}
-                                className="text-xs text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors disabled:opacity-50"
-                            >
-                                <RefreshCw size={12} className={isLoadingInsight ? "animate-spin" : ""} />
-                                Làm mới
-                            </button>
                         </div>
                         <div className="p-6">
-                            {isLoadingInsight ? (
-                                <div className="flex flex-col items-center justify-center py-8 text-center">
-                                    <div className="relative w-16 h-16 mb-4">
-                                        <div className="absolute inset-0 border-4 border-slate-100 dark:border-slate-800 rounded-full" />
-                                        <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <Sparkles size={18} className="text-indigo-500 animate-pulse" />
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-slate-500 dark:text-slate-400">AI đang phân tích dữ liệu...</p>
-                                </div>
-                            ) : aiInsight ? (
-                                <div
-                                    className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed prose prose-sm dark:prose-invert max-w-none"
-                                    dangerouslySetInnerHTML={{ __html: formatText(aiInsight) }}
-                                />
+                            {tips.length > 0 ? (
+                                <ul className="space-y-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                    {tips.map(tip => (
+                                        <li key={tip}>{tip}</li>
+                                    ))}
+                                </ul>
                             ) : (
                                 <div className="text-center py-8">
                                     <Zap size={32} className="text-slate-300 dark:text-slate-600 mx-auto mb-3" />
