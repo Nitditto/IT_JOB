@@ -5,6 +5,7 @@ import { formReducer, handleFieldChange } from '../../utils/formUtils';
 import { motion } from 'framer-motion';
 import { User, Building2, Mail, Lock, ArrowRight } from 'lucide-react';
 import api from '@/utils/api';
+import { getApiErrorMessage } from '@/services/jobEngagementService';
 
 export default function LoginPage() {
     const initialState = {
@@ -48,6 +49,7 @@ export default function LoginPage() {
                     password: passwordChecker.reason
                 }
             })
+            return;
         }
         dispatch({ type: "SUBMIT_START" });
 
@@ -63,8 +65,11 @@ export default function LoginPage() {
                 window.location.reload();
                 window.location.href = "/"
             }
-        } catch (error: any) {
-            dispatch({ type: "SUBMIT_FAILURE", payload: error.response?.data || "Có lỗi đã xảy ra. Vui lòng thử lại!" })
+        } catch (error: unknown) {
+            dispatch({
+                type: "SUBMIT_FAILURE",
+                payload: getApiErrorMessage(error, "Có lỗi đã xảy ra. Vui lòng thử lại!")
+            })
         }
     }
     return (
