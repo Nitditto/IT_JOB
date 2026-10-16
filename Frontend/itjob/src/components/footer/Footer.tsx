@@ -46,8 +46,8 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2.5">
               <li><Link to="/search" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Tìm việc làm IT</Link></li>
-              <li><Link to="/dashboard/cv/templates" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Tạo CV chuyên nghiệp</Link></li>
-              <li><Link to="/dashboard/cv/upload-review" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">AI Đánh giá CV</Link></li>
+              <li><Link to="/cv/templates" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Tạo CV chuyên nghiệp</Link></li>
+              <li><Link to="/cv/upload-review" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">AI Đánh giá CV</Link></li>
               <li><Link to="/dashboard/home" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Dashboard thông minh</Link></li>
               <li><Link to="/register" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Đăng ký tài khoản</Link></li>
             </ul>

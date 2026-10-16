@@ -122,7 +122,7 @@ export const MarketCompanies = () => {
                                         </div>
                                         {company.location && (
                                             <div className="flex items-center gap-1 text-slate-400">
-                                                <MapPin size={10} /> {company.location.name}
+                                                <MapPin size={10} /> {company.location?.name}
                                             </div>
                                         )}
                                     </div>
