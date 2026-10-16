@@ -113,7 +113,7 @@ export default function CompanyJobList() {
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold">
                          <FaBriefcase /> {translation[value.workstyle as keyof typeof translation]}
                       </div>
-                      <span className="text-xs text-slate-400 font-medium pl-2">{value.location.name}</span>
+                      <span className="text-xs text-slate-400 font-medium pl-2">{value.location?.name}</span>
                     </div>
 
                     <h3 className="font-bold text-lg text-slate-900 line-clamp-2 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">

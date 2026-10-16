@@ -184,8 +184,8 @@ export const Header = () => {
                 <Link to="/search" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
                   <Briefcase size={18} className="text-indigo-500" /> Tìm việc làm
                 </Link>
-                <Link to="/dashboard/cv/templates" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                  <FileText size={18} className="text-violet-500" /> Hồ sơ & CV
+                <Link to="/cv/templates" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                  <FileText size={18} className="text-slate-500" /> Hồ sơ & CV
                 </Link>
                 <Link to="/search" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
                   <Building2 size={18} className="text-emerald-500" /> Công ty
@@ -196,7 +196,7 @@ export const Header = () => {
                     <Link to="/dashboard/home" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
                       <User size={18} className="text-indigo-500" /> Dashboard
                     </Link>
-                    <Link to="/dashboard/setting" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                    <Link to="/dashboard/setting" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
                       <Settings size={18} className="text-slate-400" /> Cài đặt
                     </Link>
                   </>

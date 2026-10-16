@@ -78,7 +78,7 @@ export default function CompanyManageJobEditPage() {
           dispatch({ type: 'CHANGE_FIELD', field: 'position', value: jobData.position  });
           dispatch({ type: 'CHANGE_FIELD', field: 'workstyle', value: jobData.workstyle  });
           dispatch({ type: 'CHANGE_FIELD', field: 'address', value: jobData.address  });
-          dispatch({ type: 'CHANGE_FIELD', field: 'location', value: jobData.location.abbreviation  }); 
+          dispatch({ type: 'CHANGE_FIELD', field: 'location', value: jobData.location?.abbreviation ?? ""  }); 
           dispatch({ type: 'CHANGE_FIELD', field: 'description', value: jobData.description  });
           dispatch({ type: 'CHANGE_FIELD', field: 'tags', value: jobData.tags || [] });
           dispatch({ type: 'CHANGE_FIELD', field: 'images', value: jobData.images || [] });          

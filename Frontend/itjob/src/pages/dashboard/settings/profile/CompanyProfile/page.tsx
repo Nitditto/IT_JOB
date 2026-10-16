@@ -104,7 +104,7 @@ export default function CompanyManageProfilePage() {
             // window.location.href = "/dashboard/settings";
             
             // Hoặc dùng navigate nếu không cần reload cứng:
-            navigate("/dashboard/settings"); 
+            navigate("/dashboard/setting"); 
             window.location.reload(); 
         }, 1000);
 

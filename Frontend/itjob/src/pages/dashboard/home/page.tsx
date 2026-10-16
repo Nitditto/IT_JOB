@@ -88,8 +88,8 @@ export default function DashboardHomePage() {
 
     const quickActions = isUser ? [
         { icon: <Search size={18} />, label: "Tìm việc IT", to: "/search", color: "bg-indigo-600 hover:bg-indigo-700" },
-        { icon: <PlusCircle size={18} />, label: "Tạo CV mới", to: "/dashboard/cv/templates", color: "bg-violet-600 hover:bg-violet-700" },
-        { icon: <Star size={18} />, label: "Đánh giá CV bằng AI", to: "/dashboard/cv/upload-review", color: "bg-emerald-600 hover:bg-emerald-700" },
+        { icon: <PlusCircle size={18} />, label: "Tạo CV mới", to: "/cv/templates", color: "bg-slate-900 hover:bg-slate-800" },
+        { icon: <Star size={18} />, label: "Đánh giá CV bằng AI", to: "/cv/upload-review", color: "bg-emerald-600 hover:bg-emerald-700" },
     ] : isCompany ? [
         { icon: <PlusCircle size={18} />, label: "Đăng tin tuyển dụng", to: "/dashboard/company/job/create", color: "bg-indigo-600 hover:bg-indigo-700" },
         { icon: <BarChart3 size={18} />, label: "Quản lý công việc", to: "/dashboard/company/job", color: "bg-violet-600 hover:bg-violet-700" },
