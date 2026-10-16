@@ -10,6 +10,7 @@ export default [
 
 
   // route("/company/cv/detail/:id", "./pages/company/cv/detail/page.tsx"),
+  route("/companies", "./pages/company/list/page.tsx"),
   route("/company/:id", "./pages/company/page.tsx"),
 
   route("/job/:id", "./pages/job/page.tsx"),
