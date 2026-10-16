@@ -80,7 +80,7 @@ export const Header = () => {
 
                 <HeaderHoverItem toHref='#' linkText='Công ty'>
                   <HeaderMenu>
-                    <HeaderItem to='/search' linkText='Danh sách công ty' />
+                    <HeaderItem to='/companies' linkText='Danh sách công ty' />
                     {Array.isArray(topCompanies) && topCompanies.map((value: any, index) => (
                       <HeaderItem key={index} to={`/search?companyID=${value.id}`} linkText={value.name} />
                     ))}
