@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/StatusBadge";
 //Frontend\itjob\src\pages\company\cv\list\page.tsx
 import { Link, useParams, useSearchParams } from 'react-router'
 import {
@@ -89,16 +90,9 @@ export default function CompanyManageCVListPage() {
         }
     }
 
-    const renderStatus = (status: string) => {
-        switch (status) {
-            case "APPROVED":
-                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-[#47BE02]"><FaCircleCheck /> Đã nhận</div>;
-            case "REJECTED":
-                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-[#FF0000]"><FaCircleCheck /> Đã từ chối</div>;
-            default:
-                return <div className="mt-2 flex items-center justify-center gap-2 text-[14px] font-medium text-gray-500"><FaEye /> Chưa Duyệt</div>;
-        }
-    }
+    const renderStatus = (status: string) => (
+        <div className="mt-2 flex justify-center"><StatusBadge status={status} /></div>
+    );
     if (isLoading) return <div className="text-center py-20">Đang tải danh sách...</div>;
     if (!jobInfo) return <div className="text-center py-20">Không tìm thấy công việc.</div>;
     return (
@@ -139,7 +133,7 @@ export default function CompanyManageCVListPage() {
                 <>
                 <div className="grid grid-cols-1 gap-[30px] sm:grid-cols-2 lg:grid-cols-3">
                     {cvList.slice((page-1)*6, page*6).map((cv, index) => (
-                        <div key={index} className="relative flex flex-col rounded-[8px] border border-[#DEDEDE] bg-white shadow-sm hover:shadow-md transition-all overflow-hidden">
+                        <div key={index} className="relative flex flex-col rounded-[8px] border border-[#DEDEDE] bg-white shadow-sm transition-all overflow-hidden">
                             {/* Màu trạng thái */}
                             <div className={`h-2 w-full ${
                                 cv.status === 'APPROVED' ? 'bg-green-500' : 
