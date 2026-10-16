@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useAuth } from "../../../../../context/AuthContext";
 import api from "../../../../../utils/api";
 import { useFilePicker } from 'use-file-picker';
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router"; 
 
 // 1. SỬA LỖI TYPE: Đổi tên Location thành JobLocation
 import type { Location as JobLocation } from "@/types";
 import { FaPen, FaUser } from "react-icons/fa6";
 
 const USER_STATUS = [
-    { value: "employed", label: "Đã có việc làm" },
-    { value: "freelancer", label: "Làm tự do" },
-    { value: "inactive", label: "Đang tìm việc" }
+    { value: "EMPLOYED", label: "Đã có việc làm" },
+    { value: "FREELANCER", label: "Làm tự do" },
+    { value: "INACTIVE", label: "Đang tìm việc" }
 ];
 export default function UserManageProfilePage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   
   const [locations, setLocations] = useState<JobLocation[]>([]);
@@ -32,7 +30,8 @@ export default function UserManageProfilePage() {
     location: "", 
     description: "",
     lookingfor: "", 
-    status: "inactive"
+    skills: "",
+    status: "INACTIVE"
   });
 
   const { openFilePicker, filesContent, loading: fileLoading } = useFilePicker({
@@ -62,7 +61,8 @@ export default function UserManageProfilePage() {
             location: info.location?.abbreviation || "", 
             description: info.description || "",
             lookingfor: info.lookingfor || "",
-            status: info.status || "inactive"
+            skills: Array.isArray(info.skills) ? info.skills.join(", ") : "",
+            status: info.status || "INACTIVE"
           });
         }
         document.title = "Chỉnh sửa thông tin cá nhân";
@@ -87,7 +87,11 @@ export default function UserManageProfilePage() {
 
     try {
         const payload = {
-            ...formData
+            ...formData,
+            skills: formData.skills
+              .split(",")
+              .map(skill => skill.trim())
+              .filter(Boolean)
         };
 
         await api.put("/users/me", payload);
@@ -98,10 +102,13 @@ export default function UserManageProfilePage() {
            window.location.reload();
         }, 1000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error(error);
+        const apiMessage = axios.isAxiosError<{ message?: string }>(error)
+            ? error.response?.data?.message
+            : undefined;
         setStatusMsg({
-            message: error.response?.data?.message || "Lỗi cập nhật! Vui lòng kiểm tra lại.",
+            message: apiMessage || "Lỗi cập nhật! Vui lòng kiểm tra lại.",
             isError: true
         });
     } finally {
@@ -202,6 +209,18 @@ export default function UserManageProfilePage() {
                                     <option key={st.value} value={st.value}>{st.label}</option>
                                 ))}
                             </select>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block font-medium text-sm text-gray-700 mb-1">Kỹ năng</label>
+                            <input
+                                type="text"
+                                placeholder="VD: Java, Spring Boot, React, SQL"
+                                value={formData.skills}
+                                onChange={e => setFormData({...formData, skills: e.target.value})}
+                                className="w-full h-10 border border-gray-300 rounded px-3 focus:border-blue-500 focus:outline-none transition-colors"
+                            />
+                            <p className="mt-1 text-xs text-gray-500">Phân tách các kỹ năng bằng dấu phẩy.</p>
                         </div>
 
                         <div>

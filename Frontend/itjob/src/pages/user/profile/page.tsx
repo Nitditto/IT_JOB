@@ -26,6 +26,7 @@ interface UserProfile {
     description: string;
     status: string; // Enum string
     lookingfor: string;
+    skills: string[];
     address: string;
     location: Location;
 }
@@ -58,7 +59,7 @@ export default function UserDetailPage() {
   const renderStatusBadge = (status: string) => {
       let colorClass = "bg-gray-100 text-gray-600";
       // Mapping màu sắc cho đẹp
-      if (status === "INACTIVE") colorClass = "bg-green-100 text-green-700 border-green-200"; 
+      if (status === "INACTIVE") colorClass = "bg-green-100 text-green-700 border-green-200";
       if (status === "FREELANCER") colorClass = "bg-blue-100 text-blue-700 border-blue-200";
       
       // Dùng translation để dịch EN -> VN
