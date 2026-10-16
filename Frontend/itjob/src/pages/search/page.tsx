@@ -1,20 +1,50 @@
 //Frontend\itjob\src\pages\search\page.tsx
 import api from "@/utils/api";
 import { CardJobItem } from "../../components/card/CardJobItem";
+import { CardJobRow } from "../../components/card/CardJobRow";
+import { SearchFilterSidebar } from "../../components/search/SearchFilterSidebar";
+import { JobAlertWidget } from "../../components/search/JobAlertWidget";
 import { Pagination } from "../../components/pagination/Pagination";
 import { Section1 } from "../../components/section/Section1";
 import { useEffect, useState } from "react";
 import type { JobFilterParams } from '../../types'
 import { useSearchParams } from "react-router";
 import { motion } from "framer-motion";
-import { Search, Briefcase, MapPin, Tag, UserCheck, DollarSign } from "lucide-react";
+import { Search, Briefcase, MapPin, Tag, UserCheck, DollarSign, LayoutGrid, List, SlidersHorizontal } from "lucide-react";
 import translation from "@/utils/translation";
 
+
+type ViewMode = "grid" | "list";
+const VIEW_MODE_STORAGE_KEY = "search.viewMode";
+const SEARCH_PAGE_SIZE = 12;
+
+const readStoredViewMode = (): ViewMode => {
+  try {
+    return localStorage.getItem(VIEW_MODE_STORAGE_KEY) === "grid" ? "grid" : "list";
+  } catch {
+    return "list";
+  }
+};
 
 export default function SearchPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    setViewMode(readStoredViewMode());
+  }, []);
+
+  const changeViewMode = (mode: ViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+    } catch {
+      // chế độ xem chỉ là tiện ích, không lưu được vẫn dùng bình thường
+    }
+  };
   const getFiltersFromURL = (): JobFilterParams => {
     const getString = (key: string): string | undefined => searchParams.get(key) ?? undefined;
     const getNumber = (key: string): number | undefined => {
@@ -34,6 +64,10 @@ export default function SearchPage() {
       ...(getNumber('minSalary') && { minSalary: getNumber('minSalary') }),
       ...(getNumber('maxSalary') && { maxSalary: getNumber('maxSalary') }),
       ...(getArray('tags') && { tags: getArray('tags') }),
+      ...(getString('category') && { category: getString('category') }),
+      ...(getArray('employmentType') && { employmentType: getArray('employmentType') }),
+      ...(searchParams.get('featured') === 'true' && { featured: true }),
+      ...(searchParams.get('urgent') === 'true' && { urgent: true }),
       ...(getNumber('companyID') && { companyID: getNumber('companyID') })
     };
   };
@@ -71,7 +105,7 @@ export default function SearchPage() {
       <div className="py-16">
         <div className="container">
           {/* Results Header */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex items-start gap-3 mb-8">
             <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
@@ -137,24 +171,59 @@ export default function SearchPage() {
                 </div>
               )}
             </div>
+            <div className="ml-auto flex shrink-0 rounded-lg border border-slate-200 bg-white p-0.5 dark:border-slate-700 dark:bg-slate-900" role="group" aria-label="Chế độ xem">
+              {([["list", List, "Danh sách"], ["grid", LayoutGrid, "Lưới"]] as const).map(([mode, Icon, label]) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => changeViewMode(mode)}
+                  aria-pressed={viewMode === mode}
+                  aria-label={label}
+                  className={`flex h-8 w-8 items-center justify-center rounded-md transition-colors ${
+                    viewMode === mode
+                      ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                      : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  }`}
+                >
+                  <Icon size={16} />
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Job Cards Grid */}
+          <div className="grid items-start gap-6 lg:grid-cols-[280px_1fr]">
+            <div className="space-y-5 lg:sticky lg:top-24">
+              <button
+                type="button"
+                onClick={() => setShowFilters((value) => !value)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              >
+                <SlidersHorizontal size={16} />
+                {showFilters ? "Ẩn bộ lọc" : "Hiện bộ lọc"}
+              </button>
+              <div className={`${showFilters ? "block" : "hidden"} space-y-5 lg:block`}>
+                <SearchFilterSidebar searchParams={searchParams} setSearchParams={setSearchParams} />
+                <JobAlertWidget searchParams={searchParams} />
+              </div>
+            </div>
+
+            <div className="min-w-0">
+          {/* Job Cards */}
           {jobList.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-5"
+              className={viewMode === "grid" ? "grid sm:grid-cols-2 grid-cols-1 gap-5" : "flex flex-col gap-3"}
             >
-              {jobList.slice((page - 1) * 6, page * 6).map((jobInfo, index) => (
+              {jobList.slice((page - 1) * SEARCH_PAGE_SIZE, page * SEARCH_PAGE_SIZE).map((jobInfo, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05, duration: 0.3 }}
                 >
-                  <CardJobItem jobInfo={jobInfo} />
+                  {viewMode === "grid" ? <CardJobItem jobInfo={jobInfo} /> : <CardJobRow jobInfo={jobInfo} />}
                 </motion.div>
               ))}
             </motion.div>
@@ -166,7 +235,9 @@ export default function SearchPage() {
             </div>
           ) : null}
 
-          <Pagination list={jobList} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
+          <Pagination list={jobList} pageSize={SEARCH_PAGE_SIZE} page={page} setPage={setPage} searchParams={searchParams} setSearchParams={setSearchParams} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
