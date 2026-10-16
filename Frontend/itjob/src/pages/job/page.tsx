@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { CompanyMiniCard } from '@/components/job/CompanyMiniCard'
+import { SimilarJobs } from '@/components/job/SimilarJobs'
 import { Link, useParams } from 'react-router'
 import translation from '@/utils/translation';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Briefcase, UserCircle, Globe, DollarSign, Building2, Clock, Users, ArrowRight, Sparkles, Brain, Target, CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Heart, BellPlus } from 'lucide-react';
+import { MapPin, Briefcase, UserCircle, Globe, DollarSign, ArrowRight, Sparkles, Brain, Target, CheckCircle2, XCircle, Lightbulb, ChevronDown, ChevronUp, Heart } from 'lucide-react';
 import { generateInterviewQuestions } from '@/utils/gemini';
 import { describeAiError } from '@/utils/aiError';
 import { computeJobMatch, type JobMatchResult } from '@/utils/jobMatch';
@@ -37,11 +39,11 @@ export default function JobDetailPage() {
     const [openLightbox, setOpenLightbox] = useState(false);
     const [photoIndex, setPhotoIndex] = useState(0);
     const [infoJob, setInfoJob] = useState({
-        name: '', minSalary: 0, maxSalary: 0, position: '', workstyle: '',
-        address: "", location: {} as any, tags: Array<string>(), images: Array<string>(), description: ""
+        name: '', category: '', minSalary: 0, maxSalary: 0, position: '', workstyle: '',
+        address: "", location: null as { name?: string } | null, tags: Array<string>(), images: Array<string>(), description: ""
     })
     const [infoCompany, setInfoCompany] = useState({
-        id: 0, name: "", avatar: "", model: "", scale: "", startWork: 0, endWork: 0, hasOvertime: false
+        id: 0, name: "", avatar: "", model: "", scale: "", industry: "", location: null as { name?: string } | null, startWork: 0, endWork: 0, hasOvertime: false
     })
     const [hasCV, setHasCV] = useState(false);
     const [jobSaved, setJobSaved] = useState(false);
@@ -136,17 +138,17 @@ export default function JobDetailPage() {
 
     const actionButton = hasCV ? (
         <Link to={`/job/${id}/mycv`}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all shadow-md shadow-indigo-500/20 hover:shadow-lg active:scale-[0.98]">
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all active:scale-[0.98]">
             Xem CV của bạn <ArrowRight size={16} />
         </Link>
     ) : user?.role == "ROLE_COMPANY" ? (
         <Link to={`/dashboard/company/job/${id}/view`}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm transition-all shadow-md shadow-violet-500/20 hover:shadow-lg active:scale-[0.98]">
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-all active:scale-[0.98]">
             Xem CV đã nộp <ArrowRight size={16} />
         </Link>
     ) : (
         <Link to={`/job/${id}/apply`}
-            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all shadow-md shadow-indigo-500/20 hover:shadow-lg active:scale-[0.98]">
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-all active:scale-[0.98]">
             Ứng tuyển ngay <ArrowRight size={16} />
         </Link>
     );
@@ -161,7 +163,7 @@ export default function JobDetailPage() {
             )}
             <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pb-16">
                 {/* Job Header */}
-                <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-700 dark:from-indigo-900 dark:via-indigo-950 dark:to-violet-950 py-10">
+                <div className="bg-slate-900 dark:bg-slate-950 py-10">
                     <div className="container">
                         <motion.div
                             initial={{ opacity: 0, y: 16 }}
@@ -171,7 +173,7 @@ export default function JobDetailPage() {
                         >
                             <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">{infoJob.name}</h1>
                             <p className="text-indigo-200 text-base mb-4">{infoCompany.name}</p>
-                            <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm text-white font-bold px-4 py-2 rounded-xl text-base">
+                            <div className="inline-flex items-center gap-1.5 bg-white/15 text-white font-bold px-4 py-2 rounded-xl text-base">
                                 <DollarSign size={16} />
                                 {infoJob.minSalary.toLocaleString() + "$ - " + infoJob.maxSalary.toLocaleString() + "$"}
                             </div>
@@ -193,7 +195,7 @@ export default function JobDetailPage() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: 0.2 }}
-                                    className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm"
+                                    className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm"
                                 >
                                     <div className="relative group">
                                         <Swiper
@@ -225,7 +227,7 @@ export default function JobDetailPage() {
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+                                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
                             >
                                 <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Thông tin công việc</h2>
                                 <div className="grid grid-cols-2 gap-4 mb-5">
@@ -237,7 +239,7 @@ export default function JobDetailPage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
-                                        <Briefcase size={18} className="text-violet-500" />
+                                        <Briefcase size={18} className="text-slate-500" />
                                         <div>
                                             <div className="text-xs text-slate-500 dark:text-slate-400">Hình thức</div>
                                             <div className="text-sm font-medium text-slate-900 dark:text-white">{translation[infoJob.workstyle]}</div>
@@ -254,7 +256,9 @@ export default function JobDetailPage() {
                                         <Globe size={18} className="text-amber-500" />
                                         <div>
                                             <div className="text-xs text-slate-500 dark:text-slate-400">Khu vực</div>
-                                            <div className="text-sm font-medium text-slate-900 dark:text-white">{infoJob.location.name}</div>
+                                            <div className="text-sm font-medium text-slate-900 dark:text-white">
+                                                {infoJob.location?.name || infoJob.address || "Chưa cập nhật"}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -272,7 +276,7 @@ export default function JobDetailPage() {
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+                                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
                             >
                                 <h2 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Mô tả công việc</h2>
                                 <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
@@ -289,58 +293,22 @@ export default function JobDetailPage() {
                                 <button
                                     onClick={toggleSaved}
                                     disabled={saveLoading}
-                                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-bold transition-all disabled:opacity-60 ${jobSaved ? "border-rose-200 bg-rose-50 text-rose-600" : "border-slate-200 bg-white text-slate-700 hover:border-rose-200 hover:text-rose-600"}`}
+                                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-lg border text-sm font-bold transition-all disabled:opacity-60 ${jobSaved ? "border-rose-200 bg-rose-50 text-rose-600" : "border-slate-200 bg-white text-slate-700 hover:border-rose-200 hover:text-rose-600"}`}
                                 >
                                     <Heart size={16} fill={jobSaved ? "currentColor" : "none"} />
                                     {jobSaved ? "Đã lưu công việc" : "Lưu công việc"}
                                 </button>
                             )}
 
-                            {/* Company Card */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 16 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.15 }}
-                                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className="w-16 h-16 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-2 flex-shrink-0 shadow-sm">
-                                        <img src={infoCompany.avatar} alt="" className="w-full h-full object-contain" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1 truncate">{infoCompany.name}</h3>
-                                        <Link to={`/company/${infoCompany.id}`}
-                                            className="inline-flex items-center gap-1 text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:underline">
-                                            Xem công ty <ArrowRight size={14} />
-                                        </Link>
-                                    </div>
-                                </div>
-                                {user?.role === "ROLE_USER" && (
-                                    <button
-                                        onClick={toggleFollowCompany}
-                                        disabled={followLoading}
-                                        className={`mt-5 flex w-full items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-bold transition disabled:opacity-60 ${followingCompany ? "border-indigo-200 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"}`}
-                                    >
-                                        <BellPlus size={16} />
-                                        {followingCompany ? "Đang theo dõi công ty" : "Theo dõi công ty"}
-                                    </button>
-                                )}
-                                <div className="mt-5 space-y-3">
-                                    {[
-                                        { icon: <Building2 size={16} className="text-slate-400" />, label: "Mô hình", value: translation[infoCompany.model] },
-                                        { icon: <Users size={16} className="text-slate-400" />, label: "Quy mô", value: translation[infoCompany.scale] },
-                                        { icon: <Clock size={16} className="text-slate-400" />, label: "Thời gian", value: `Thứ ${infoCompany.startWork} - Thứ ${infoCompany.endWork}` },
-                                        { icon: <Briefcase size={16} className="text-slate-400" />, label: "OT", value: infoCompany.hasOvertime ? "Có OT" : "Không có OT" },
-                                    ].map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-sm">
-                                            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                                                {item.icon} {item.label}
-                                            </div>
-                                            <div className="font-medium text-slate-900 dark:text-white">{item.value}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </motion.div>
+                            <CompanyMiniCard
+                                company={infoCompany}
+                                canFollow={user?.role === "ROLE_USER"}
+                                following={followingCompany}
+                                followLoading={followLoading}
+                                onToggleFollow={toggleFollowCompany}
+                            />
+
+                            <SimilarJobs jobId={Number(id)} category={infoJob.category} tags={infoJob.tags} />
 
                             {/* AI Job Match Score */}
                             {user && user.role === 'ROLE_USER' && (
@@ -348,10 +316,10 @@ export default function JobDetailPage() {
                                     initial={{ opacity: 0, y: 16 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.25 }}
-                                    className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
+                                    className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm"
                                 >
                                     <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+                                        <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-slate-700 flex items-center justify-center">
                                             <Target size={16} className="text-white" />
                                         </div>
                                         <h3 className="font-bold text-base text-slate-900 dark:text-white">Đánh giá mức độ phù hợp</h3>
@@ -369,7 +337,7 @@ export default function JobDetailPage() {
                                                         <defs><linearGradient id="matchGradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#6366f1" /><stop offset="100%" stopColor="#8b5cf6" /></linearGradient></defs>
                                                     </svg>
                                                     <div className="absolute inset-0 flex items-center justify-center">
-                                                        <span className="text-lg font-bold text-slate-900 dark:text-white">{matchResult.score}</span>
+                                                        <span className="text-base font-bold text-slate-900 dark:text-white">{matchResult.score}%</span>
                                                     </div>
                                                 </div>
                                                 <div>
@@ -423,16 +391,21 @@ export default function JobDetailPage() {
                                             onClick={async () => {
                                                 setMatchLoading(true);
                                                 try {
-                                                    const profile = await api.get<{ lookingfor?: string; description?: string }>(`/users/${user.id}`);
+                                                    const profile = await api.get<{ lookingfor?: string; description?: string; skills?: string[] }>(`/users/${user.id}`);
                                                     const result = computeJobMatch({
                                                         profileText: `${profile.data.lookingfor ?? ''} ${profile.data.description ?? ''}`,
+                                                        profileSkills: profile.data.skills ?? [],
                                                         jobTags: infoJob.tags,
                                                     });
                                                     setMatchResult(result);
-                                                } catch { } finally { setMatchLoading(false); }
+                                                } catch {
+                                                    showFeedback("Không thể phân tích mức độ phù hợp lúc này.");
+                                                } finally {
+                                                    setMatchLoading(false);
+                                                }
                                             }}
                                             disabled={matchLoading}
-                                            className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border border-indigo-100 dark:border-indigo-900 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:shadow-md transition-all flex items-center justify-center gap-2"
+                                            className="w-full py-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-semibold text-indigo-600 dark:text-indigo-400 transition-all flex items-center justify-center gap-2"
                                         >
                                             {matchLoading ? (
                                                 <div className="w-4 h-4 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
@@ -449,7 +422,7 @@ export default function JobDetailPage() {
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+                                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
                             >
                                 <button
                                     onClick={async () => {
@@ -465,7 +438,7 @@ export default function JobDetailPage() {
                                     }}
                                     className="w-full p-5 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                 >
-                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
                                         <Brain size={16} className="text-white" />
                                     </div>
                                     <div className="flex-1 text-left">
