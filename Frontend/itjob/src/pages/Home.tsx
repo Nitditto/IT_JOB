@@ -5,6 +5,10 @@ import { CardCompanyItem } from "../components/card/CardCompanyItem";
 import { MarketCompanies } from "../components/section/MarketCompanies";
 import { SalaryInsights } from "../components/section/SalaryInsights";
 import { RecommendedJobs } from "../components/section/RecommendedJobs";
+import { ITSpecializations } from "../components/section/ITSpecializations";
+import { FeaturedJobs } from "../components/section/FeaturedJobs";
+import { DeveloperToolkit } from "../components/section/DeveloperToolkit";
+import { RecruiterCtaBanner } from "../components/section/RecruiterCtaBanner";
 import api from "../utils/api";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
@@ -53,6 +57,10 @@ export default function SearchHome() {
       <Section1 />
       {/*End Section 1 */}
 
+      <ITSpecializations />
+
+      <FeaturedJobs />
+
       {/* AI Job Recommendations — for logged-in users */}
       <RecommendedJobs />
 
@@ -83,7 +91,7 @@ export default function SearchHome() {
               onChange={e => setPage(Number(e.target.value))}
               name=""
               id=""
-              className="glass-panel border border-black/10 dark:border-white/10 rounded-xl py-[12px] px-[20px] bg-white/50 dark:bg-slate-800/50 backdrop-blur-md focus:ring-2 focus:ring-primary shadow-sm cursor-pointer outline-none transition-all hover:bg-white dark:hover:bg-slate-800"
+              className="border border-black/10 dark:border-white/10 rounded-lg py-[12px] px-[20px] bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary shadow-sm cursor-pointer outline-none transition-all hover:bg-white dark:hover:bg-slate-800"
             >
               {
                 Array(Math.ceil(companyList.length / 6)).fill(0).map((_, index) => (
@@ -98,8 +106,14 @@ export default function SearchHome() {
       </div>
       {/*End Section 2 */}
 
+      <DeveloperToolkit />
+
       {/* AI Salary Insights */}
-      <SalaryInsights />
+      <div id="salary-insights">
+        <SalaryInsights />
+      </div>
+
+      <RecruiterCtaBanner />
     </div>
   )
 }
