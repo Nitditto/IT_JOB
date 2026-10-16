@@ -319,7 +319,7 @@ const SearchBar = ({
         <button
           type="button"
           onClick={() => navigateToSearch()}
-          className="mt-2 md:mt-0 w-full md:w-auto min-w-[140px] h-[48px] rounded-[24px] bg-indigo-600 hover:bg-indigo-700 transition-all font-bold text-[16px] text-white px-6 shadow-md hover:shadow-lg flex items-center justify-center cursor-pointer"
+          className="mt-2 md:mt-0 w-full md:w-auto min-w-[140px] h-[48px] rounded-[24px] bg-indigo-600 hover:bg-indigo-700 transition-all font-bold text-[16px] text-white px-6 shadow-md flex items-center justify-center cursor-pointer"
         >
           Tìm kiếm
         </button>
@@ -337,7 +337,7 @@ const SearchBar = ({
               key={i}
               type="button"
               onClick={() => { setQuery(s); setSuggestions([]); navigateToSearch(); }}
-              className="text-xs px-3 py-1 rounded-full bg-white/10 text-white font-medium hover:bg-white/20 transition-colors cursor-pointer backdrop-blur-sm border border-white/10"
+              className="text-xs px-3 py-1 rounded-full bg-white/10 text-white font-medium hover:bg-white/20 transition-colors cursor-pointer border border-white/10"
             >
               {s}
             </button>

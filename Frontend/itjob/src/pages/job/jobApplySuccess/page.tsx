@@ -43,7 +43,7 @@ const [similarJobs, setSimilarJobs] = useState([]);
 }, [])
   return (
     // Background cong (giống trang apply)
-    <div className="min-h-screen bg-gray-100 py-12 px-4 bg-linear-to-bl from-gray-400 via-purple-300 to-blue-500"
+    <div className="min-h-screen bg-slate-50 py-12 px-4"
         
     >
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-8 text-center">

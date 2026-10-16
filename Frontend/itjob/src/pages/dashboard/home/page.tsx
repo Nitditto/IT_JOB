@@ -80,22 +80,22 @@ export default function DashboardHomePage() {
     const dateStr = now.toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
     const statCards = [
-        { icon: <Briefcase size={22} />, label: "Việc làm đang tuyển", value: jobCount, color: "from-indigo-500 to-indigo-600", iconBg: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300" },
-        { icon: <Building2 size={22} />, label: "Nhà tuyển dụng", value: companyCount, color: "from-violet-500 to-violet-600", iconBg: "bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-violet-300" },
-        { icon: <TrendingUp size={22} />, label: "Công nghệ trending", value: tags.length, color: "from-emerald-500 to-emerald-600", iconBg: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300" },
-        ...(isUser ? [{ icon: <FileText size={22} />, label: "CV đã nộp", value: cvCount, color: "from-amber-500 to-amber-600", iconBg: "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300" }] : []),
+        { icon: <Briefcase size={22} />, label: "Việc làm đang tuyển", value: jobCount, iconBg: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-300" },
+        { icon: <Building2 size={22} />, label: "Nhà tuyển dụng", value: companyCount, iconBg: "bg-violet-100 text-violet-600 dark:bg-violet-900/50 dark:text-white" },
+        { icon: <TrendingUp size={22} />, label: "Công nghệ trending", value: tags.length, iconBg: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-300" },
+        ...(isUser ? [{ icon: <FileText size={22} />, label: "CV đã nộp", value: cvCount, iconBg: "bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-300" }] : []),
     ];
 
     const quickActions = isUser ? [
         { icon: <Search size={18} />, label: "Tìm việc IT", to: "/search", color: "bg-indigo-600 hover:bg-indigo-700" },
-        { icon: <PlusCircle size={18} />, label: "Tạo CV mới", to: "/dashboard/cv/templates", color: "bg-violet-600 hover:bg-violet-700" },
-        { icon: <Star size={18} />, label: "Đánh giá CV bằng AI", to: "/dashboard/cv/upload-review", color: "bg-emerald-600 hover:bg-emerald-700" },
+        { icon: <PlusCircle size={18} />, label: "Tạo CV mới", to: "/cv/templates", color: "bg-slate-900 hover:bg-slate-800" },
+        { icon: <Star size={18} />, label: "Đánh giá CV bằng AI", to: "/cv/upload-review", color: "bg-emerald-600 hover:bg-emerald-700" },
     ] : isCompany ? [
         { icon: <PlusCircle size={18} />, label: "Đăng tin tuyển dụng", to: "/dashboard/company/job/create", color: "bg-indigo-600 hover:bg-indigo-700" },
-        { icon: <BarChart3 size={18} />, label: "Quản lý công việc", to: "/dashboard/company/job", color: "bg-violet-600 hover:bg-violet-700" },
+        { icon: <BarChart3 size={18} />, label: "Quản lý công việc", to: "/dashboard/company/job", color: "bg-slate-900 hover:bg-slate-800" },
     ] : [
         { icon: <Users size={18} />, label: "Quản lý tài khoản", to: "/dashboard/admin/register", color: "bg-indigo-600 hover:bg-indigo-700" },
-        { icon: <BarChart3 size={18} />, label: "Quản lý công việc", to: "/dashboard/company/job", color: "bg-violet-600 hover:bg-violet-700" },
+        { icon: <BarChart3 size={18} />, label: "Quản lý công việc", to: "/dashboard/company/job", color: "bg-slate-900 hover:bg-slate-800" },
     ];
 
     return (
@@ -107,15 +107,11 @@ export default function DashboardHomePage() {
                 animate="show"
             >
                 {/* Welcome Header */}
-                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl p-6 md:p-8"
-                    style={{ background: "linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #7c3aed 100%)" }}
-                >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-400/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
+                <motion.div variants={itemVariants} className="relative overflow-hidden rounded-xl p-6 md:p-8 bg-slate-900 dark:bg-slate-900 border border-slate-800"                >
                     <div className="relative z-10">
                         <p className="text-indigo-200 text-sm font-medium mb-1">{dateStr}</p>
                         <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                            {greeting}, <span className="text-violet-200">{user?.name || "bạn"}</span> 👋
+                            {greeting}, <span className="text-white">{user?.name || "bạn"}</span> 👋
                         </h1>
                         <p className="text-indigo-200 text-sm md:text-base max-w-xl">
                             {isUser && "Khám phá cơ hội nghề nghiệp IT phù hợp nhất với bạn hôm nay."}
@@ -131,7 +127,7 @@ export default function DashboardHomePage() {
                         <Link
                             key={idx}
                             to={action.to}
-                            className={`${action.color} text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all shadow-sm hover:shadow-md active:scale-[0.98]`}
+                            className={`${action.color} text-white px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm active:scale-[0.98]`}
                         >
                             {action.icon} {action.label}
                         </Link>
@@ -144,7 +140,7 @@ export default function DashboardHomePage() {
                         <motion.div
                             key={idx}
                             variants={itemVariants}
-                            className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group"
+                            className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm transition-shadow group"
                         >
                             <div className={`w-10 h-10 ${stat.iconBg} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                                 {stat.icon}
@@ -163,11 +159,11 @@ export default function DashboardHomePage() {
                     {/* Insight Card — takes 2 cols */}
                     <motion.div
                         variants={itemVariants}
-                        className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+                        className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
                     >
                         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                             <h2 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 text-base">
-                                <Sparkles size={18} className="text-violet-500" />
+                                <Sparkles size={18} className="text-slate-500" />
                                 Gợi ý cho bạn
                             </h2>
                         </div>
@@ -190,7 +186,7 @@ export default function DashboardHomePage() {
                     {/* Trending Tags — takes 1 col */}
                     <motion.div
                         variants={itemVariants}
-                        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
+                        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
                     >
                         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
                             <h2 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 text-base">

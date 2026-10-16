@@ -46,8 +46,8 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2.5">
               <li><Link to="/search" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Tìm việc làm IT</Link></li>
-              <li><Link to="/dashboard/cv/templates" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Tạo CV chuyên nghiệp</Link></li>
-              <li><Link to="/dashboard/cv/upload-review" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">AI Đánh giá CV</Link></li>
+              <li><Link to="/cv/templates" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Tạo CV chuyên nghiệp</Link></li>
+              <li><Link to="/cv/upload-review" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">AI Đánh giá CV</Link></li>
               <li><Link to="/dashboard/home" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Dashboard thông minh</Link></li>
               <li><Link to="/register" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Đăng ký tài khoản</Link></li>
             </ul>
@@ -56,14 +56,14 @@ const Footer = () => {
           {/* Company Links */}
           <div>
             <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Building2 size={14} className="text-violet-400" />
+              <Building2 size={14} className="text-slate-500" />
               Dành cho nhà tuyển dụng
             </h3>
             <ul className="space-y-2.5">
-              <li><Link to="/company-register" className="text-sm text-slate-400 hover:text-violet-400 transition-colors">Đăng ký tuyển dụng</Link></li>
-              <li><Link to="/dashboard/company/job/create" className="text-sm text-slate-400 hover:text-violet-400 transition-colors">Đăng tin tuyển dụng</Link></li>
-              <li><Link to="/dashboard/company/job" className="text-sm text-slate-400 hover:text-violet-400 transition-colors">Quản lý tin tuyển dụng</Link></li>
-              <li><Link to="/search" className="text-sm text-slate-400 hover:text-violet-400 transition-colors">Tìm kiếm ứng viên</Link></li>
+              <li><Link to="/company-register" className="text-sm text-slate-400 hover:text-white transition-colors">Đăng ký tuyển dụng</Link></li>
+              <li><Link to="/dashboard/company/job/create" className="text-sm text-slate-400 hover:text-white transition-colors">Đăng tin tuyển dụng</Link></li>
+              <li><Link to="/dashboard/company/job" className="text-sm text-slate-400 hover:text-white transition-colors">Quản lý tin tuyển dụng</Link></li>
+              <li><Link to="/search" className="text-sm text-slate-400 hover:text-white transition-colors">Tìm kiếm ứng viên</Link></li>
             </ul>
           </div>
 

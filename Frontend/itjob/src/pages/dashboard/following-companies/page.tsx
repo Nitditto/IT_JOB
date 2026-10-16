@@ -35,14 +35,14 @@ export default function FollowingCompaniesPage() {
           icon={<Building2 size={26} />}
           title="Bạn chưa theo dõi công ty nào"
           description="Mở trang công ty hoặc chi tiết việc làm để theo dõi những nhà tuyển dụng bạn quan tâm."
-          action={<Link to="/search" className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Tìm công ty qua việc làm</Link>}
+          action={<Link to="/search" className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Tìm công ty qua việc làm</Link>}
         />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {follows.map((item) => (
-            <div key={item.id} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-indigo-200 hover:shadow-md">
+            <div key={item.id} className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-indigo-200 hover:shadow-md">
               <div className="flex gap-4">
-                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-100 bg-white p-2">
+                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white p-2">
                   <img src={item.company.avatar || "/assets/images/avatar_default.png"} alt="" className="h-full w-full object-contain" />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -53,13 +53,13 @@ export default function FollowingCompaniesPage() {
                   </div>
                   <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">{item.company.description || "Công ty chưa cập nhật mô tả."}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Link to={`/company/${item.company.id}`} className="inline-flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-100">
+                    <Link to={`/company/${item.company.id}`} className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-100">
                       Xem công ty <ExternalLink size={14} />
                     </Link>
                     <button
                       onClick={() => handleUnfollow(item.company.id)}
                       disabled={mutatingId === item.company.id}
-                      className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
                     >
                       <HeartOff size={14} /> Bỏ theo dõi
                     </button>

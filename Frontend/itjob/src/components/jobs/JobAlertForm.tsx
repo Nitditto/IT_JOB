@@ -92,7 +92,7 @@ export function JobAlertForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-5 flex items-start gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
           <BellRing size={18} />
@@ -108,7 +108,7 @@ export function JobAlertForm({
           <input
             value={form.name}
             onChange={(e) => setForm((current) => ({ ...current, name: e.target.value }))}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
             placeholder="Frontend remote lương tốt"
           />
         </Field>
@@ -116,7 +116,7 @@ export function JobAlertForm({
           <input
             value={form.query || ""}
             onChange={(e) => setForm((current) => ({ ...current, query: e.target.value }))}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
             placeholder="React, Java, DevOps..."
           />
         </Field>
@@ -124,7 +124,7 @@ export function JobAlertForm({
           <input
             value={form.location || ""}
             onChange={(e) => setForm((current) => ({ ...current, location: e.target.value }))}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
             placeholder="HCM, HN..."
           />
         </Field>
@@ -132,7 +132,7 @@ export function JobAlertForm({
           <input
             value={form.industry || ""}
             onChange={(e) => setForm((current) => ({ ...current, industry: e.target.value }))}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
             placeholder="Fintech, SaaS..."
           />
         </Field>
@@ -142,7 +142,7 @@ export function JobAlertForm({
             min={0}
             value={form.minSalary ?? ""}
             onChange={(e) => setForm((current) => ({ ...current, minSalary: e.target.value ? Number(e.target.value) : undefined }))}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
           />
         </Field>
         <Field label="Lương đến" error={errors.maxSalary}>
@@ -151,7 +151,7 @@ export function JobAlertForm({
             min={0}
             value={form.maxSalary ?? ""}
             onChange={(e) => setForm((current) => ({ ...current, maxSalary: e.target.value ? Number(e.target.value) : undefined }))}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
           />
         </Field>
         <SelectField label="Cấp bậc" value={form.position || ""} onChange={(value) => setForm((current) => ({ ...current, position: value as JobPosition || undefined }))} options={positions} />
@@ -161,7 +161,7 @@ export function JobAlertForm({
           <input
             value={tagText}
             onChange={(e) => setTagText(e.target.value)}
-            className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500"
+            className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500"
             placeholder="React, TypeScript, AWS"
           />
         </Field>
@@ -178,11 +178,11 @@ export function JobAlertForm({
       </label>
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <button disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
+        <button disabled={saving} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
           <Save size={16} /> {saving ? "Đang lưu..." : "Lưu thông báo"}
         </button>
         {editing && (
-          <button type="button" onClick={onCancel} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50">
+          <button type="button" onClick={onCancel} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50">
             Hủy chỉnh sửa
           </button>
         )}
@@ -214,7 +214,7 @@ function SelectField({
 }) {
   return (
     <Field label={label}>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-full rounded-xl border border-slate-200 px-3 text-sm focus:border-indigo-500">
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 px-3 text-sm focus:border-indigo-500">
         <option value="">Tất cả</option>
         {options.map((option) => (
           <option key={option} value={option}>{option}</option>

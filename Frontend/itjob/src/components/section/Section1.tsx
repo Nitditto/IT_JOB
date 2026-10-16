@@ -54,12 +54,10 @@ export const Section1 = () => {
 
   return (
     <>
-      <div className="relative overflow-hidden py-[80px] lg:py-[120px] bg-gradient-to-br from-indigo-950 via-indigo-900 to-violet-900 dark:from-slate-950 dark:via-indigo-950 dark:to-slate-900">
+      <div className="relative overflow-hidden py-[80px] lg:py-[120px] bg-slate-900 dark:bg-slate-950">
         
         {/* Abstract background blobs */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[100px]" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-500/20 blur-[120px]" />
         </div>
 
         <motion.div 
@@ -72,7 +70,7 @@ export const Section1 = () => {
             variants={itemVariants}
             className="font-extrabold text-[32px] md:text-[44px] lg:text-[54px] text-white mb-[40px] text-center max-w-4xl mx-auto leading-tight md:tracking-tight hover:scale-[1.01] transition-transform duration-500"
           >
-            Tìm kiếm công việc IT <span className="text-violet-300">mơ ước</span> của bạn.
+            Tìm kiếm công việc IT <span className="text-white">mơ ước</span> của bạn.
             <div className="text-[18px] md:text-[22px] font-medium text-indigo-200 mt-4 max-w-2xl mx-auto">
               Hơn <span className="text-white font-bold">{jobCount.toLocaleString()}</span> cơ hội nghề nghiệp từ các công ty hàng đầu.
             </div>
@@ -98,7 +96,7 @@ export const Section1 = () => {
                 <Link
                   key={index}
                   to={`/search?tags=${value.tag}`}
-                  className="bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-md transition-all duration-300 rounded-[20px] px-[20px] py-1.5 font-medium text-[15px] text-white hover:-translate-y-0.5 hover:shadow-[0_4px_20px_rgba(255,255,255,0.1)]"
+                  className="bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-300 rounded-[20px] px-[20px] py-1.5 font-medium text-[15px] text-white"
                 >
                   {value.tag}
                 </Link>

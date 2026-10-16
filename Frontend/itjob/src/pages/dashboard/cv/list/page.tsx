@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 import {Link, useNavigate, useSearchParams} from "react-router"
 import { FaBriefcase, FaCircleCheck, FaCircleDot, FaCircleXmark, FaUserTie } from "react-icons/fa6"
@@ -25,13 +26,7 @@ export default function UserManageCVListPage() {
     setPage(parseInt(searchParams.get("page") ?? "1"));
   },[])
 
-    const renderStatusLabel = (status: string) => {
-    switch(status) {
-        case "APPROVED": return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium text-xs border border-emerald-200"><FaCircleCheck size={10} /> Đã Duyệt</span>;
-        case "REJECTED": return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 text-red-700 font-medium text-xs border border-red-200"><FaCircleXmark size={10} /> Từ Chối</span>;
-        default: return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 font-medium text-xs border border-amber-200"><FaCircleDot size={10} /> Chưa Duyệt</span>;
-    }
-  };
+    const renderStatusLabel = (status: string) => <StatusBadge status={status} />;
 
     const handleDeleteCV = async (id: number) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa CV không? Hành động này không thể hoàn tác.")) {
@@ -63,7 +58,7 @@ export default function UserManageCVListPage() {
               cvList.slice((page-1)*6, page*6).map((data: any, index: number) => (
               <div 
                 key={index}
-                className="bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden hover:shadow-md hover:border-indigo-200 transition-all group relative"
+                className="bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden hover:border-indigo-200 transition-all group relative"
               >
                   <div className="p-5 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-3">

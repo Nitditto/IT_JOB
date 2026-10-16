@@ -106,14 +106,14 @@ export default function CompanyJobList() {
               filteredJobs.slice((page-1)*6, page*6).map((value: any, index: number) => (
                 <div
                   key={index}
-                  className="bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden hover:shadow-md hover:border-indigo-200 transition-all group"
+                  className="bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden hover:border-indigo-200 transition-all group"
                 >
                   <div className="p-5 flex-1">
                     <div className="flex justify-between items-start mb-3">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold">
                          <FaBriefcase /> {translation[value.workstyle as keyof typeof translation]}
                       </div>
-                      <span className="text-xs text-slate-400 font-medium pl-2">{value.location.name}</span>
+                      <span className="text-xs text-slate-400 font-medium pl-2">{value.location?.name}</span>
                     </div>
 
                     <h3 className="font-bold text-lg text-slate-900 line-clamp-2 leading-tight mb-2 group-hover:text-indigo-600 transition-colors">

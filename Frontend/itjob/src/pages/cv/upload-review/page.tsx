@@ -90,7 +90,7 @@ export default function CVUploadReviewPage() {
 
                 {!analysisResult && !isAnalyzing && (
                     <div
-                        className={`bg-white p-10 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-center shadow-sm transition-colors duration-200 ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-indigo-200'}`}
+                        className={`bg-white p-10 border-2 border-dashed rounded-xl flex flex-col items-center justify-center text-center shadow-sm transition-colors duration-200 ${isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-indigo-200'}`}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
@@ -113,14 +113,14 @@ export default function CVUploadReviewPage() {
                         <div className="flex gap-4">
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+                                className="px-6 py-3 bg-white border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
                             >
                                 Chọn file từ máy
                             </button>
                             {file && (
                                 <button
                                     onClick={startAnalysis}
-                                    className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-600/20 flex items-center gap-2"
+                                    className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
                                 >
                                     <FaMagic /> Bắt đầu Phân tích AI
                                 </button>
@@ -140,7 +140,7 @@ export default function CVUploadReviewPage() {
                 )}
 
                 {isAnalyzing && (
-                    <div className="bg-white p-12 rounded-3xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
+                    <div className="bg-white p-12 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center">
                         <div className="relative w-24 h-24 mb-6">
                             <div className="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
                             <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
@@ -160,8 +160,8 @@ export default function CVUploadReviewPage() {
                         {/* LEFT: RESULTS DATA */}
                         <div className="w-full lg:w-[40%] space-y-6">
                             {/* Score Card */}
-                            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm text-center relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-amber-500 to-emerald-500"></div>
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-center relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-2 bg-slate-900"></div>
                                 <h3 className="text-slate-500 font-medium mb-4 uppercase tracking-wider text-sm">Điểm Đánh Giá CV</h3>
                                 <div className="flex items-end justify-center gap-2 mb-2">
                                     <span className="text-6xl font-black text-indigo-600">{analysisResult.score}</span>
@@ -181,7 +181,7 @@ export default function CVUploadReviewPage() {
                             </div>
 
                             {/* Analysis Details */}
-                            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="p-5 bg-emerald-50 border-b border-emerald-100">
                                     <h3 className="font-bold text-emerald-800 flex items-center gap-2">
                                         <FaCheckCircle /> Điểm mạnh
@@ -198,7 +198,7 @@ export default function CVUploadReviewPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="p-5 bg-amber-50 border-b border-amber-100">
                                     <h3 className="font-bold text-amber-800 flex items-center gap-2">
                                         <FaExclamationTriangle /> Cần cải thiện
@@ -216,17 +216,17 @@ export default function CVUploadReviewPage() {
                             </div>
 
                             <div className="flex gap-3">
-                                <button className="flex-1 py-3 bg-indigo-600 text-white font-medium rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+                                <button className="flex-1 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
                                     Sửa lại trên CV Builder
                                 </button>
-                                <button onClick={() => { setAnalysisResult(null); setFile(null) }} className="flex-1 py-3 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+                                <button onClick={() => { setAnalysisResult(null); setFile(null) }} className="flex-1 py-3 bg-white border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
                                     Tải file khác
                                 </button>
                             </div>
                         </div>
 
                         {/* RIGHT: PDF VIEWER MOCK WITH OVERLAYS */}
-                        <div className="w-full lg:w-[60%] bg-slate-200 rounded-3xl min-h-[600px] flex items-center justify-center relative overflow-hidden border border-slate-300">
+                        <div className="w-full lg:w-[60%] bg-slate-200 rounded-xl min-h-[600px] flex items-center justify-center relative overflow-hidden border border-slate-300">
                             {/* Mocking the loaded PDF as an image or div */}
                             <div className="w-[80%] h-[90%] bg-white shadow-xl flex flex-col items-center justify-center relative pointer-events-none">
                                 <FaFilePdf size={60} className="text-slate-200 mb-4" />

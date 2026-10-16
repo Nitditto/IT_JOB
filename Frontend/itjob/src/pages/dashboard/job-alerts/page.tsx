@@ -67,7 +67,7 @@ export default function JobAlertsPage() {
         ) : (
           <div className="space-y-4">
             {alerts.map((alert) => (
-              <div key={alert.id} className="rounded-2xl border border-slate-200 bg-white p-5">
+              <div key={alert.id} className="rounded-xl border border-slate-200 bg-white p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -84,13 +84,13 @@ export default function JobAlertsPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => handlePreview(alert.id)} className="inline-flex items-center gap-2 rounded-xl bg-indigo-50 px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-100">
+                    <button onClick={() => handlePreview(alert.id)} className="inline-flex items-center gap-2 rounded-lg bg-indigo-50 px-3 py-2 text-sm font-bold text-indigo-700 hover:bg-indigo-100">
                       <Eye size={14} /> {matchesLoadingId === alert.id ? "Đang xem..." : "Xem việc"}
                     </button>
-                    <button onClick={() => setEditing(alert)} className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-slate-50" title="Sửa">
+                    <button onClick={() => setEditing(alert)} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-slate-50" title="Sửa">
                       <Pencil size={16} />
                     </button>
-                    <button onClick={() => handleDelete(alert.id)} className="rounded-xl border border-slate-200 p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" title="Xóa">
+                    <button onClick={() => handleDelete(alert.id)} className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-red-50 hover:text-red-600" title="Xóa">
                       <Trash2 size={16} />
                     </button>
                   </div>
