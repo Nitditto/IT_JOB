@@ -60,8 +60,8 @@ public class RecommendationRedisRepository {
             if (raw == null) {
                 return Optional.empty();
             }
-            List<JobRecommendationItemDto> result = redisObjectMapper.convertValue(
-                    raw, new TypeReference<List<JobRecommendationItemDto>>() {});
+            List<JobRecommendationItemDto> result = redisObjectMapper.readValue(
+                    raw.toString(), new TypeReference<List<JobRecommendationItemDto>>() {});
             return Optional.ofNullable(result);
         } catch (Exception e) {
             log.error("Failed to read recommendation cache from Redis for userId={}: {}", userId, e.getMessage());
@@ -95,7 +95,8 @@ public class RecommendationRedisRepository {
         }
         String key = getKey(userId);
         try {
-            redisTemplate.opsForValue().set(key, items, ttlSeconds, TimeUnit.SECONDS);
+            // RedisTemplate chỉ có StringRedisSerializer cho value, nên phải tự serialize sang JSON
+            redisTemplate.opsForValue().set(key, redisObjectMapper.writeValueAsString(items), ttlSeconds, TimeUnit.SECONDS);
             log.debug("Saved compact job recommendations to Redis for userId={} with TTL={}s", userId, ttlSeconds);
         } catch (Exception e) {
             log.error("Failed to save recommendation cache to Redis for userId={}: {}", userId, e.getMessage());

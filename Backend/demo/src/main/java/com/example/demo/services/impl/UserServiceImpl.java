@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import com.example.demo.dto.response.UserResponse;
 import com.example.demo.dto.request.UserEditRequest;
 import com.example.demo.enums.UserRole;
 import com.example.demo.exception.BadRequestException;
+import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.redis.repository.RecommendationRedisRepository;
@@ -46,7 +48,7 @@ public class UserServiceImpl implements UserService {
     public Account register(RegistrationRequest request, UserRole role) {
         log.info("Registering new user with email: {} and role: {}", request.getEmail(), role);
         
-        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (accountRepository.existsByEmailIgnoreCase(request.getEmail())) {
             log.warn("Registration failed: Email {} already in use", request.getEmail());
             throw new BadRequestException("Email đã được sử dụng!");
         }
@@ -58,7 +60,12 @@ public class UserServiceImpl implements UserService {
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
         account.setPassword(encryptedPassword);
 
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount;
+        try {
+            savedAccount = accountRepository.saveAndFlush(account);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException("Email đã được sử dụng!");
+        }
         log.info("User {} registered successfully with ID {}", savedAccount.getEmail(), savedAccount.getId());
         return savedAccount;
     }
@@ -137,6 +144,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Account getCompanyById(final Long companyID) {
+        final Account account = this.getUserById(companyID);
+        if (account.getRole() != UserRole.ROLE_COMPANY) {
+            throw new ResourceNotFoundException("Công ty", "id", companyID);
+        }
+        return account;
+    }
+
+    @Override
     public Map<Long, Account> getUsersByIds(Collection<Long> ids) {
         log.info("Fetching {} users by IDs", ids.size());
         Map<Long, Account> accountsById = new HashMap<>();
@@ -164,7 +180,7 @@ public class UserServiceImpl implements UserService {
         account.setAddress(request.getAddress());
         account.setAvatar(request.getAvatar());
         account.setDescription(request.getDescription());
-        account.setEmail(request.getEmail());
+        this.changeEmailIfAvailable(account, request.getEmail());
         account.setLookingfor(request.getLookingfor());
         account.setStatus(request.getStatus());
         account.setPhone(request.getPhone());
@@ -190,12 +206,11 @@ public class UserServiceImpl implements UserService {
         account.setAvatar(request.getAvatar());
         account.setCoverImage(request.getCoverImage());
         account.setDescription(request.getDescription());
-        account.setEmail(request.getEmail());
+        this.changeEmailIfAvailable(account, request.getEmail());
         account.setWebsite(request.getWebsite());
         account.setTaxCode(request.getTaxCode());
         account.setIndustry(request.getIndustry());
         account.setFoundedYear(request.getFoundedYear());
-        account.setVerified(request.getVerified());
         
         if (request.getLocation() != null && !request.getLocation().trim().isEmpty()) {
             account.setLocation(locationService.getLocation(request.getLocation()));
@@ -209,6 +224,16 @@ public class UserServiceImpl implements UserService {
         account.setHasOvertime(request.getHasOvertime());
         
         return accountRepository.save(account);
+    }
+
+    private void changeEmailIfAvailable(final Account account, final String newEmail) {
+        if (account.getEmail().equalsIgnoreCase(newEmail)) {
+            return;
+        }
+        if (this.accountRepository.existsByEmailIgnoreCase(newEmail)) {
+            throw new BusinessException("Email đã được sử dụng!");
+        }
+        account.setEmail(newEmail);
     }
 
     @Override

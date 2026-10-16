@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.dto.response.JobRecommendationItemDto;
 import com.example.demo.dto.response.JobRecommendationResponse;
@@ -34,6 +35,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     private final RecommendationHydrator hydrator;
 
     @Override
+    @Transactional(readOnly = true)
     public List<JobRecommendationResponse> getRecommendations(Account user) {
         if (user == null || user.getId() == null) {
             return new ArrayList<>();

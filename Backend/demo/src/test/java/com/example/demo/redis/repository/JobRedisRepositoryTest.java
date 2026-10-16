@@ -102,7 +102,7 @@ class JobRedisRepositoryTest {
 
     @Test
     void loadFromDb_delegatesToJobRepository_andMapsFieldsToJobRedis() {
-        when(jobRepository.findById(99L)).thenReturn(Optional.of(sampleJob()));
+        when(jobRepository.findDetailedById(99L)).thenReturn(Optional.of(sampleJob()));
 
         Optional<JobRedis> result = repository.loadFromDb(99L);
 
@@ -117,7 +117,7 @@ class JobRedisRepositoryTest {
 
     @Test
     void loadFromDb_returnsEmpty_whenJobNotFoundInDb() {
-        when(jobRepository.findById(404L)).thenReturn(Optional.empty());
+        when(jobRepository.findDetailedById(404L)).thenReturn(Optional.empty());
 
         assertThat(repository.loadFromDb(404L)).isEmpty();
     }
@@ -145,7 +145,7 @@ class JobRedisRepositoryTest {
     @Test
     void findById_cacheMiss_fallsBackToJobRepository_andCachesResult_withoutTouchingDbSync() {
         when(valueOperations.get("job:99")).thenReturn(null);
-        when(jobRepository.findById(99L)).thenReturn(Optional.of(sampleJob()));
+        when(jobRepository.findDetailedById(99L)).thenReturn(Optional.of(sampleJob()));
 
         Optional<JobRedis> result = repository.findById(99L);
 

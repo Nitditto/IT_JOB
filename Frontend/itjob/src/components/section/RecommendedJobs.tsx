@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { useAuth } from '@/context/AuthContext';
-import { getJobRecommendations } from '@/utils/gemini';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
 import { Sparkles, DollarSign, MapPin, ArrowRight } from 'lucide-react';
@@ -15,55 +14,40 @@ interface JobItem {
     maxSalary: number;
     companyName: string;
     companyAvatar: string;
+    salaryCurrency: string | null;
     location: { name: string };
+}
+
+interface Recommendation {
+    job: JobItem;
+    matchPercentage: number;
 }
 
 export const RecommendedJobs = () => {
     const { user } = useAuth();
-    const [recommendations, setRecommendations] = useState<Array<{ job: JobItem; reason: string }>>([]);
+    const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Admin also wants to see recommendation (maybe for testing)
-        // Let's keep it restricted to ROLE_USER as per original intent if the user is testing as USER
-        // But the user might be an admin who wants to see EVERYTHING on the home page.
-        // I will allow ROLE_ADMIN to see it too.
-        if (!user || (user.role !== 'ROLE_USER' && user.role !== 'ROLE_ADMIN')) { 
-            setLoading(false); 
-            return; 
+        if (!user || user.role !== 'ROLE_USER') {
+            setLoading(false);
+            return;
         }
 
         const load = async () => {
             try {
-                const jobsRes = await api.get(`/jobs`);
-                const allJobs: JobItem[] = Array.isArray(jobsRes.data.data) 
-                    ? jobsRes.data.data 
-                    : (Array.isArray(jobsRes.data) ? jobsRes.data : []);
-
-                const recs = await getJobRecommendations(
-                    user.lookingfor || 'Tìm việc IT mới nhất',
-                    (user.location as any)?.name || String(user.location || ''),
-                    allJobs.slice(0, 30).map(j => ({ id: j.id, name: j.name, tags: j.tags, position: j.position, minSalary: j.minSalary, maxSalary: j.maxSalary, company: j.companyName }))
-                );
-
-                const results = recs.map(r => {
-                    const job = allJobs.find(j => j.id === r.jobId);
-                    return job ? { job, reason: r.reason } : null;
-                }).filter(Boolean) as Array<{ job: JobItem; reason: string }>;
-
-                setRecommendations(results);
-            } catch (err) { 
+                const res = await api.get<Recommendation[]>('/jobs/recommendations');
+                setRecommendations(Array.isArray(res.data) ? res.data : []);
+            } catch (err) {
                 console.error("RecommendedJobs Error:", err);
-                setRecommendations([]); 
+                setRecommendations([]);
             }
             finally { setLoading(false); }
         };
         load();
     }, [user]);
 
-    if (!user || (user.role !== 'ROLE_USER' && user.role !== 'ROLE_ADMIN')) return null;
-    // Don't hide completely if empty, show something so we know it's there
-    // if (!loading && recommendations.length === 0) return null;
+    if (!user || user.role !== 'ROLE_USER') return null;
 
     return (
         <div className="py-16 bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/10 dark:to-slate-950">
@@ -72,7 +56,7 @@ export const RecommendedJobs = () => {
                     <div>
                         <div className="inline-flex items-center gap-2 bg-indigo-100 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full text-xs font-semibold mb-2">
                             <Sparkles size={12} />
-                            Được gợi ý bởi AI
+                            Gợi ý theo hồ sơ của bạn
                         </div>
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                             Việc làm phù hợp cho bạn
@@ -104,7 +88,7 @@ export const RecommendedJobs = () => {
                         }}
                         className="grid md:grid-cols-2 gap-4"
                     >
-                        {recommendations.map(({ job, reason }, idx) => (
+                        {recommendations.map(({ job, matchPercentage }, idx) => (
                             <motion.div
                                 key={job.id}
                                 initial={{ opacity: 0, y: 16 }}
@@ -126,7 +110,7 @@ export const RecommendedJobs = () => {
                                             <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">{job.companyName}</div>
                                             <div className="flex items-center gap-3 text-xs text-slate-500">
                                                 <span className="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400">
-                                                    <DollarSign size={10} /> {job.minSalary.toLocaleString()} - {job.maxSalary.toLocaleString()}$
+                                                    <DollarSign size={10} /> {(job.minSalary ?? 0).toLocaleString()} - {(job.maxSalary ?? 0).toLocaleString()} {job.salaryCurrency ?? ''}
                                                 </span>
                                                 <span className="inline-flex items-center gap-1">
                                                     <MapPin size={10} /> {job.location.name}
@@ -136,9 +120,8 @@ export const RecommendedJobs = () => {
                                         <ArrowRight size={14} className="text-slate-300 group-hover:text-indigo-500 transition-colors mt-1" />
                                     </div>
 
-                                    {/* AI Reason */}
                                     <div className="mt-3 text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/20 px-3 py-1.5 rounded-lg">
-                                        💡 {reason}
+                                        💡 Phù hợp {Math.round(matchPercentage)}% với hồ sơ của bạn
                                     </div>
                                 </Link>
                             </motion.div>
@@ -146,7 +129,7 @@ export const RecommendedJobs = () => {
                     </motion.div>
                 ) : (
                     <div className="text-center py-8 text-slate-500 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 font-medium">
-                        Dựa trên hồ sơ của bạn, hiện chưa tìm thấy gợi ý phù hợp nhất. <br/> Hãy cập nhật thêm thông tin để AI hỗ trợ tốt hơn!
+                        Dựa trên hồ sơ của bạn, hiện chưa tìm thấy gợi ý phù hợp nhất. <br/> Hãy cập nhật thêm thông tin hồ sơ để gợi ý chính xác hơn!
                     </div>
                 )}
             </div>

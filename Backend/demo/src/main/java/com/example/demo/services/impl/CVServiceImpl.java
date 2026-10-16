@@ -1,11 +1,14 @@
 package com.example.demo.services.impl;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +18,7 @@ import com.example.demo.dto.request.CVEditRequest;
 import com.example.demo.dto.request.UpdateCvStatusCommand;
 import com.example.demo.enums.CVStatus;
 import com.example.demo.enums.CvActor;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -23,6 +27,7 @@ import com.example.demo.model.CV;
 import com.example.demo.model.CVId;
 import com.example.demo.model.Job;
 import com.example.demo.repository.CVRepository;
+import com.example.demo.repository.JobRepository;
 import com.example.demo.services.CVService;
 import com.example.demo.services.CvStatusTransitions;
 import com.example.demo.services.JobService;
@@ -39,14 +44,16 @@ public class CVServiceImpl implements CVService {
     private final CVRepository cvRepository;
     private final UserService userService;
     private final JobService jobService;
+    private final JobRepository jobRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CV addCV(CVCreationRequest request, Long accountID, Long jobID) {
         log.info("Account {} is applying for Job {}", accountID, jobID);
         CVId id = new CVId(accountID, jobID);
-        
-        if (cvRepository.existsById(id)) {
+
+        final Optional<CV> existing = cvRepository.findById(id);
+        if (existing.isPresent() && existing.get().getStatus() != CVStatus.WITHDRAWN) {
             log.warn("Apply failed: Account {} already applied for Job {}", accountID, jobID);
             throw new BusinessException("Bạn đã ứng tuyển công việc này rồi!");
         }
@@ -57,11 +64,30 @@ public class CVServiceImpl implements CVService {
                     log.warn("Apply failed: Job {} not found", jobID);
                     return new ResourceNotFoundException("Công việc không tồn tại!");
                 });
+        this.assertAcceptingApplications(job);
 
-        CV cv = new CV();
-        cv.setId(id);
-        cv.setAccount(account);
-        cv.setJob(job);
+        final CV cv = existing.orElseGet(CV::new);
+        if (existing.isEmpty()) {
+            cv.setId(id);
+            cv.setAccount(account);
+            cv.setJob(job);
+        }
+        this.fillApplication(cv, request);
+        cv.setStatus(CVStatus.PENDING);
+
+        CV savedCv;
+        try {
+            savedCv = cvRepository.saveAndFlush(cv);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessException("Bạn đã ứng tuyển công việc này rồi!");
+        }
+        jobRepository.incrementAppliedCount(jobID);
+        jobService.evictCachedJob(jobID);
+        log.info("CV applied successfully for Account {} on Job {}", accountID, jobID);
+        return savedCv;
+    }
+
+    private void fillApplication(final CV cv, final CVCreationRequest request) {
         cv.setName(request.getName());
         cv.setPhone(request.getPhone());
         cv.setEmail(request.getEmail());
@@ -71,14 +97,6 @@ public class CVServiceImpl implements CVService {
         cv.setPortfolioUrl(request.getPortfolioUrl());
         cv.setExpectedSalary(request.getExpectedSalary());
         cv.setAvailableFrom(request.getAvailableFrom());
-        cv.setStatus(CVStatus.PENDING);
-
-        int currentCount = job.getAppliedCount() != null ? job.getAppliedCount() : 0;
-        job.setAppliedCount(currentCount + 1);
-
-        CV savedCv = cvRepository.save(cv);
-        log.info("CV applied successfully for Account {} on Job {}", accountID, jobID);
-        return savedCv;
     }
 
     @Override
@@ -88,6 +106,9 @@ public class CVServiceImpl implements CVService {
         CVId id = new CVId(accountID, jobID);
         CV cv = cvRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy CV để sửa!"));
+        if (cv.getStatus() != CVStatus.PENDING) {
+            throw new BusinessException("Chỉ có thể sửa CV khi đang ở trạng thái chờ duyệt!");
+        }
 
         cv.setName(request.getName());
         cv.setPhone(request.getPhone());
@@ -104,13 +125,30 @@ public class CVServiceImpl implements CVService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteCV(Long jobID, Long accountID) {
-        log.info("Deleting CV for Account {} on Job {}", accountID, jobID);
+        log.info("Withdrawing CV for Account {} on Job {}", accountID, jobID);
         CVId id = new CVId(accountID, jobID);
         CV cv = cvRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy CV để xóa!"));
 
-        cvRepository.delete(cv);
-        log.info("CV deleted successfully for Account {} on Job {}", accountID, jobID);
+        if (cv.getStatus() == CVStatus.WITHDRAWN) {
+            return;
+        }
+        if (cv.getStatus() == CVStatus.PENDING) {
+            cvRepository.delete(cv);
+        } else {
+            this.markWithdrawn(cv);
+        }
+        jobRepository.decrementAppliedCount(jobID);
+        jobService.evictCachedJob(jobID);
+        log.info("CV withdrawn successfully for Account {} on Job {}", accountID, jobID);
+    }
+
+    private void markWithdrawn(final CV cv) {
+        if (!CvStatusTransitions.isAllowed(CvActor.CANDIDATE, cv.getStatus(), CVStatus.WITHDRAWN)) {
+            throw new BusinessException("Không thể rút CV ở trạng thái " + cv.getStatus() + "!");
+        }
+        cv.setStatus(CVStatus.WITHDRAWN);
+        cvRepository.save(cv);
     }
 
     @Override
@@ -159,6 +197,15 @@ public class CVServiceImpl implements CVService {
         return cvRepository.save(cv);
     }
 
+    private void assertAcceptingApplications(final Job job) {
+        if (job.getStatus() != JobStatus.published) {
+            throw new BusinessException("Công việc này hiện không nhận hồ sơ!");
+        }
+        if (job.getDeadline() != null && job.getDeadline().isBefore(Instant.now())) {
+            throw new BusinessException("Công việc này đã hết hạn nộp hồ sơ!");
+        }
+    }
+
     private Job getOwnedJob(final Long jobId, final Long companyId) {
         final Job job = jobService.getJobByID(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job không tồn tại"));
@@ -186,7 +233,12 @@ public class CVServiceImpl implements CVService {
 
         List<CVResponse> responses = new ArrayList<>();
         for (CV cv : cvs) {
-            responses.add(buildResponse(cv, companyById.get(cv.getJob().getCompanyID())));
+            final Account company = companyById.get(cv.getJob().getCompanyID());
+            if (company == null) {
+                log.warn("Skipping CV for Job {}: company {} no longer exists", cv.getJob().getId(), cv.getJob().getCompanyID());
+                continue;
+            }
+            responses.add(buildResponse(cv, company));
         }
         return responses;
     }

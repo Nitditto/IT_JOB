@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IoMdSearch } from 'react-icons/io'
 import type { Location, Tag } from '../../types'
 import { Funnel, Plus, Check, MapPin, Sparkles } from 'lucide-react'
@@ -17,7 +17,7 @@ import { Checkbox } from '../ui/checkbox'
 import { ScrollArea } from '../ui/scroll-area'
 import type { JobFilterParams } from '../../types'
 import { useNavigate, useSearchParams } from 'react-router';
-import { getSmartSearchSuggestions } from '../../utils/gemini';
+import { getSearchSuggestions } from '../../utils/searchSuggestions';
 
 const FilterDialogContent = ({
   setDialogOpen,
@@ -219,26 +219,12 @@ const SearchBar = ({
     companyID: Number(searchParams.get('companyID')) || 0
   });
 
-  // AI Smart Search
-  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
-  const [aiLoading, setAiLoading] = useState(false);
-  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Gợi ý từ khoá tính cục bộ từ danh sách tag hiện có (không dùng LLM)
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    if (value.length >= 3) {
-      debounceTimer.current = setTimeout(async () => {
-        setAiLoading(true);
-        try {
-          const suggestions = await getSmartSearchSuggestions(value, tags.map(t => t.tag));
-          setAiSuggestions(suggestions);
-        } catch { setAiSuggestions([]); }
-        finally { setAiLoading(false); }
-      }, 800);
-    } else {
-      setAiSuggestions([]);
-    }
+    setSuggestions(getSearchSuggestions(value, tags.map(t => t.tag)));
   };
 
   useEffect(() => {
@@ -339,22 +325,18 @@ const SearchBar = ({
         </button>
       </div>
 
-      {/* AI Smart Search Suggestions */}
-      {(aiSuggestions.length > 0 || aiLoading) && (
+      {/* Gợi ý từ khoá */}
+      {suggestions.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap px-2">
           <div className="flex items-center gap-1 text-xs font-medium text-indigo-300">
-            {aiLoading ? (
-              <div className="w-3 h-3 border-2 border-indigo-300 border-t-white rounded-full animate-spin" />
-            ) : (
-              <Sparkles size={12} />
-            )}
-            AI gợi ý:
+            <Sparkles size={12} />
+            Gợi ý:
           </div>
-          {aiSuggestions.map((s, i) => (
+          {suggestions.map((s, i) => (
             <button
               key={i}
               type="button"
-              onClick={() => { setQuery(s); setAiSuggestions([]); navigateToSearch(); }}
+              onClick={() => { setQuery(s); setSuggestions([]); navigateToSearch(); }}
               className="text-xs px-3 py-1 rounded-full bg-white/10 text-white font-medium hover:bg-white/20 transition-colors cursor-pointer backdrop-blur-sm border border-white/10"
             >
               {s}

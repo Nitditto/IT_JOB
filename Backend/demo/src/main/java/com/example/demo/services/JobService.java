@@ -3,6 +3,8 @@ package com.example.demo.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.request.JobCreationRequest;
@@ -10,6 +12,7 @@ import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.TagResponse;
+import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 
 public interface JobService {
@@ -20,13 +23,17 @@ public interface JobService {
      *  endpoint đọc thuần (GET job detail), KHÔNG dùng khi cần entity JPA-managed để tiếp tục
      *  mutate/save (ví dụ tăng appliedCount) — dùng {@link #getJobByID} cho trường hợp đó. */
     JobResponse getCachedJobResponse(Long jobId);
+    JobResponse getVisibleJobResponse(Long jobId, Account viewer);
     List<JobCardResponse> toCardList(List<Job> jobs);
     long getJobCount();
     List<Job> getJobByCompanyID(Long companyId);
     Optional<Job> getJobByID(Long jobID);
+    void evictCachedJob(Long jobId);
     List<Job> getAllJobs();
     List<TagResponse> getAllTags();
     List<Job> searchJobsByFilters(JobFilterRequest filters);
+    List<JobCardResponse> searchJobCards(JobFilterRequest filters);
+    Page<JobCardResponse> searchJobCardsPage(JobFilterRequest filters);
     List<Job> findAllByIds(List<Long> ids);
     void deleteJob(Long jobId, Long companyId);
 }

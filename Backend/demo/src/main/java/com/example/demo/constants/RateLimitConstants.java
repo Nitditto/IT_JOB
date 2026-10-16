@@ -8,10 +8,24 @@ public final class RateLimitConstants {
     public static final String AUTH_LIMIT_TYPE = "AUTH";
     public static final String UPLOAD_LIMIT_TYPE = "UPLOAD";
     public static final String GENERAL_LIMIT_TYPE = "GENERAL";
+    public static final String AI_LIMIT_TYPE = "AI";
 
     public static final int AUTH_CAPACITY_PER_MINUTE = 5;
     public static final int UPLOAD_CAPACITY_PER_MINUTE = 10;
     public static final int GENERAL_CAPACITY_PER_MINUTE = 100;
+    public static final int AI_CAPACITY_PER_MINUTE = 10;
 
-    public static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    public static final int MAX_TRACKED_CLIENTS = 100_000;
+    public static final long BUCKET_IDLE_NANOS = java.util.concurrent.TimeUnit.MINUTES.toNanos(10);
+
+    public static final String REDIS_KEY_PREFIX = "ratelimit:";
+
+    public static int capacityFor(final String limitType) {
+        return switch (limitType) {
+            case AUTH_LIMIT_TYPE -> AUTH_CAPACITY_PER_MINUTE;
+            case UPLOAD_LIMIT_TYPE -> UPLOAD_CAPACITY_PER_MINUTE;
+            case AI_LIMIT_TYPE -> AI_CAPACITY_PER_MINUTE;
+            default -> GENERAL_CAPACITY_PER_MINUTE;
+        };
+    }
 }

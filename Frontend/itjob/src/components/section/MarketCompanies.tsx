@@ -1,17 +1,35 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router';
 import { motion } from 'framer-motion';
-import { fetchMarketCompanies, type MarketCompany } from '@/utils/gemini';
-import { Users, Zap, ExternalLink, Sparkles, TrendingUp } from 'lucide-react';
+import api from '@/utils/api';
+import { Users, MapPin, ExternalLink, Database, TrendingUp } from 'lucide-react';
+
+interface Company {
+    id: number;
+    name: string;
+    industry: string | null;
+    description: string | null;
+    scale: 'small' | 'medium' | 'large' | null;
+    location: { name: string } | null;
+}
+
+const COMPANY_LIMIT = 8;
+
+const SCALE_LABEL: Record<string, string> = {
+    small: 'Dưới 150 nhân sự',
+    medium: '151 - 300 nhân sự',
+    large: 'Trên 300 nhân sự',
+};
 
 export const MarketCompanies = () => {
-    const [companies, setCompanies] = useState<MarketCompany[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const load = async () => {
             try {
-                const data = await fetchMarketCompanies();
-                setCompanies(data);
+                const res = await api.get<Company[]>('/companies', { params: { limit: COMPANY_LIMIT } });
+                setCompanies(Array.isArray(res.data) ? res.data : []);
             } catch {
                 setCompanies([]);
             } finally {
@@ -47,7 +65,7 @@ export const MarketCompanies = () => {
                         Top công ty IT đang tuyển dụng
                     </h2>
                     <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-                        Dữ liệu tự động cập nhật từ các nền tảng tuyển dụng hàng đầu
+                        Xếp theo số tin tuyển dụng đang có trên IT.JOB
                     </p>
                 </div>
 
@@ -75,15 +93,12 @@ export const MarketCompanies = () => {
                         animate={companies.length > 0 ? "show" : "hidden"}
                         className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4"
                     >
-                        {companies.map((company, index) => (
-                            <motion.div key={index} variants={itemVariants}>
-                                <a
-                                    href={company.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                        {companies.map((company) => (
+                            <motion.div key={company.id} variants={itemVariants}>
+                                <Link
+                                    to={`/company/${company.id}`}
                                     className="group block bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/5 hover:border-indigo-200 dark:hover:border-indigo-800 h-full"
                                 >
-                                    {/* Company Header */}
                                     <div className="flex items-start gap-3 mb-3">
                                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm shadow-md shadow-indigo-500/20">
                                             {company.name.charAt(0)}
@@ -97,41 +112,27 @@ export const MarketCompanies = () => {
                                         <ExternalLink size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-indigo-400 transition-colors flex-shrink-0 mt-1" />
                                     </div>
 
-                                    {/* Description */}
                                     <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-2 leading-relaxed">
                                         {company.description}
                                     </p>
 
-                                    {/* Tech Stack */}
-                                    <div className="flex flex-wrap gap-1 mb-3">
-                                        {company.techStack.slice(0, 3).map((tech, i) => (
-                                            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 dark:text-indigo-400 font-medium">
-                                                {tech}
-                                            </span>
-                                        ))}
-                                        {company.techStack.length > 3 && (
-                                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
-                                                +{company.techStack.length - 3}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Footer */}
                                     <div className="flex items-center justify-between text-[11px] pt-3 border-t border-slate-50 dark:border-slate-800">
                                         <div className="flex items-center gap-1 text-slate-400">
-                                            <Users size={10} /> {company.employees}
+                                            <Users size={10} /> {company.scale ? SCALE_LABEL[company.scale] : 'Chưa cập nhật'}
                                         </div>
-                                        <div className="flex items-center gap-1 text-emerald-500 font-medium">
-                                            <Zap size={10} /> {company.hiringStatus}
-                                        </div>
+                                        {company.location && (
+                                            <div className="flex items-center gap-1 text-slate-400">
+                                                <MapPin size={10} /> {company.location.name}
+                                            </div>
+                                        )}
                                     </div>
-                                </a>
+                                </Link>
                             </motion.div>
                         ))}
                     </motion.div>
                 ) : (
                     <div className="text-center py-12 text-slate-400 italic">
-                        Đang cập nhật dữ liệu thị trường mới nhất...
+                        Chưa có công ty nào để hiển thị.
                     </div>
                 )}
 
@@ -139,8 +140,8 @@ export const MarketCompanies = () => {
                 {!loading && companies.length > 0 && (
                     <div className="mt-6 text-center">
                         <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-                            <Sparkles size={12} className="text-indigo-400" />
-                            Dữ liệu được tổng hợp bởi AI từ các nguồn tuyển dụng IT
+                            <Database size={12} className="text-indigo-400" />
+                            Dữ liệu từ các công ty đang tuyển trên IT.JOB
                         </span>
                     </div>
                 )}

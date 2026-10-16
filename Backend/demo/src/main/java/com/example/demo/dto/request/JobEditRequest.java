@@ -8,6 +8,11 @@ import com.example.demo.enums.JobPosition;
 import com.example.demo.enums.JobStatus;
 import com.example.demo.enums.JobWorkstyle;
 
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +20,19 @@ import lombok.Setter;
 @Getter @Setter @AllArgsConstructor
 public class JobEditRequest {
     private Long jobID;
+    @NotBlank(message = "Vui lòng nhập tên công việc!")
     private String name;
     private String category;
     private String industry;
     private String salaryCurrency;
     private Boolean salaryNegotiable;
+    @NotNull(message = "Vui lòng nhập mức lương tối thiểu!")
+    @Min(value = 10, message = "Mức lương tối thiểu lớn hơn 10$!")
+    @Max(value = 1000000, message = "Mức lương tối thiểu bé hơn 1,000,000$!")
     private Long minSalary;
+    @NotNull(message = "Vui lòng nhập mức lương tối đa!")
+    @Min(value = 10, message = "Mức lương tối đa lớn hơn 10$!")
+    @Max(value = 1000000, message = "Mức lương tối đa bé hơn 1,000,000$!")
     private Long maxSalary;
     private Integer minExperienceYears;
     private Integer maxExperienceYears;
@@ -31,6 +43,7 @@ public class JobEditRequest {
     private JobPosition position;
     private JobWorkstyle workstyle;
     private JobEmploymentType employmentType;
+    @NotNull(message = "Vui lòng chọn trạng thái!")
     private JobStatus status;
     private String address;
     private String location;
@@ -41,5 +54,11 @@ public class JobEditRequest {
     private String benefits;
     private String workingTime;
 
+    @AssertTrue(message = "Mức lương tối đa lớn hơn mức lương tối thiểu!")
+    public boolean isPriceRangeValid() {
+        if (minSalary == null || maxSalary == null) {
+            return true;
+        }
+        return maxSalary.compareTo(minSalary) >= 0;
+    }
 }
-

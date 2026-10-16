@@ -15,6 +15,7 @@ import com.example.demo.model.Account;
 import com.example.demo.model.RefreshToken;
 import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.services.RefreshTokenService;
+import com.example.demo.util.TokenHasher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +32,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public Optional<RefreshToken> findByToken(String token) {
-        log.info("Finding refresh token: {}", token);
-        return refreshTokenRepository.findByToken(token);
+        log.debug("Finding refresh token");
+        return refreshTokenRepository.findByTokenHash(TokenHasher.sha256Hex(token));
     }
 
     @Override
@@ -46,9 +47,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         }
         refreshTokenRepository.saveAll(activeTokens);
 
+        final String rawToken = UUID.randomUUID().toString();
         RefreshToken refreshToken = RefreshToken.builder()
                 .account(account)
-                .token(UUID.randomUUID().toString())
+                .token(rawToken)
+                .tokenHash(TokenHasher.sha256Hex(rawToken))
                 .expiryDate(Instant.now().plusMillis(refreshExpiration))
                 .revoked(false)
                 .build();
@@ -61,24 +64,24 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().isBefore(Instant.now())) {
-            log.warn("Refresh token expired: {}", token.getToken());
+            log.warn("Refresh token expired for account {}", token.getAccount().getId());
             refreshTokenRepository.delete(token);
             throw new UnauthorizedException("Refresh token was expired. Please sign in again.");
         }
         if (token.isRevoked()) {
-            log.warn("Attempted to use a revoked refresh token: {}", token.getToken());
+            log.warn("Attempted to use a revoked refresh token of account {}", token.getAccount().getId());
             throw new UnauthorizedException("Refresh token has been revoked.");
         }
         return token;
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = UnauthorizedException.class)
     public RefreshToken rotateRefreshToken(String oldTokenString) {
         log.info("Attempting to rotate refresh token");
-        RefreshToken oldToken = refreshTokenRepository.findByToken(oldTokenString)
+        RefreshToken oldToken = refreshTokenRepository.findByTokenHashForUpdate(TokenHasher.sha256Hex(oldTokenString))
                 .orElseThrow(() -> {
-                    log.warn("Rotate failed: Refresh token not found: {}", oldTokenString);
+                    log.warn("Rotate failed: refresh token not found");
                     return new ResourceNotFoundException("Refresh token not found.");
                 });
 
@@ -97,9 +100,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         oldToken.setRevoked(true);
         refreshTokenRepository.save(oldToken);
 
+        final String rawToken = UUID.randomUUID().toString();
         RefreshToken newToken = RefreshToken.builder()
                 .account(oldToken.getAccount())
-                .token(UUID.randomUUID().toString())
+                .token(rawToken)
+                .tokenHash(TokenHasher.sha256Hex(rawToken))
                 .expiryDate(Instant.now().plusMillis(refreshExpiration))
                 .revoked(false)
                 .build();
@@ -112,11 +117,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void revokeToken(String tokenString) {
-        log.info("Revoking refresh token: {}", tokenString);
-        refreshTokenRepository.findByToken(tokenString).ifPresent(token -> {
+        log.debug("Revoking refresh token");
+        refreshTokenRepository.findByTokenHash(TokenHasher.sha256Hex(tokenString)).ifPresent(token -> {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
-            log.info("Refresh token revoked: {}", tokenString);
+            log.debug("Refresh token revoked");
         });
+    }
+
+    @Override
+    @Transactional
+    public void revokeAllTokens(final Account account) {
+        final List<RefreshToken> activeTokens = this.refreshTokenRepository.findAllByAccountAndRevokedFalse(account);
+        for (final RefreshToken token : activeTokens) {
+            token.setRevoked(true);
+        }
+        this.refreshTokenRepository.saveAll(activeTokens);
     }
 }

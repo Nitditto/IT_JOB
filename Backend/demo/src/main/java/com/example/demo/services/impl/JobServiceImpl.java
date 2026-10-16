@@ -10,8 +10,15 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.example.demo.constants.PaginationConstants;
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.request.JobCreationRequest;
@@ -19,6 +26,8 @@ import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.TagResponse;
+import com.example.demo.enums.JobStatus;
+import com.example.demo.enums.UserRole;
 import com.example.demo.exception.AccessDeniedException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
@@ -28,6 +37,7 @@ import com.example.demo.redis.repository.JobRedisRepository;
 import com.example.demo.repository.CVRepository;
 import com.example.demo.repository.JobRepository;
 import com.example.demo.repository.LocationRepository;
+import com.example.demo.repository.specification.JobSpecification;
 import com.example.demo.services.JobService;
 import com.example.demo.services.UserService;
 
@@ -87,7 +97,7 @@ public class JobServiceImpl implements JobService {
         }
 
         Job savedJob = jobRepository.save(job);
-        jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob));
+        this.runAfterCommit(() -> this.jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob)));
         log.info("Job {} created successfully with ID {}", savedJob.getName(), savedJob.getId());
         return savedJob;
     }
@@ -110,7 +120,7 @@ public class JobServiceImpl implements JobService {
         applyEditFields(job, jobEditRequest);
 
         Job savedJob = jobRepository.save(job);
-        jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob));
+        this.runAfterCommit(() -> this.jobRedisRepository.save(JobRedis.fromJpaEntity(savedJob)));
         return savedJob;
     }
 
@@ -142,6 +152,24 @@ public class JobServiceImpl implements JobService {
 
         job.setTags(jobEditRequest.getTags() != null ? new HashSet<>(jobEditRequest.getTags()) : new HashSet<>());
         job.setImages(jobEditRequest.getImages() != null ? new HashSet<>(jobEditRequest.getImages()) : new HashSet<>());
+    }
+
+    @Override
+    public void evictCachedJob(final Long jobId) {
+        this.runAfterCommit(() -> this.jobRedisRepository.deleteById(jobId));
+    }
+
+    private void runAfterCommit(final Runnable action) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            action.run();
+            return;
+        }
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                action.run();
+            }
+        });
     }
 
     @Override
@@ -187,6 +215,22 @@ public class JobServiceImpl implements JobService {
         JobRedis cached = jobRedisRepository.findById(jobId)
                 .orElseThrow(() -> new ResourceNotFoundException("Job", "id", jobId));
         return toResponse(cached);
+    }
+
+    @Override
+    public JobResponse getVisibleJobResponse(final Long jobId, final Account viewer) {
+        final JobResponse job = this.getCachedJobResponse(jobId);
+        if (job.getStatus() == JobStatus.published || this.canViewUnpublished(job, viewer)) {
+            return job;
+        }
+        throw new ResourceNotFoundException("Job", "id", jobId);
+    }
+
+    private boolean canViewUnpublished(final JobResponse job, final Account viewer) {
+        if (viewer == null) {
+            return false;
+        }
+        return viewer.getRole() == UserRole.ROLE_ADMIN || viewer.getId().equals(job.getCompanyID());
     }
 
     private JobResponse toResponse(JobRedis job) {
@@ -236,7 +280,12 @@ public class JobServiceImpl implements JobService {
 
         List<JobCardResponse> cards = new ArrayList<>();
         for (Job job : jobs) {
-            cards.add(buildCard(job, companyById.get(job.getCompanyID())));
+            final Account company = companyById.get(job.getCompanyID());
+            if (company == null) {
+                log.warn("Skipping Job {}: company {} no longer exists", job.getId(), job.getCompanyID());
+                continue;
+            }
+            cards.add(buildCard(job, company));
         }
         return cards;
     }
@@ -305,12 +354,38 @@ public class JobServiceImpl implements JobService {
         return jobRepository.findAllTags();
     }
 
+    private void applyDefaultStatus(final JobFilterRequest filters) {
+        if (filters != null && filters.getCompanyID() == null
+                && (filters.getStatus() == null || filters.getStatus().isEmpty())) {
+            filters.setStatus(List.of(JobStatus.published.name()));
+        }
+    }
+
     @Override
     public List<Job> searchJobsByFilters(JobFilterRequest filters) {
         log.info("Searching jobs with filters: {}", filters);
+        this.applyDefaultStatus(filters);
         return jobRepository.findAll(
                 com.example.demo.repository.specification.JobSpecification.withFilters(filters),
                 buildSort(filters));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<JobCardResponse> searchJobCards(final JobFilterRequest filters) {
+        return this.toCardList(this.searchJobsByFilters(filters));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<JobCardResponse> searchJobCardsPage(final JobFilterRequest filters) {
+        this.applyDefaultStatus(filters);
+        final Pageable pageable = PageRequest.of(
+                Math.max(filters.getPage(), 0),
+                Math.min(Math.max(filters.getSize() == null ? PaginationConstants.DEFAULT_PAGE_SIZE : filters.getSize(), 1), PaginationConstants.MAX_PAGE_SIZE),
+                this.buildSort(filters));
+        final Page<Job> jobs = this.jobRepository.findAll(JobSpecification.withFilters(filters), pageable);
+        return new PageImpl<>(this.toCardList(jobs.getContent()), pageable, jobs.getTotalElements());
     }
 
     private Sort buildSort(JobFilterRequest filters) {
@@ -362,7 +437,7 @@ public class JobServiceImpl implements JobService {
 
         cvRepository.deleteAllByJobId(jobId);
         jobRepository.delete(job);
-        jobRedisRepository.deleteById(jobId);
+        this.runAfterCommit(() -> this.jobRedisRepository.deleteById(jobId));
         log.info("Job {} deleted successfully", jobId);
     }
 }

@@ -31,6 +31,7 @@ import com.example.demo.model.Account;
 import com.example.demo.services.JobService;
 import com.example.demo.services.JobViewService;
 import com.example.demo.services.RecommendationService;
+import com.example.demo.services.SalaryStatsService;
 import com.example.demo.services.UserService;
 
 @WebMvcTest(controllers = JobController.class, excludeFilters = @Filter(type = FilterType.ASSIGNABLE_TYPE,
@@ -38,7 +39,7 @@ import com.example.demo.services.UserService;
 @Import(ControllerSecurityTestConfig.class)
 class JobControllerEditSecurityTest {
 
-    private static final String EDIT_BODY = "{\"name\":\"Backend Dev\"}";
+    private static final String EDIT_BODY = "{\"name\":\"Backend Dev\",\"minSalary\":1000,\"maxSalary\":2000,\"status\":\"published\"}";
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,6 +52,9 @@ class JobControllerEditSecurityTest {
 
     @MockitoBean
     private RecommendationService recommendationService;
+
+    @MockitoBean
+    private SalaryStatsService salaryStatsService;
 
     @MockitoBean
     private JobViewService jobViewService;

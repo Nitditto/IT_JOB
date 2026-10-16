@@ -31,6 +31,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.demo.constants.PaginationConstants;
 import com.example.demo.config.filter.JwtAuthenticationFilter;
 import com.example.demo.repository.AccountRepository;
 
@@ -62,6 +63,7 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of(PaginationConstants.TOTAL_COUNT_HEADER, PaginationConstants.TOTAL_PAGES_HEADER));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -91,6 +93,7 @@ public class SecurityConfig {
                     "/", 
                     "/csrf", 
                     "/auth/register", 
+                    "/auth/register/company",
                     "/auth/login", 
                     "/auth/refresh",
                     "/auth/logout"
@@ -98,9 +101,9 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/count").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/tags").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/stats/salary").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/jobs/*").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/locations").permitAll()
-                .requestMatchers(org.springframework.http.HttpMethod.GET, "/users/*").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/companies/*").permitAll()
                 // Yêu cầu auth cho các endpoint còn lại

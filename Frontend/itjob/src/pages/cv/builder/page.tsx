@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa'
 import { Link, useSearchParams } from 'react-router'
 import { suggestCVField } from '@/utils/gemini'
+import { describeAiError } from '@/utils/aiError'
 import { toPng } from 'html-to-image'
 import jsPDF from 'jspdf'
 import CVPreview from '@/components/cv/CVPreview'
@@ -205,9 +206,7 @@ export default function CVBuilderPage() {
             console.error('Lỗi AI Suggest:', error)
             setAiSuggestions((prev) => ({
                 ...prev,
-                [key]:
-                    'Lỗi kết nối bộ AI: ' +
-                    (error.message || 'Vui lòng xem lại API Key.'),
+                [key]: describeAiError(error),
             }))
         } finally {
             setLoadingField(null)

@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.constants.PaginationConstants;
+import org.springframework.data.domain.Page;
 import com.example.demo.dto.request.JobCreationRequest;
 import com.example.demo.dto.request.JobEditRequest;
 import com.example.demo.dto.request.JobFilterRequest;
@@ -26,12 +29,15 @@ import com.example.demo.dto.response.JobCardResponse;
 import com.example.demo.dto.response.JobRecommendationResponse;
 import com.example.demo.dto.response.JobResponse;
 import com.example.demo.dto.response.JobStatsResponse;
+import com.example.demo.dto.response.SalaryStatResponse;
 import com.example.demo.dto.response.TagResponse;
+import com.example.demo.enums.JobStatus;
 import com.example.demo.model.Account;
 import com.example.demo.model.Job;
 import com.example.demo.services.JobService;
 import com.example.demo.services.JobViewService;
 import com.example.demo.services.RecommendationService;
+import com.example.demo.services.SalaryStatsService;
 import com.example.demo.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JobController {
 
     private final JobService jobService;
+    private final SalaryStatsService salaryStatsService;
     private final UserService userService;
     private final RecommendationService recommendationService;
     private final JobViewService jobViewService;
@@ -68,6 +75,13 @@ public class JobController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(jobService.toResponse(createdJob)));
     }
 
+    @GetMapping("/stats/salary")
+    public ResponseEntity<ApiResponse<List<SalaryStatResponse>>> getSalaryStats(
+            @RequestParam(defaultValue = "8") final int limit) {
+        log.info("REST request to get salary stats by tag (limit {})", limit);
+        return ResponseEntity.ok(ApiResponse.success(salaryStatsService.getTopSalaryStatsByTag(limit)));
+    }
+
     @GetMapping("/count")
     public ResponseEntity<ApiResponse<Long>> count() {
         log.info("REST request to get total job count");
@@ -83,9 +97,14 @@ public class JobController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<JobCardResponse>>> search(@ModelAttribute JobFilterRequest filters) {
         log.info("REST request to search jobs with filters: {}", filters);
-        List<Job> filteredJobs = jobService.searchJobsByFilters(filters);
-        List<JobCardResponse> cards = jobService.toCardList(filteredJobs);
-        return ResponseEntity.ok(ApiResponse.success(cards));
+        if (filters.getPage() == null) {
+            return ResponseEntity.ok(ApiResponse.success(jobService.searchJobCards(filters)));
+        }
+        final Page<JobCardResponse> page = jobService.searchJobCardsPage(filters);
+        return ResponseEntity.ok()
+                .header(PaginationConstants.TOTAL_COUNT_HEADER, String.valueOf(page.getTotalElements()))
+                .header(PaginationConstants.TOTAL_PAGES_HEADER, String.valueOf(page.getTotalPages()))
+                .body(ApiResponse.success(page.getContent()));
     }
 
     @GetMapping("/{id}")
@@ -94,8 +113,15 @@ public class JobController {
             @AuthenticationPrincipal Account account,
             HttpServletRequest request) {
         log.info("REST request to get job detail: {}", id);
-        jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
-        return ResponseEntity.ok(ApiResponse.success(jobService.getCachedJobResponse(id)));
+        final JobResponse job = jobService.getVisibleJobResponse(id, account);
+        if (job.getStatus() == JobStatus.published) {
+            try {
+                jobViewService.recordView(id, account, getClientIp(request), request.getHeader("User-Agent"));
+            } catch (RuntimeException ex) {
+                log.warn("Failed to record view for job {}: {}", id, ex.getMessage());
+            }
+        }
+        return ResponseEntity.ok(ApiResponse.success(job));
     }
 
     @GetMapping("/{id}/stats")
@@ -127,10 +153,6 @@ public class JobController {
     }
 
     private String getClientIp(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",")[0].trim();
-        }
         return request.getRemoteAddr();
     }
 }

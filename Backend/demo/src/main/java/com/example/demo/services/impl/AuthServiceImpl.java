@@ -15,7 +15,11 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Account;
 import com.example.demo.model.RefreshToken;
 import com.example.demo.repository.AccountRepository;
+import com.example.demo.enums.UserRole;
+import com.example.demo.model.Job;
 import com.example.demo.services.AuthService;
+import com.example.demo.services.JobService;
+import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.services.JwtService;
 import com.example.demo.services.RefreshTokenService;
 
@@ -32,17 +36,12 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final JobService jobService;
 
     @Override
     public LoginResponse login(LoginRequest request) {
         log.info("Attempting login for user: {}", request.getEmail());
         
-        Account user = accountRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    log.warn("Login failed: User not found with email: {}", request.getEmail());
-                    return new ResourceNotFoundException("Tài khoản không tồn tại!");
-                });
-
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
@@ -51,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Account user = (Account) userDetails;
         String token = jwtService.generateToken(userDetails);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
@@ -59,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void changePassword(Account user, ChangePasswordRequest request) {
         log.info("Attempting password change for user: {}", user.getEmail());
 
@@ -74,10 +75,12 @@ public class AuthServiceImpl implements AuthService {
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         accountRepository.save(user);
+        refreshTokenService.revokeAllTokens(user);
         log.info("Password changed successfully for user: {}", user.getEmail());
     }
 
     @Override
+    @Transactional
     public void deleteAccount(Account user, String password) {
         log.info("Attempting account deletion for user: {}", user.getEmail());
 
@@ -86,6 +89,11 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Mật khẩu không chính xác!");
         }
 
+        if (user.getRole() == UserRole.ROLE_COMPANY) {
+            for (final Job job : this.jobService.getJobByCompanyID(user.getId())) {
+                this.jobService.deleteJob(job.getId(), user.getId());
+            }
+        }
         accountRepository.delete(user);
         log.info("Account deleted successfully for user: {}", user.getEmail());
     }

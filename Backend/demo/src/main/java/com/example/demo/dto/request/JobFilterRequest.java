@@ -29,5 +29,7 @@ public class JobFilterRequest {
     private String sortBy;
     private String sortDirection;
     private Long companyID;
+    private Integer page;
+    private Integer size;
 }
 
