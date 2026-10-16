@@ -23,7 +23,7 @@ export function InlineNotice({ toast }: { toast: ToastMessage | null }) {
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="rounded-2xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
+    <div className="rounded-xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
       <div className="font-semibold">Không tải được dữ liệu</div>
       <div className="mt-1">{message}</div>
       {onRetry && (
@@ -47,8 +47,8 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-10 text-center">
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">{icon}</div>
+    <div className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center">
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 text-slate-400">{icon}</div>
       <h3 className="text-base font-bold text-slate-900">{title}</h3>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{description}</p>
       {action && <div className="mt-5">{action}</div>}
@@ -60,7 +60,7 @@ export function ListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: rows }).map((_, index) => (
-        <div key={index} className="rounded-2xl border border-slate-200 bg-white p-5">
+        <div key={index} className="rounded-xl border border-slate-200 bg-white p-5">
           <div className="flex gap-4">
             <div className="h-14 w-14 animate-pulse rounded-xl bg-slate-100" />
             <div className="flex-1 space-y-3">

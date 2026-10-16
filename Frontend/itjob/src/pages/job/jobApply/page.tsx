@@ -157,7 +157,7 @@ const JobApplication = () => {
     </div>
   );
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 bg-linear-to-bl from-gray-400 via-purple-300 to-blue-500" 
+    <div className="min-h-screen bg-slate-50 py-12 px-4" 
          
     >
       <div className="max-w-3xl mx-auto">

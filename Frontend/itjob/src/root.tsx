@@ -53,7 +53,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                                 exit={{ opacity: 0, y: 20 }}
                                 transition={{ duration: 0.2 }}
                                 onClick={scrollToTop}
-                                className="fixed bottom-28 right-8 z-50 p-3 rounded-full bg-primary text-primary-foreground shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                                className="fixed bottom-28 right-8 z-50 p-3 rounded-full bg-primary text-primary-foreground shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                                 aria-label="Back to top"
                             >
                                 <ArrowUp size={24} />
