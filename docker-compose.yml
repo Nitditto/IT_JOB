@@ -34,6 +34,9 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       SPRING_DATA_REDIS_HOST: ${REDIS_HOST:-redis}
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      JAVA_TOOL_OPTIONS: -Xms256m -Xmx768m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Dspring.devtools.restart.enabled=${DEVTOOLS_RESTART:-false}
       ADMIN_INITIAL_PASSWORD: ${ADMIN_INITIAL_PASSWORD:-}
     depends_on:
       database:
@@ -49,6 +52,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-itjob}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ItJob_SecurePass!}
     volumes:
+    command: postgres -c shared_buffers=256MB -c max_connections=50 -c fsync=off -c synchronous_commit=off -c full_page_writes=off
       - db_data:/var/lib/postgresql/data
     ports:
       - "${POSTGRES_PORT:-5432}:5432"

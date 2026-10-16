@@ -2,6 +2,7 @@ package com.example.demo.config.filter;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -24,11 +25,19 @@ public class RateLimitingFilter implements Filter {
 
     private final RateLimiter rateLimiter;
 
+    @Value("${app.rate-limit.enabled:true}")
+    private boolean enabled;
+
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        if (!this.enabled) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         final String limitType = this.getLimitType(httpRequest.getRequestURI());
         if (this.rateLimiter.tryAcquire(this.getClientIP(httpRequest), limitType)) {
