@@ -44,8 +44,6 @@ export interface JobFilterParams {
   salaryNegotiable?: boolean;
   urgent?: boolean;
   featured?: boolean;
-  urgent?: boolean;
-  featured?: boolean;
   deadlineFrom?: string;
   deadlineTo?: string;
   sortBy?: "newest" | "salary" | "deadline" | "applied" | "featured";
