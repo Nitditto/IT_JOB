@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/StatusBadge";
 //Frontend\itjob\src\pages\company\cv\detail\page.tsx
 import {Link, useNavigate, useParams} from "react-router";
 import { useEffect, useState } from "react";
@@ -73,13 +74,7 @@ export default function CompanyManageCVDetailPage(){
  
   if (!cvData) return <div className="p-20 text-center">Đang tải dữ liệu...</div>;
 
-  const renderStatusLabel = () => {
-    switch(cvData.status) {
-        case "APPROVED": return <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold text-sm border border-green-200">Đã Nhận</span>;
-        case "REJECTED": return <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold text-sm border border-red-200">Đã Từ Chối</span>;
-        default: return <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 font-bold text-sm border border-gray-200">Chưa Duyệt</span>;
-    }
-  };
+  const renderStatusLabel = () => <StatusBadge status={cvData.status} />;
 
   return (
     <div className="py-[40px] bg-gray-50 min-h-screen">
