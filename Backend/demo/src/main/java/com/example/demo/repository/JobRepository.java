@@ -3,6 +3,7 @@ package com.example.demo.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,6 +28,14 @@ public interface JobRepository extends JpaRepository<Job, Long>, JpaSpecificatio
     @Override
     @EntityGraph(attributePaths = {"location"})
     List<Job> findAll();
+
+    @Override
+    @EntityGraph(attributePaths = {"location"})
+    Page<Job> findAll(Pageable pageable);
+
+    @Override
+    @EntityGraph(attributePaths = {"location"})
+    List<Job> findAllById(Iterable<Long> ids);
 
     @Override
     @EntityGraph(attributePaths = {"location"})
