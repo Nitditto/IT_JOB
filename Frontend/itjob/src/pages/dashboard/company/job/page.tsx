@@ -106,7 +106,7 @@ export default function CompanyJobList() {
               filteredJobs.slice((page-1)*6, page*6).map((value: any, index: number) => (
                 <div
                   key={index}
-                  className="bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden hover:shadow-md hover:border-indigo-200 transition-all group"
+                  className="bg-white border border-slate-200 rounded-xl flex flex-col overflow-hidden hover:border-indigo-200 transition-all group"
                 >
                   <div className="p-5 flex-1">
                     <div className="flex justify-between items-start mb-3">

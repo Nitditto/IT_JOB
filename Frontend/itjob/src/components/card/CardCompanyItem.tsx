@@ -28,13 +28,13 @@ export const CardCompanyItem=({companyInfo}: {companyInfo: any})=>{
     <>
       <Link
         to={`/company/${companyInfo["id"]}`}
-        className="group rounded-[16px] bg-white dark:bg-slate-900 border border-black/5 dark:border-white/10 relative overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.15)] dark:hover:shadow-[0_20px_40px_-15px_rgba(129,140,248,0.2)]"
+        className="group relative block h-full overflow-hidden rounded-xl border border-slate-200 bg-white transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
       >
-        <div className="absolute top-0 left-0 w-full h-[60px] bg-gradient-to-r from-indigo-50 to-violet-50 dark:from-indigo-950/50 dark:to-violet-950/50 rounded-t-[16px]" />
+        <div className="absolute top-0 left-0 w-full h-[60px] bg-slate-100 dark:bg-slate-800 rounded-t-xl" />
         
         <div className="relative flex flex-col h-full pt-6">
           <div 
-            className="w-[90px] h-[90px] mx-auto rounded-[12px] bg-white border border-slate-100 dark:border-slate-800 shadow-sm transition-transform duration-300 group-hover:scale-105 z-10 p-2"
+            className="w-[90px] h-[90px] mx-auto rounded-lg bg-white border border-slate-200 dark:border-slate-700 z-10 p-2"
           >
             <img 
               src={companyInfo["avatar"]}

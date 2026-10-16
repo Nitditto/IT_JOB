@@ -24,7 +24,7 @@ export default function SavedJobsPage() {
       <InlineNotice toast={toast} />
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
             <Heart size={20} fill="currentColor" />
           </div>
           <div>
@@ -32,7 +32,7 @@ export default function SavedJobsPage() {
             <p className="text-sm text-slate-500">{savedJobs.length} công việc trong danh sách của bạn</p>
           </div>
         </div>
-        <Link to="/search" className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">
+        <Link to="/search" className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">
           <Search size={16} /> Tìm thêm việc
         </Link>
       </div>
@@ -47,7 +47,7 @@ export default function SavedJobsPage() {
           title="Chưa có việc làm nào được lưu"
           description="Khi thấy một tin phù hợp, lưu lại để so sánh lương, deadline và công ty trước khi ứng tuyển."
           action={
-            <Link to="/search" className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">
+            <Link to="/search" className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">
               <Search size={16} /> Khám phá việc làm
             </Link>
           }

@@ -61,7 +61,7 @@ export default function CompanyDetailPage() {
           {/* Card Thông tin chung */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             {/* Header Cover - Có thể thêm ảnh bìa nếu muốn, hiện tại để dải màu */}
-            <div className="h-24 bg-gradient-to-r from-blue-800 to-cyan-500"></div>
+            <div className="h-24 bg-slate-900"></div>
             
             <div className="px-8 pb-8">
               <div className="flex flex-col md:flex-row gap-6 items-start -mt-12">

@@ -53,7 +53,7 @@ export const SalaryInsights = () => {
                 {loading ? (
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {Array(8).fill(0).map((_, i) => (
-                            <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-5 animate-pulse">
+                            <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-xl p-5 animate-pulse">
                                 <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded mb-3" />
                                 <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded mb-2" />
                                 <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded" />
@@ -76,7 +76,7 @@ export const SalaryInsights = () => {
                                 initial={{ opacity: 0, y: 16 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.05 }}
-                                className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800 hover:shadow-md hover:shadow-indigo-500/5 transition-all group"
+                                className="bg-slate-50 dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 transition-all group"
                             >
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="font-bold text-sm text-slate-900 dark:text-white">{item.tag}</h3>
@@ -98,7 +98,7 @@ export const SalaryInsights = () => {
                                 {/* Range bar visual */}
                                 <div className="relative h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                                     <div
-                                        className="absolute h-full bg-gradient-to-r from-indigo-400 to-violet-500 rounded-full transition-all"
+                                        className="absolute h-full bg-indigo-600 rounded-full transition-all"
                                         style={{ left: `${(item.minSalary / scaleMax) * 100}%`, width: `${((item.maxSalary - item.minSalary) / scaleMax) * 100}%` }}
                                     />
                                 </div>

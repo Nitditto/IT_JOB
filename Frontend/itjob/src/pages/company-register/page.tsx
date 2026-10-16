@@ -47,12 +47,12 @@ export default function CompanyRegisterPage() {
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className="w-full max-w-md"
             >
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden">
                     {/* Header */}
                     <div className="px-8 pt-8 pb-6 text-center"
-                        style={{ background: 'linear-gradient(135deg, rgba(67,56,202,0.05) 0%, rgba(109,40,217,0.05) 100%)' }}
+                        style={{ background: '#f1f5f9' }}
                     >
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+                        <div className="w-14 h-14 rounded-xl bg-slate-900 dark:bg-slate-700 flex items-center justify-center mx-auto mb-4">
                             <Building2 size={26} className="text-white" />
                         </div>
                         <h1 className="text-xl font-bold text-slate-900 dark:text-white">Đăng ký Nhà Tuyển Dụng</h1>
@@ -70,7 +70,7 @@ export default function CompanyRegisterPage() {
                                     <Briefcase size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input type="text" name="name" value={data.name} onChange={handleFieldChange(dispatch)}
                                         placeholder="Nhập tên nhà tuyển dụng..."
-                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                        className="w-full h-12 pl-11 pr-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                                 </div>
                                 {error.name && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.name}</div>}
                             </div>
@@ -80,7 +80,7 @@ export default function CompanyRegisterPage() {
                                     <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input type="text" name="email" value={data.email} onChange={handleFieldChange(dispatch)}
                                         placeholder="Email liên hệ tuyển dụng..."
-                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                        className="w-full h-12 pl-11 pr-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                                 </div>
                                 {error.email && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.email}</div>}
                             </div>
@@ -90,13 +90,13 @@ export default function CompanyRegisterPage() {
                                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input type="password" name="password" value={data.password} onChange={handleFieldChange(dispatch)}
                                         placeholder="Tạo mật khẩu an toàn..."
-                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                        className="w-full h-12 pl-11 pr-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
                                 </div>
                                 {error.password && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.password}</div>}
                             </div>
 
                             <button type="submit" disabled={isLoading}
-                                className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold text-sm transition-all shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] flex items-center justify-center gap-2">
+                                className="w-full h-12 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold text-sm transition-all hover:shadow-indigo-500/30 active:scale-[0.98] flex items-center justify-center gap-2">
                                 {isLoading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Hoàn tất đăng ký <ArrowRight size={16} /></>}
                             </button>
 

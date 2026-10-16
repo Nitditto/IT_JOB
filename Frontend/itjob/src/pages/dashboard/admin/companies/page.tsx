@@ -67,7 +67,7 @@ export default function AdminCompanyListPage() {
                     <Title text="Danh sách công ty" />
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse text-left">
                             <thead>

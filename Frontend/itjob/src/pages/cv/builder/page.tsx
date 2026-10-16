@@ -297,7 +297,7 @@ export default function CVBuilderPage() {
             <button
                 onClick={() => handleAISuggest(field, text, fieldKey)}
                 disabled={isLoading}
-                className={`flex items-center gap-1 rounded-md bg-pink-50 px-2 py-1 text-xs font-medium text-pink-600 transition-colors hover:bg-pink-100 ${isLoading ? 'cursor-not-allowed opacity-70' : ''}`}
+                className={`flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 ${isLoading ? 'cursor-not-allowed opacity-70' : ''}`}
             >
                 {isLoading ? (
                     <FaSpinner size={10} className="animate-spin" />

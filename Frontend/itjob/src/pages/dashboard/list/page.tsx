@@ -46,7 +46,7 @@ export default function CompanyListPage() {
                 className="rounded-[8px] border-[1px] border-[#DEDEDE] relative"
                 style={{
                   background:
-                    "linear-gradient(180deg, #F6F6F6 2.38%, #FFFFFF 70.43%)",
+                    "#F8FAFC",
                 }}
               >
                 <img

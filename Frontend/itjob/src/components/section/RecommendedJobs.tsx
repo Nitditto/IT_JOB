@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/utils/api';
 import { motion } from 'framer-motion';
-import { Sparkles, DollarSign, MapPin, ArrowRight } from 'lucide-react';
+import { Sparkles, DollarSign, MapPin, ArrowRight, Building2 } from 'lucide-react';
 
 interface JobItem {
     id: number;
@@ -13,9 +13,9 @@ interface JobItem {
     minSalary: number;
     maxSalary: number;
     companyName: string;
-    companyAvatar: string;
+    companyAvatar: string | null;
     salaryCurrency: string | null;
-    location: { name: string };
+    location: { name: string } | null;
 }
 
 interface Recommendation {
@@ -50,7 +50,7 @@ export const RecommendedJobs = () => {
     if (!user || user.role !== 'ROLE_USER') return null;
 
     return (
-        <div className="py-16 bg-gradient-to-b from-indigo-50/50 to-white dark:from-indigo-950/10 dark:to-slate-950">
+        <div className="py-16 bg-white dark:bg-slate-950">
             <div className="container">
                 <div className="flex items-center justify-between mb-8">
                     <div>
@@ -67,7 +67,7 @@ export const RecommendedJobs = () => {
                 {loading ? (
                     <div className="grid md:grid-cols-2 gap-4">
                         {Array(4).fill(0).map((_, i) => (
-                            <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-5 animate-pulse border border-slate-100 dark:border-slate-800">
+                            <div key={i} className="bg-white dark:bg-slate-900 rounded-xl p-5 animate-pulse border border-slate-100 dark:border-slate-800">
                                 <div className="flex gap-3">
                                     <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700" />
                                     <div className="flex-1">
@@ -97,11 +97,15 @@ export const RecommendedJobs = () => {
                             >
                                 <Link
                                     to={`/job/${job.id}`}
-                                    className="group block bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-800"
+                                    className="group block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 transition-all hover:border-indigo-200 dark:hover:border-indigo-800"
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 p-1.5 shadow-sm flex-shrink-0">
-                                            <img src={job.companyAvatar} alt="" className="w-full h-full object-contain" />
+                                        <div className="w-16 h-16 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 flex-shrink-0">
+                                            {job.companyAvatar ? (
+                                                <img src={job.companyAvatar} alt="" className="w-full h-full object-contain" />
+                                            ) : (
+                                                <Building2 className="h-full w-full p-1.5 text-slate-300" aria-hidden="true" />
+                                            )}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
@@ -113,7 +117,7 @@ export const RecommendedJobs = () => {
                                                     <DollarSign size={10} /> {(job.minSalary ?? 0).toLocaleString()} - {(job.maxSalary ?? 0).toLocaleString()} {job.salaryCurrency ?? ''}
                                                 </span>
                                                 <span className="inline-flex items-center gap-1">
-                                                    <MapPin size={10} /> {job.location.name}
+                                                    <MapPin size={10} /> {job.location?.name || 'Chưa cập nhật'}
                                                 </span>
                                             </div>
                                         </div>
@@ -128,7 +132,7 @@ export const RecommendedJobs = () => {
                         ))}
                     </motion.div>
                 ) : (
-                    <div className="text-center py-8 text-slate-500 bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 font-medium">
+                    <div className="text-center py-8 text-slate-500 bg-white/50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 font-medium">
                         Dựa trên hồ sơ của bạn, hiện chưa tìm thấy gợi ý phù hợp nhất. <br/> Hãy cập nhật thêm thông tin hồ sơ để gợi ý chính xác hơn!
                     </div>
                 )}

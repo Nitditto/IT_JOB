@@ -20,7 +20,7 @@ export function CompactJobCard({
     : `${job.minSalary?.toLocaleString()} - ${job.maxSalary?.toLocaleString()}${currency}`;
 
   return (
-    <div className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-indigo-200 hover:shadow-md">
+    <div className="group rounded-xl border border-slate-200 bg-white p-5 transition hover:border-indigo-200 hover:shadow-md">
       <div className="flex items-start gap-4">
         <Link to={`/job/${job.id}`} className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-white p-1.5">
           <img src={job.companyAvatar || "/assets/images/avatar_default.png"} alt="" className="h-full w-full object-contain" />

@@ -53,7 +53,7 @@ export const MarketCompanies = () => {
     // if (!loading && companies.length === 0) return null;
 
     return (
-        <div className="py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+        <div className="py-20 bg-slate-50 dark:bg-slate-950">
             <div className="container">
                 {/* Header */}
                 <div className="text-center mb-12">
@@ -73,7 +73,7 @@ export const MarketCompanies = () => {
                 {loading ? (
                     <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4">
                         {Array(8).fill(0).map((_, i) => (
-                            <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 animate-pulse">
+                            <div key={i} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 animate-pulse">
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700" />
                                     <div className="flex-1">
@@ -97,10 +97,10 @@ export const MarketCompanies = () => {
                             <motion.div key={company.id} variants={itemVariants}>
                                 <Link
                                     to={`/company/${company.id}`}
-                                    className="group block bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10 dark:hover:shadow-indigo-500/5 hover:border-indigo-200 dark:hover:border-indigo-800 h-full"
+                                    className="group block bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 transition-all duration-300 hover:border-indigo-200 dark:hover:border-indigo-800 h-full"
                                 >
                                     <div className="flex items-start gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm shadow-md shadow-indigo-500/20">
+                                        <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm">
                                             {company.name.charAt(0)}
                                         </div>
                                         <div className="flex-1 min-w-0">

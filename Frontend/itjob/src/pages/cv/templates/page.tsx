@@ -57,7 +57,7 @@ export default function CVTemplatesPage() {
             description: "Phong cách Start-up, Dynamic.",
             tags: ["Start-up", "Marketing"],
             thumbnail: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=500&fit=crop",
-            color: "bg-violet-500",
+            color: "bg-slate-500",
         },
         {
             id: "academic-1",
@@ -84,7 +84,7 @@ export default function CVTemplatesPage() {
             <div className="max-w-6xl mx-auto space-y-8">
 
                 {/* Header Area */}
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
                             <FaRegFileAlt className="text-indigo-600" />
@@ -95,7 +95,7 @@ export default function CVTemplatesPage() {
                         </p>
                     </div>
                     <div className="flex-shrink-0">
-                        <Link to="/cv/upload-review" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 text-slate-700 font-medium rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm">
+                        <Link to="/cv/upload-review" className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm">
                             Đánh giá CV của bạn
                         </Link>
                     </div>
@@ -114,7 +114,7 @@ export default function CVTemplatesPage() {
                     {templates.map((tpl) => {
                         const hasProgress = savedTemplates.includes(tpl.id);
                         return (
-                            <div key={tpl.id} className="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-indigo-300 transition-all duration-300">
+                            <div key={tpl.id} className="group flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden hover:border-indigo-300 transition-all duration-300">
                                 {/* Thumbnail Container */}
                                 <div className="relative aspect-[1/1.4] bg-slate-100 overflow-hidden">
                                     <img
@@ -124,17 +124,17 @@ export default function CVTemplatesPage() {
                                     />
 
                                     {/* Overlay actions */}
-                                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 backdrop-blur-[2px]">
+                                    <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3">
                                         <Link
                                             to={`/cv/builder?template=${tpl.id}`}
-                                            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-indigo-900/30"
+                                            className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
                                         >
                                             {hasProgress ? <FaMagic /> : <FaMagic />}
                                             {hasProgress ? 'Tiếp tục chỉnh sửa' : 'Tạo CV này'}
                                         </Link>
                                         <button 
                                             onClick={() => handlePreview(tpl)}
-                                            className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75"
+                                            className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-lg font-medium flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75"
                                         >
                                             <FaEye /> Xem trước
                                         </button>
@@ -142,7 +142,7 @@ export default function CVTemplatesPage() {
 
                                     {/* Badge recommendations */}
                                     {tpl.recommended && (
-                                        <div className="absolute top-3 left-3 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5">
+                                        <div className="absolute top-3 left-3 px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-lg shadow-lg flex items-center gap-1.5">
                                             <FaMagic size={10} /> Phù hợp với bạn
                                         </div>
                                     )}
@@ -177,7 +177,7 @@ export default function CVTemplatesPage() {
                     })}
 
                     {/* Create Blank Card */}
-                    <div className="flex flex-col bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group cursor-pointer justify-center items-center min-h-[350px]">
+                    <div className="flex flex-col bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-indigo-50/30 transition-all group cursor-pointer justify-center items-center min-h-[350px]">
                         <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="M12 5v14" /></svg>
                         </div>

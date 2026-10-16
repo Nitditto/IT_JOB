@@ -76,12 +76,12 @@ export default function LoginPage() {
                 className="w-full max-w-md"
             >
                 {/* Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200/80 dark:border-slate-800 overflow-hidden">
                     {/* Gradient Header */}
                     <div className="px-8 pt-8 pb-6 text-center"
-                        style={{ background: 'linear-gradient(135deg, rgba(67,56,202,0.05) 0%, rgba(109,40,217,0.05) 100%)' }}
+                        style={{ background: '#f1f5f9' }}
                     >
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+                        <div className="w-14 h-14 rounded-xl bg-slate-900 dark:bg-slate-700 flex items-center justify-center mx-auto mb-4">
                             {isUser ? <User size={26} className="text-white" /> : <Building2 size={26} className="text-white" />}
                         </div>
                         <h1 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -107,7 +107,7 @@ export default function LoginPage() {
                                         value={data.email}
                                         onChange={handleFieldChange(dispatch)}
                                         placeholder="your@email.com"
-                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        className="w-full h-12 pl-11 pr-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                                     />
                                 </div>
                                 {error.email && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.email}</div>}
@@ -124,7 +124,7 @@ export default function LoginPage() {
                                         value={data.password}
                                         onChange={handleFieldChange(dispatch)}
                                         placeholder="••••••••"
-                                        className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        className="w-full h-12 pl-11 pr-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
                                     />
                                 </div>
                                 {error.password && <div className="text-red-500 text-xs mt-1.5 font-medium">{error.password}</div>}
@@ -133,7 +133,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold text-sm transition-all shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 active:scale-[0.98] flex items-center justify-center gap-2"
+                                className="w-full h-12 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-bold text-sm transition-all hover:shadow-indigo-500/30 active:scale-[0.98] flex items-center justify-center gap-2"
                             >
                                 {isLoading ? (
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
