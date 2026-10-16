@@ -33,10 +33,11 @@ class RecommendationRedisRepositoryTest {
     private ValueOperations<String, Object> valueOperations;
 
     private RecommendationRedisRepository repository;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         lenient().doReturn(valueOperations).when(redisTemplate).opsForValue();
         repository = new RecommendationRedisRepository(redisTemplate, objectMapper);
@@ -52,10 +53,10 @@ class RecommendationRedisRepositoryTest {
     }
 
     @Test
-    void getRecommendations_returnsDeserializedCompactItems_whenCacheHit() {
+    void getRecommendations_returnsDeserializedCompactItems_whenCacheHit() throws Exception {
         JobRecommendationItemDto item = new JobRecommendationItemDto(10L, 88.5);
         List<JobRecommendationItemDto> items = List.of(item);
-        when(valueOperations.get("recommendation:user:1")).thenReturn(items);
+        when(valueOperations.get("recommendation:user:1")).thenReturn(objectMapper.writeValueAsString(items));
 
         Optional<List<JobRecommendationItemDto>> result = repository.getRecommendations(1L);
 
@@ -66,14 +67,14 @@ class RecommendationRedisRepositoryTest {
     }
 
     @Test
-    void saveRecommendations_appliesTtlJitter() {
+    void saveRecommendations_appliesTtlJitter() throws Exception {
         JobRecommendationItemDto item = new JobRecommendationItemDto(10L, 92.0);
         List<JobRecommendationItemDto> items = List.of(item);
 
         repository.saveRecommendations(1L, items);
 
         ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(valueOperations).set(eq("recommendation:user:1"), eq(items), ttlCaptor.capture(), eq(TimeUnit.SECONDS));
+        verify(valueOperations).set(eq("recommendation:user:1"), eq(objectMapper.writeValueAsString(items)), ttlCaptor.capture(), eq(TimeUnit.SECONDS));
 
         // TTL should be between BASE_TTL (3600) and BASE_TTL + MAX_JITTER (4200)
         assertThat(ttlCaptor.getValue()).isBetween(3600L, 4200L);
