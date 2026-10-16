@@ -15,3 +15,6 @@
 # Local-only planning docs
 REFACTOR_PLAN.md
 ROADMAP.md
+
+# Local-only dev seed data
+Backend/demo/seed/

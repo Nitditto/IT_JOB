@@ -15,6 +15,7 @@ export interface User {
     description: string | null;
     status: "EMPLOYED" | "FREELANCER" | "INACTIVE" | null;
     lookingfor: string | null;
+    skills: string[];
     address: string | null;
     location: string | null;
 }

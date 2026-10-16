@@ -7,24 +7,28 @@ export interface JobMatchResult {
 
 export interface JobMatchInput {
     profileText: string;
+    profileSkills?: string[];
     jobTags: string[];
 }
 
 const MAX_ADVICE_SKILLS = 3;
 
 const normalize = (text: string): string =>
-    text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-// Khớp nguyên từ để "java" không khớp nhầm "javascript"; ký tự + # . thuộc tên kỹ năng (c++, c#, node.js)
+// Match whole skill tokens so "java" does not accidentally match "javascript".
 const containsSkill = (normalizedProfile: string, skill: string): boolean => {
     const pattern = new RegExp(`(^|[^a-z0-9+#.])${escapeRegExp(normalize(skill).trim())}($|[^a-z0-9+#.])`);
     return pattern.test(normalizedProfile);
 };
 
-const buildAdvice = (missing: string[], hasProfileText: boolean): string[] => {
+const buildAdvice = (missing: string[], hasProfileText: boolean, hasSkills: boolean): string[] => {
     const advice: string[] = [];
+    if (!hasSkills) {
+        advice.push('Hãy cập nhật danh sách kỹ năng trong hồ sơ để điểm phù hợp chính xác hơn.');
+    }
     if (!hasProfileText) {
         advice.push('Hãy cập nhật mục "đang tìm kiếm" và mô tả trong hồ sơ để đánh giá chính xác hơn.');
     }
@@ -37,19 +41,28 @@ const buildAdvice = (missing: string[], hasProfileText: boolean): string[] => {
     return advice;
 };
 
-/** Tính độ phù hợp bằng tỷ lệ kỹ năng (tag) của job xuất hiện trong hồ sơ ứng viên — không dùng LLM. */
-export const computeJobMatch = ({ profileText, jobTags }: JobMatchInput): JobMatchResult => {
+export const computeJobMatch = ({ profileText, profileSkills = [], jobTags }: JobMatchInput): JobMatchResult => {
     const normalizedProfile = normalize(profileText);
+    const normalizedSkillSet = new Set(
+        profileSkills
+            .map(skill => normalize(skill).trim())
+            .filter(Boolean)
+    );
     const matchingSkills: string[] = [];
     const missingSkills: string[] = [];
+
     for (const tag of jobTags) {
-        (containsSkill(normalizedProfile, tag) ? matchingSkills : missingSkills).push(tag);
+        const normalizedTag = normalize(tag).trim();
+        const skillMatched = normalizedSkillSet.has(normalizedTag);
+        const textMatched = containsSkill(normalizedProfile, tag);
+        (skillMatched || textMatched ? matchingSkills : missingSkills).push(tag);
     }
+
     const score = jobTags.length === 0 ? 0 : Math.round((matchingSkills.length / jobTags.length) * 100);
     return {
         score,
         matchingSkills,
         missingSkills,
-        advice: buildAdvice(missingSkills, normalizedProfile.trim().length > 0),
+        advice: buildAdvice(missingSkills, normalizedProfile.trim().length > 0, normalizedSkillSet.size > 0),
     };
 };

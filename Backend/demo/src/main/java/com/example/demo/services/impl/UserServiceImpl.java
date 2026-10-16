@@ -3,8 +3,10 @@ package com.example.demo.services.impl;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -81,6 +83,7 @@ public class UserServiceImpl implements UserService {
             account.getDescription(),
             account.getStatus(),
             account.getLookingfor(),
+            account.getSkills() == null ? List.of() : account.getSkills().stream().toList(),
             account.getAddress(),
             account.getLocation()
         );
@@ -182,6 +185,7 @@ public class UserServiceImpl implements UserService {
         account.setDescription(request.getDescription());
         this.changeEmailIfAvailable(account, request.getEmail());
         account.setLookingfor(request.getLookingfor());
+        account.setSkills(normalizeSkills(request.getSkills()));
         account.setStatus(request.getStatus());
         account.setPhone(request.getPhone());
         
@@ -192,6 +196,16 @@ public class UserServiceImpl implements UserService {
         Account saved = accountRepository.save(account);
         recommendationRedisRepository.evictUserRecommendations(accountID);
         return saved;
+    }
+
+    private Set<String> normalizeSkills(final List<String> skills) {
+        if (skills == null) {
+            return new LinkedHashSet<>();
+        }
+        return skills.stream()
+                .filter(skill -> skill != null && !skill.trim().isEmpty())
+                .map(String::trim)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override

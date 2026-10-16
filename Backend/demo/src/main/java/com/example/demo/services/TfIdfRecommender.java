@@ -100,6 +100,7 @@ public class TfIdfRecommender implements JobRecommender {
         if (candidate.getName() != null) sb.append(candidate.getName()).append(" ");
         if (candidate.getLookingfor() != null) sb.append(candidate.getLookingfor()).append(" ");
         if (candidate.getDescription() != null) sb.append(candidate.getDescription()).append(" ");
+        if (candidate.getSkills() != null) sb.append(String.join(" ", candidate.getSkills())).append(" ");
         return sb.toString();
     }
 
