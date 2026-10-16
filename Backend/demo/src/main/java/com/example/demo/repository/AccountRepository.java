@@ -14,19 +14,19 @@ import com.example.demo.model.Account;
 public interface AccountRepository extends JpaRepository<Account, Long>{
 
     @Override
-    @EntityGraph(attributePaths = {"location"})
+    @EntityGraph(attributePaths = {"location", "skills"})
     Optional<Account> findById(Long id);
 
     @Override
-    @EntityGraph(attributePaths = {"location"})
+    @EntityGraph(attributePaths = {"location", "skills"})
     List<Account> findAllById(Iterable<Long> ids);
 
-    @EntityGraph(attributePaths = {"location"})
+    @EntityGraph(attributePaths = {"location", "skills"})
     Optional<Account> findByEmail(String email);
     Optional<Account> findByName(String name);
 
     boolean existsByEmailIgnoreCase(String email);
 
-    @EntityGraph(attributePaths = {"location"})
+    @EntityGraph(attributePaths = {"location", "skills"})
     List<Account> findByRole(UserRole role);
 }

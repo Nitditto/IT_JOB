@@ -1,6 +1,7 @@
 package com.example.demo.dto.response;
 
-import com.example.demo.enums.UserRole;
+import java.util.List;
+
 import com.example.demo.enums.UserStatus;
 import com.example.demo.model.Location;
 
@@ -18,6 +19,7 @@ public class UserResponse {
     private String description;
     private UserStatus status;
     private String lookingfor;
+    private List<String> skills;
     private String address;
     private Location location;
 }

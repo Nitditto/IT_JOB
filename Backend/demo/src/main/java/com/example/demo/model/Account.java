@@ -2,9 +2,8 @@ package com.example.demo.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +14,8 @@ import com.example.demo.enums.UserRole;
 import com.example.demo.enums.UserStatus;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -75,6 +76,11 @@ public class Account implements UserDetails {
     private UserStatus status;
 
     private String lookingfor;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "account_skills", joinColumns = @JoinColumn(name = "account_id"))
+    @Column(name = "skill")
+    private Set<String> skills;
 
     private String address;
 

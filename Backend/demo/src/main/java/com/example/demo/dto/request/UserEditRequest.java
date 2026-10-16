@@ -1,7 +1,8 @@
 package com.example.demo.dto.request;
 
+import java.util.List;
+
 import com.example.demo.enums.UserStatus;
-import com.example.demo.model.Location;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,6 +22,7 @@ public class UserEditRequest {
     private String description;
     private UserStatus status;
     private String lookingfor;
+    private List<String> skills;
     private String address;
     private String location;
 }
