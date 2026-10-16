@@ -214,6 +214,17 @@ Quy ước:
 
 Frontend: response interceptor ở [`utils/api.ts`](Frontend/itjob/src/utils/api.ts) tự unwrap `response.data = response.data.data` cho mọi call qua instance `api` chung.
 
+## Commit Message Rules
+
+- Theo Conventional Commits nghiêm ngặt: `<type>(<scope>): <subject>`
+  - Type: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `chore`, `build`, `ci`.
+  - Subject: thể mệnh lệnh (imperative), chữ thường, không dấu chấm cuối, tối đa 72 ký tự.
+- Chỉ xuất ĐÚNG MỘT dòng commit message — không body, không bullet, không footer, không bọc trong markdown code block.
+- TUYỆT ĐỐI KHÔNG co-author (`Co-Authored-By`) hay bất kỳ dòng attribution nào.
+- Mỗi commit chỉ chứa một thay đổi logic.
+
+
+
 ## Còn nợ (chưa làm, biết rõ và có lý do hoãn — không phải bỏ quên)
 
 - **Pagination**: `GET /jobs` đã hỗ trợ `page`/`size` tuỳ chọn (không truyền = trả toàn bộ như cũ; có truyền thì trả thêm header `X-Total-Count`/`X-Total-Pages`). Frontend chưa dùng, các list API khác chưa có.
